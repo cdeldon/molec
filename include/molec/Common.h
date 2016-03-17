@@ -16,6 +16,7 @@
 #ifndef MOLEC_COMMON_H
 #define MOLEC_COMMON_H
 
+
 #include <molec/Config.h>
 #include <stdint.h>
 #include <assert.h>
