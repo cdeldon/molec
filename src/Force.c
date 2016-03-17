@@ -57,6 +57,10 @@ void molec_force_N2_refrence(molec_Simulation_SOA_t* sim, Real* Epot, const int 
         const Real yi = y[i];
         const Real zi = z[i];
 
+        Real f_xi = f_x[i];
+        Real f_yi = f_y[i];
+        Real f_zi = f_z[i];
+
         for(int j = i + 1; j < N; ++j)
         {
             const Real xij = dist(xi, x[j], L);
@@ -75,15 +79,19 @@ void molec_force_N2_refrence(molec_Simulation_SOA_t* sim, Real* Epot, const int 
 
                 const Real fr = 24 * epsLJ / r2 * (2 * s6 * s6 - s6);
 
-                f_x[i] += fr * xij;
-                f_y[i] += fr * yij;
-                f_z[i] += fr * zij;
+                f_xi += fr * xij;
+                f_yi += fr * yij;
+                f_zi += fr * zij;
 
                 f_x[j] -= fr * xij;
                 f_y[j] -= fr * yij;
                 f_z[j] -= fr * zij;
             }
         }
+
+        f_x[i] = f_xi;
+        f_y[i] = f_yi;
+        f_z[i] = f_zi;
     }
 
     *Epot = Epot_;
