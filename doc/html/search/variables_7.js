@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['scaling',['scaling',['../structmolec___parameter.html#a2e6c672cd86ce0c1fd71722dbb8471f3',1,'molec_Parameter']]],
-  ['siglj',['sigLJ',['../structmolec___parameter.html#a07a1282d7e20392b9493cc5196547050',1,'molec_Parameter']]]
+  ['n',['N',['../structmolec___parameter.html#a493e65a9d45eccf7ffd42aa35f9e5b96',1,'molec_Parameter']]],
+  ['num_5fmeasurements',['num_measurements',['../structmolec___measurement.html#a55f2143ceb4ff33f4ae49971cc70b4d5',1,'molec_Measurement']]]
 ];
