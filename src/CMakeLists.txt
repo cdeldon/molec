@@ -10,22 +10,25 @@
 
 cmake_minimum_required(VERSION 2.8)
 
-set(MOLEC_SOURCE
+set(MOLEC_CORE_SOURCE
     Common.c
     Force.c
     Integrator.c
     InitialCondition.c
-    main.c
     Parameter.c
     Periodic.c
     Simulation.c
     Timer.c
 )
 
-add_executable(molec ${MOLEC_SOURCE} ${MOLEC_HEADERS})
+# MolecCore library
+add_library(molecCore STATIC ${MOLEC_CORE_SOURCE} ${MOLEC_HEADERS})
+
+# Molec executable
+add_executable(molec main.c)
+target_link_libraries(molec molecCore)
 
 # Link against math library (-lm)
 if(NOT(${CMAKE_C_COMPILER_ID} STREQUAL "MSVC"))
     target_link_libraries(molec m)
 endif(NOT(${CMAKE_C_COMPILER_ID} STREQUAL "MSVC"))
-
