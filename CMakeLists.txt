@@ -49,6 +49,8 @@ if(NOT CMAKE_BUILD_TYPE)
     message(STATUS "Setting build type to 'Release' as none was specified.")
 endif(NOT CMAKE_BUILD_TYPE)
 
+option(MOLEC_UNITTEST "Build the UnitTests" ON)
+
 ### Doxygen Documentation
 find_package(Doxygen)
 option(MOLEC_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" 
@@ -63,6 +65,10 @@ file(GLOB_RECURSE MOLEC_HEADERS
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src)
+
+if(MOLEC_UNITTEST)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/test)
+endif(MOLEC_UNITTEST)
 
 if(DOXYGEN_FOUND)
     add_subdirectory(${PROJECT_SOURCE_DIR}/doc)
