@@ -1,3 +1,4 @@
+# extensions
 *.pyc
 *.log
 *.old
@@ -5,4 +6,10 @@
 *.~
 *.*~
 
+
+# folders
 build/
+doc/html/
+
+# specific files
+CMakeLists.txt.user
