@@ -52,14 +52,14 @@
 #if defined(MOLEC_COMPILER_GNU)
 #define MOLEC_ASM __asm__
 #else
-#define MOLEC_ASM __asm__
+#define MOLEC_ASM __asm__ 
 #endif
 
 // VOLATILE
 #if defined(MOLEC_COMPILER_GNU)
 #define MOLEC_VOLATILE __volatile__
 #else
-#define MOLEC_VOLATILE __volatile__
+#define MOLEC_VOLATILE volatile
 #endif
 
 // NORETURN
