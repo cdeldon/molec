@@ -27,6 +27,7 @@ void molec_parameter_init(int N)
     molec_parameter->dt = 0.005;
     molec_parameter->mass = 1.0;
     molec_parameter->Rcut = 2.5;
+    molec_parameter->Rcut2 = 2.5*2.5;
     molec_parameter->scaling = 0.05;
     molec_parameter->L = 10.0;
     molec_parameter->epsLJ = 1.0;

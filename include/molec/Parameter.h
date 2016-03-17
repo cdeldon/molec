@@ -43,6 +43,9 @@ typedef struct molec_Parameter
     /** Cut-off radius */
     Real Rcut;
 
+    /** Cut-off radius squared */
+    Real Rcut2;
+
     /** Perturbation [0, 1) of the regular grid in the initial positions */
     Real scaling;
     

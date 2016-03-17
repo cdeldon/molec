@@ -35,7 +35,7 @@ void molec_force_N2_refrence(molec_Simulation_SOA_t* sim, Real* Epot, const int 
     const Real sigLJ = molec_parameter->sigLJ;
     const Real epsLJ = molec_parameter->epsLJ;
     const Real L = molec_parameter->L;
-    const Real Rcut = molec_parameter->Rcut;
+    const Real Rcut2 = molec_parameter->Rcut2;
 
     // Local aliases
     const Real* x = sim->x;
@@ -65,7 +65,7 @@ void molec_force_N2_refrence(molec_Simulation_SOA_t* sim, Real* Epot, const int 
 
             const Real r2 = xij * xij + yij * yij + zij * zij;
 
-            if(r2 < Rcut * Rcut)
+            if(r2 < Rcut2)
             {
                 // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
                 const Real s2 = (sigLJ * sigLJ) / r2;
