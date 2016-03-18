@@ -1,7 +1,7 @@
 <p align="center">
     <img src="https://github.com/thfabian/molec/blob/master/doc/logo/logo.png">
 </p>
-## Molecular Dynamics Framework
+## Molecular Dynamics Framework [![Build Status](https://travis-ci.org/thfabian/molec.svg?branch=master)](https://travis-ci.org/thfabian/molec)
 > * Group Name: **Yellow Lobster**
 > * Group participants names: Michael Breyer, Carlo Del Don, Florian Frei, Fabian Thüring
 > * Project Title: **MD Simulation**
