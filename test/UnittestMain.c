@@ -28,7 +28,8 @@ int main(int argc, char* argv[])
     // Register new testcases here
     REGISTER_TEST_CASE(molec_UnittestTimer);
 
-    tinytest_run();
+    int ret = tinytest_run();
     tinytest_free();
-    return 0;
+    
+    return ret;
 }
