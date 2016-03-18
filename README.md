@@ -1,4 +1,6 @@
-->![molec Logo](doc/logo/logo.png?raw=true "")<-
+<p align="center">
+    <img src="https://github.com/thfabian/molec/blob/master/doc/logo/logo.png">
+</p>
 ## Molecular Dynamics Framework
 > * Group Name: **Yellow Lobster**
 > * Group participants names: Michael Breyer, Carlo Del Don, Florian Frei, Fabian Thüring
