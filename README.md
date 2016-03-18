@@ -1,4 +1,5 @@
-![Alt text](doc/logo/logo.png?raw=true "") – Molecular Dynamics Framework
+![Alt text](doc/logo/logo.png?raw=true "")
+## Molecular Dynamics Framework
 > * Group Name: **Yellow Lobster**
 > * Group participants names: Michael Breyer, Carlo Del Don, Florian Frei, Fabian Thüring
 > * Project Title: **MD Simulation**
