@@ -17,5 +17,42 @@
 #define MOLEC_UNITTEST_H
 
 #include "external/tinytest.h"
+#include <molec/InitialCondition.h>
+#include <molec/Parameter.h>
+#include <molec/Simulation.h>
+
+/**
+ * Number of atoms used during unittesting (defined in Unittest.c)
+ */
+extern int molec_NAtoms;
+
+/**
+ * @brief Setup and initialize the simulation struct using molec_NAtoms atoms
+ *
+ * This routine will allocate all memory needed during the simulation and set appropriate initial
+ * conditions. This routine is meant to be called in every unit test (similar to SetUp and TearDown 
+ * of Google's Testing Framework):
+ *
+ * @code{.c}
+ *  TEST_CASE(myTest)
+ *  {
+ *      // Setup simulation
+ *      molec_Simulation_SOA_t* sim = molec_setup_simulation_SOA();
+ *
+ *      // Test ...
+ *
+ *      // Tear-down simulation
+ *      molec_teardown_simulation_SOA(sim);
+ *  }
+ * @endcode 
+ *
+ * @param return   Simulation struct holding the position, velocity and froce arrays
+ */
+molec_Simulation_SOA_t* molec_setup_simulation_SOA();
+
+/**
+ * Free all memory allocated during molec_setup_simulation()
+ */
+void molec_teardown_simulation_SOA(molec_Simulation_SOA_t* sim);
 
 #endif

@@ -15,6 +15,7 @@
 
 #define TINYTEST_MAIN
 #include "Unittest.h"
+#include <stdlib.h>
 
 /**
  * Setup the Unittest environment
@@ -23,10 +24,12 @@
  */
 int main(int argc, char* argv[])
 {
+    srand(42);
     tinytest_init(argc, argv);
 
     // Register new testcases here
     REGISTER_TEST_CASE(molec_UnittestTimer);
+    REGISTER_TEST_CASE(molec_UnittestPeriodicRefrence);
 
     int ret = tinytest_run();
     tinytest_free();

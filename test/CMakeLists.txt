@@ -11,7 +11,9 @@
 cmake_minimum_required(VERSION 2.8)
 
 set(UNITTEST_SOURCE
+    Unittest.c
     UnittestMain.c
+    UnittestPeriodic.c
     UnittestTimer.c
 )
 
