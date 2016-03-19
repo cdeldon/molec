@@ -25,7 +25,7 @@
  * of the cell list
  *
  */
-typedef struct molec_CellList
+typedef struct molec_CellList_Parameter
 {
     /** Number of cells per dimension */
     int N_x, N_y, N_z;
@@ -33,7 +33,7 @@ typedef struct molec_CellList
     /** Size of one cell of the cell list */
     Real c_x, c_y, c_z;
 
-} molec_CellList_t;
+} molec_CellList_Parameter_t;
 
 /**
  * @brief Initializes the parameters of the cell list
