@@ -56,7 +56,8 @@ void molec_run_simulation_refrence(const int N, const int Nstep)
         Epot = 0.0;
     
         // 1. Compute force
-        molec_force_N2_refrence(sim, &Epot, N);
+        //molec_force_N2_refrence(sim, &Epot, N);
+        molec_force_cellList(sim, &Epot, N);
 
         // 2. Integrate ODE
         molec_integrator_leapfrog_refrence(sim->x, sim->v_x, sim->f_x, &Ekin_x, N);

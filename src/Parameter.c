@@ -15,6 +15,7 @@
 
 #include <molec/Parameter.h>
 #include <stdlib.h>
+#include <math.h>
 
 molec_Parameter_t* molec_parameter = NULL;
 
@@ -32,5 +33,29 @@ void molec_parameter_init(int N)
     molec_parameter->L = 10.0;
     molec_parameter->epsLJ = 1.0;
     molec_parameter->sigLJ = 1.0;
+
+    // Initialize the cell list associated with the defined bounding box,
+    // and cut off radius
+    molec_cell_init();
+}
+
+void molec_cell_init()
+{
+    const Real L = molec_parameter->L;
+    const Real Rcut = molec_parameter->Rcut;
+
+    // compute the number of cells per dimension
+    molec_parameter->cellList.N_x = floor(L/Rcut);
+    molec_parameter->cellList.N_y = floor(L/Rcut);
+    molec_parameter->cellList.N_z = floor(L/Rcut);
+
+    molec_parameter->cellList.N = molec_parameter->cellList.N_x *
+                                  molec_parameter->cellList.N_y *
+                                  molec_parameter->cellList.N_z;
+
+    // compute the size of the cells
+    molec_parameter->cellList.c_x = L/molec_parameter->cellList.N_x;
+    molec_parameter->cellList.c_y = L/molec_parameter->cellList.N_y;
+    molec_parameter->cellList.c_z = L/molec_parameter->cellList.N_z;
 }
 

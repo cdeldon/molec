@@ -17,6 +17,7 @@
 #define MOLEC_PARAMETER_H
 
 #include <molec/Common.h>
+#include <molec/CellListParam.h>
 
 /**
  * @brief Parameter of the simulation
@@ -51,9 +52,12 @@ typedef struct molec_Parameter
     
     /** Lennard-Jones parameter: epsilon */
     Real epsLJ;
-    
+
     /** Lennard-Jones parameter: sigma */
     Real sigLJ;
+
+    /** Parameters of the cell list */
+    molec_CellList_Parameter_t cellList;
 
 } molec_Parameter_t;
 
