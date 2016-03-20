@@ -145,6 +145,10 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
     MOLEC_MALLOC(head, sizeof(int)*cellList_parameter.N);
     MOLEC_MALLOC(lscl, sizeof(int)*N);
 
+    // fill head with '-1', indicating that the cell is empty
+    for(int c = 0; c < cellList_parameter.N; ++c)
+        head[c] = -1;
+
     for(int i = 0; i < N; ++i)
     {
         lscl[i] = head[c_idx[i]];
@@ -169,68 +173,93 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
         for (int n_idx_y = idx_y-1; n_idx_y <= idx_y + 1; ++n_idx_y)
         for (int n_idx_x = idx_x-1; n_idx_x <= idx_x + 1; ++n_idx_x)
         {
+            int shift_x = 0;
+            int shift_y = 0;
+            int shift_z = 0;
             // Periodic boundary condition by shifting coordinates
             if(n_idx_z < 0)
-                n_idx_z = cellList_parameter.N_z-1;
+                shift_z = 1;
             else if(n_idx_z == cellList_parameter.N_z)
-                n_idx_z = 0;
+                shift_z = -1;
 
             if(n_idx_y < 0)
-                n_idx_y = cellList_parameter.N_y-1;
+                shift_y = 1;
             else if(n_idx_y == cellList_parameter.N_y)
-                n_idx_y = 0;
+                shift_y = -1;
 
             if(n_idx_x < 0)
-                n_idx_x = cellList_parameter.N_x-1;
+                shift_x = 1;
             else if(n_idx_x == cellList_parameter.N_x)
-                n_idx_x = 0;
+                shift_x = -1;
 
             // FIXME -> can compute scalar index of neighbour cell by simple
-            // computing with modos!!
-        }
-    }
-    for(int i = 0; i < N; ++i)
-    {
-        const Real xi = x[i];
-        const Real yi = y[i];
-        const Real zi = z[i];
+            // computing with modulos!!
+            int n_idx = (n_idx_x + shift_x) + cellList_parameter.N_x*(
+                            (n_idx_y + shift_y) + cellList_parameter.N_y*(
+                                n_idx_z + shift_z));
 
-        Real f_xi = f_x[i];
-        Real f_yi = f_y[i];
-        Real f_zi = f_z[i];
-
-        for(int j = i + 1; j < N; ++j)
-        {
-            const Real xij = dist(xi, x[j], L);
-            const Real yij = dist(yi, y[j], L);
-            const Real zij = dist(zi, z[j], L);
-
-            const Real r2 = xij * xij + yij * yij + zij * zij;
-
-            if(r2 < Rcut2)
+            // iterate over particles in cell idx starting at the head
+            int i = head[idx];
+            while(i != -1)
             {
-                // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
-                const Real s2 = (sigLJ * sigLJ) / r2;
-                const Real s6 = s2 * s2 * s2;
+                // local aliases for particle i in cell idx
+                const Real xi = x[i];
+                const Real yi = y[i];
+                const Real zi = z[i];
 
-                Epot_ += 4 * epsLJ * (s6 * s6 - s6);
+                Real f_xi = f_x[i];
+                Real f_yi = f_y[i];
+                Real f_zi = f_z[i];
 
-                const Real fr = 24 * epsLJ / r2 * (2 * s6 * s6 - s6);
+                // scan particles in cell n_idx
+                int j = head[n_idx];
+                while(j != -1)
+                {
+                    // avoid double counting of interactions
+                    if (i < j)
+                    {
+                        const Real xij = dist(xi, x[j], L);
+                        const Real yij = dist(yi, y[j], L);
+                        const Real zij = dist(zi, z[j], L);
 
-                f_xi += fr * xij;
-                f_yi += fr * yij;
-                f_zi += fr * zij;
+                        const Real r2 = xij * xij + yij * yij + zij * zij;
 
-                f_x[j] -= fr * xij;
-                f_y[j] -= fr * yij;
-                f_z[j] -= fr * zij;
-            }
-        }
+                        if(r2 < Rcut2)
+                        {
+                            // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
+                            const Real s2 = (sigLJ * sigLJ) / r2;
+                            const Real s6 = s2 * s2 * s2;
 
-        f_x[i] = f_xi;
-        f_y[i] = f_yi;
-        f_z[i] = f_zi;
-    }
+                            Epot_ += 4 * epsLJ * (s6 * s6 - s6);
+
+                            const Real fr = 24 * epsLJ / r2 * (2 * s6 * s6 - s6);
+
+                            f_xi += fr * xij;
+                            f_yi += fr * yij;
+                            f_zi += fr * zij;
+
+                            f_x[j] -= fr * xij;
+                            f_y[j] -= fr * yij;
+                            f_z[j] -= fr * zij;
+                        }
+                    }
+
+                    // next particle inside cell n_idx
+                    j = lscl[j];
+                }
+
+                f_x[i] = f_xi;
+                f_y[i] = f_yi;
+                f_z[i] = f_zi;
+
+                // next particle inside cell idx
+                i = lscl[i];
+
+            } // finished particles in cell idx
+
+        } // end loop over neighbur cells n_idx
+
+    } // end loop over cells idx
 
     // free memory
     MOLEC_FREE(c_idx);
