@@ -6,7 +6,7 @@
  *          
  *  Copyright (C) 2016  Carlo Del Don  (deldonc@student.ethz.ch)
  *                      Michel Breyer  (mbreyer@student.ethz.ch)
- *                      Florian Frei   (frofrei@student.ethz.ch)
+ *                      Florian Frei   (flofrei@student.ethz.ch)
  *                      Fabian Thuring (thfabian@student.ethz.ch)
  * 
  *  This file is distributed under the MIT Open Source License. 

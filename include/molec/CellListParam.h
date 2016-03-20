@@ -6,7 +6,7 @@
  *
  *  Copyright (C) 2016  Carlo Del Don  (deldonc@student.ethz.ch)
  *                      Michel Breyer  (mbreyer@student.ethz.ch)
- *                      Florian Frei   (frofrei@student.ethz.ch)
+ *                      Florian Frei   (flofrei@student.ethz.ch)
  *                      Fabian Thuring (thfabian@student.ethz.ch)
  *
  *  This file is distributed under the MIT Open Source License.
@@ -41,9 +41,8 @@ typedef struct molec_CellList_Parameter
 /**
  * @brief Initializes the parameters of the cell list
  *
- * Computes the size and number of the cells in the cell list
- * from the parameters of the simulation, such as the bounding box
- * extent  @c molec_Parameter.L and cut off radius @c molec_Parameter.Rcut
+ * Computes the size and number of the cells in the cell list from the parameters of the simulation,
+ * such as the bounding box extent  @c molec_Parameter.L and cut off radius @c molec_Parameter.Rcut
  */
 void molec_cell_init();
 
