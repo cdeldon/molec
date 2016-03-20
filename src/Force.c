@@ -140,11 +140,55 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
         c_idx[i] = idx;
     }
 
+    // cell list construction
+    int* head, * lscl;
+    MOLEC_MALLOC(head, sizeof(int)*cellList_parameter.N);
+    MOLEC_MALLOC(lscl, sizeof(int)*N);
+
+    for(int i = 0; i < N; ++i)
+    {
+        lscl[i] = head[c_idx[i]];
+        head[c_idx[i]] = i;
+    }
 
     // Reset forces
     for(int i = 0; i < N; ++i)
         f_x[i] = f_y[i] = f_z[i] = 0.0;
 
+    // Loop over the cells
+    for (int idx_z = 0; idx_z < cellList_parameter.N_z; ++idx_z)
+    for (int idx_y = 0; idx_y < cellList_parameter.N_y; ++idx_y)
+    for (int idx_x = 0; idx_x < cellList_parameter.N_x; ++idx_x)
+    {
+        // compute scalar cell index
+        const int idx = idx_x + cellList_parameter.N_x*(
+                            idx_y + cellList_parameter.N_y*idx_z);
+
+        // loop over neighbour cells
+        for (int n_idx_z = idx_z-1; n_idx_z <= idx_z + 1; ++n_idx_z)
+        for (int n_idx_y = idx_y-1; n_idx_y <= idx_y + 1; ++n_idx_y)
+        for (int n_idx_x = idx_x-1; n_idx_x <= idx_x + 1; ++n_idx_x)
+        {
+            // Periodic boundary condition by shifting coordinates
+            if(n_idx_z < 0)
+                n_idx_z = cellList_parameter.N_z-1;
+            else if(n_idx_z == cellList_parameter.N_z)
+                n_idx_z = 0;
+
+            if(n_idx_y < 0)
+                n_idx_y = cellList_parameter.N_y-1;
+            else if(n_idx_y == cellList_parameter.N_y)
+                n_idx_y = 0;
+
+            if(n_idx_x < 0)
+                n_idx_x = cellList_parameter.N_x-1;
+            else if(n_idx_x == cellList_parameter.N_x)
+                n_idx_x = 0;
+
+            // FIXME -> can compute scalar index of neighbour cell by simple
+            // computing with modos!!
+        }
+    }
     for(int i = 0; i < N; ++i)
     {
         const Real xi = x[i];
@@ -190,6 +234,8 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 
     // free memory
     MOLEC_FREE(c_idx);
+    MOLEC_FREE(head);
+    MOLEC_FREE(lscl);
 
     *Epot = Epot_;
 }

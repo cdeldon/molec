@@ -49,6 +49,10 @@ void molec_cell_init()
     molec_parameter->cellList.N_y = floor(L/Rcut);
     molec_parameter->cellList.N_z = floor(L/Rcut);
 
+    molec_parameter->cellList.N = molec_parameter->cellList.N_x *
+                                  molec_parameter->cellList.N_y *
+                                  molec_parameter->cellList.N_z;
+
     // compute the size of the cells
     molec_parameter->cellList.c_x = L/molec_parameter->cellList.N_x;
     molec_parameter->cellList.c_y = L/molec_parameter->cellList.N_y;

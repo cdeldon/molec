@@ -30,6 +30,9 @@ typedef struct molec_CellList_Parameter
     /** Number of cells per dimension */
     int N_x, N_y, N_z;
 
+    /** Total number of cells */
+    int N;
+
     /** Size of one cell of the cell list */
     Real c_x, c_y, c_z;
 
