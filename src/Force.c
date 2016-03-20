@@ -29,6 +29,14 @@ MOLEC_INLINE Real dist(Real x, Real y, Real L)
     return r;
 }
 
+/**
+ * Calculate the positive  modulo between two integers, used for periodic BC
+ */
+MOLEC_INLINE int mod(int b, int m)
+{
+    return (b % m + m) % m;
+}
+
 void molec_force_N2_refrence(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 {
     assert(molec_parameter);
@@ -125,7 +133,7 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
      *      for(y=0;y<cellList_parameter.N_y;++y)
      *          for(x=0;x<cellList_parameter.N_x;++x)
      *
-     * the fastet running index is x, while the slowest is z
+     * the fastest running index is x, while the slowest is z
      */
     for(int i = 0; i < N; ++i)
     {
@@ -141,7 +149,7 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
     }
 
     // cell list construction
-    int* head, * lscl;
+    int *head, *lscl;
     MOLEC_MALLOC(head, sizeof(int)*cellList_parameter.N);
     MOLEC_MALLOC(lscl, sizeof(int)*N);
 
@@ -149,6 +157,8 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
     for(int c = 0; c < cellList_parameter.N; ++c)
         head[c] = -1;
 
+    // generate cell list, lscl[i] contains index of next particle inside
+    // the same cell, if lscs[i] == -1, then 'i' was the last particle of the cell
     for(int i = 0; i < N; ++i)
     {
         lscl[i] = head[c_idx[i]];
@@ -169,34 +179,18 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
                             idx_y + cellList_parameter.N_y*idx_z);
 
         // loop over neighbour cells
-        for (int n_idx_z = idx_z-1; n_idx_z <= idx_z + 1; ++n_idx_z)
-        for (int n_idx_y = idx_y-1; n_idx_y <= idx_y + 1; ++n_idx_y)
-        for (int n_idx_x = idx_x-1; n_idx_x <= idx_x + 1; ++n_idx_x)
+        for (int d_z = -1; d_z <= 1; ++d_z)
+        for (int d_y = -1; d_y <= 1; ++d_y)
+        for (int d_x = -1; d_x <= 1; ++d_x)
         {
-            int shift_x = 0;
-            int shift_y = 0;
-            int shift_z = 0;
-            // Periodic boundary condition by shifting coordinates
-            if(n_idx_z < 0)
-                shift_z = 1;
-            else if(n_idx_z == cellList_parameter.N_z)
-                shift_z = -1;
+            // compute cell index considering periodic BC
+            int n_idx_z = mod(idx_z + d_z, cellList_parameter.N_z);
+            int n_idx_y = mod(idx_y + d_y, cellList_parameter.N_y);
+            int n_idx_x = mod(idx_x + d_x, cellList_parameter.N_x);
 
-            if(n_idx_y < 0)
-                shift_y = 1;
-            else if(n_idx_y == cellList_parameter.N_y)
-                shift_y = -1;
-
-            if(n_idx_x < 0)
-                shift_x = 1;
-            else if(n_idx_x == cellList_parameter.N_x)
-                shift_x = -1;
-
-            // FIXME -> can compute scalar index of neighbour cell by simple
-            // computing with modulos!!
-            int n_idx = (n_idx_x + shift_x) + cellList_parameter.N_x*(
-                            (n_idx_y + shift_y) + cellList_parameter.N_y*(
-                                n_idx_z + shift_z));
+            // linear index
+            int n_idx = n_idx_x + cellList_parameter.N_x*(
+                            n_idx_y + cellList_parameter.N_y*n_idx_z);
 
             // iterate over particles in cell idx starting at the head
             int i = head[idx];
