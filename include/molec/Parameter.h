@@ -32,6 +32,9 @@ typedef struct molec_Parameter
     /** Number of atoms */
     int N;
 
+    /** Number of simulation steps */
+    int Nstep;
+
     /** Extend of the bounding box */
     Real L;
 

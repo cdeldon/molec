@@ -38,28 +38,25 @@ void molec_load_parameters(const int argc, const char *argv[])
     if(parametersFile == NULL)
         molec_error("File %s does not exist\n", molec_loader->filename);
 
-    char *buffer = malloc(MOLEC_LINE_MAX_LENGTH * sizeof(char));
-    char *tag = malloc(MOLEC_LINE_MAX_LENGTH * sizeof(char));
-    char *value = malloc(MOLEC_LINE_MAX_LENGTH * sizeof(char));
+    char tag[256];
+    char value[256];
 
-    char *delimPtr = malloc(MOLEC_LINE_MAX_LENGTH * sizeof(char));
-    char *endPtr = malloc(MOLEC_LINE_MAX_LENGTH * sizeof(char));
-
-    while (fscanf(parametersFile, "%s", buffer) == 1)
+    int tokens;
+    while (!feof(parametersFile))
     {
-        // Process line buffer
-        memcpy(tag, buffer, MOLEC_LINE_MAX_LENGTH);
-        if (buffer[0]!='#' && fgets(buffer, MOLEC_LINE_MAX_LENGTH, parametersFile) != NULL)
+        tokens = fscanf(parametersFile, "%s = %s",tag, value);
+        printf("tag: <%s>, value: <%s>\n", tag, value);
+
+        if(tokens == 2)
         {
-            delimPtr = strstr(buffer,"=");
-            endPtr = strstr(delimPtr,";");
-
-            memcpy(value,delimPtr+2 ,endPtr-delimPtr-2);
-
             // Store value in 'value' char array into molec_parameter
-            if (strcmp(tag,"N")==0)
+            if (strcmp(tag,'N')==0)
             {
                 molec_parameter->N = atoi(value);
+            }
+            if (strcmp(tag,"Nstep")==0)
+            {
+                molec_parameter->Nstep = atoi(value);
             }
             else
             {
@@ -67,11 +64,7 @@ void molec_load_parameters(const int argc, const char *argv[])
             }
         }
     }
-    if (feof(parametersFile))
-    {
-        // Regenerate cell list parameters
-        molec_cell_init();
-    }
+    molec_cell_init();
     else
     {
         molec_error("Failed to read parameters file\n");

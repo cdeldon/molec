@@ -23,9 +23,6 @@ int main(int argc, const char* argv[])
 
     molec_load_parameters(argc, argv);
 
-    int N = argc > 1 ? atoi(argv[1]) : 1000;
-    int Nstep = argc > 2 ? atoi(argv[2]) : 10;
-
-    molec_run_simulation_refrence(N, Nstep);
+    molec_run_simulation_refrence();
 }
 

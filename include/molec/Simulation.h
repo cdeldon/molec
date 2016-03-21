@@ -50,10 +50,8 @@ void molec_print_simulation_SOA(const molec_Simulation_SOA_t* simulation);
 /**
  * Run the refrence version of the MD-Simulation using N^2 force computation
  *
- * @param N     Number of atoms
- * @param Nstep Number of steps
  */
-void molec_run_simulation_refrence(const int N, const int Nstep);
+void molec_run_simulation_refrence();
 
 #endif
 

@@ -28,6 +28,7 @@ void molec_parameter_init(int N)
 
     // Set some default parameters
     molec_parameter->N = N;
+    molec_parameter->Nstep = 100;
     molec_parameter->dt = 0.005;
     molec_parameter->mass = 1.0;
     molec_parameter->Rcut = 2.5;
