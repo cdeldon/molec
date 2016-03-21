@@ -48,7 +48,6 @@ void molec_load_parameters(const int argc, const char* argv[])
 
         if(tokens == 2 && tag[0] != '#')
         {
-            printf("tag: <%s>, value: <%s>\n", tag, value);
             // Store value in 'value' char array into molec_parameter
             if(tag[0] == 'N' && strlen(tag) == 1)
             {
