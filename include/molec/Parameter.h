@@ -71,7 +71,7 @@ extern molec_Parameter_t* molec_parameter;
  *
  * Allocate the paramter pointer @c molec_parameter and set default values
  */
-void molec_parameter_init(int N);
+void molec_parameter_init();
 
 #endif
 

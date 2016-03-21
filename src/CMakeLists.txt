@@ -15,6 +15,7 @@ set(MOLEC_CORE_SOURCE
     Force.c
     Integrator.c
     InitialCondition.c
+    LoadConfig.c
     Parameter.c
     Periodic.c
     Simulation.c
