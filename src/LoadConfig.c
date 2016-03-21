@@ -45,18 +45,47 @@ void molec_load_parameters(const int argc, const char* argv[])
     while(!feof(parametersFile))
     {
         tokens = fscanf(parametersFile, "%255s = %255s", tag, value);
-        printf("tag: <%s>, value: <%s>\n", tag, value);
 
-        if(tokens == 2)
+        if(tokens == 2 && tag[0] != '#')
         {
+            printf("tag: <%s>, value: <%s>\n", tag, value);
             // Store value in 'value' char array into molec_parameter
             if(tag[0] == 'N' && strlen(tag) == 1)
             {
                 molec_parameter->N = atoi(value);
             }
+            else if(strcmp(tag, "dt") == 0)
+            {
+                molec_parameter->dt = atof(value);
+            }
             else if(strcmp(tag, "Nstep") == 0)
             {
                 molec_parameter->Nstep = atoi(value);
+            }
+            else if(strcmp(tag, "L") == 0)
+            {
+                molec_parameter->L = atof(value);
+            }
+            else if(strcmp(tag, "mass") == 0)
+            {
+                molec_parameter->mass = atof(value);
+            }
+            else if(strcmp(tag, "Rcut") == 0)
+            {
+                molec_parameter->Rcut = atof(value);
+                molec_parameter->Rcut2 = molec_parameter->Rcut * molec_parameter->Rcut;
+            }
+            else if(strcmp(tag, "epsLJ") == 0)
+            {
+                molec_parameter->epsLJ = atof(value);
+            }
+            else if(strcmp(tag, "sigLJ") == 0)
+            {
+                molec_parameter->sigLJ = atof(value);
+            }
+            else if(strcmp(tag, "scaling") == 0)
+            {
+                molec_parameter->scaling = atof(value);
             }
             else
             {
