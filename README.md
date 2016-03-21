@@ -13,5 +13,5 @@ Molecular Dynamics project for the course *How to Write Fast Numerical Code* (26
 Some stuff about MD in general
 
 ## References 
- * [1] reference papers here
+ * [1] http://cacs.usc.edu/education/cs596/01-1LinkedListCell.pdf
  
