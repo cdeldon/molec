@@ -14,12 +14,12 @@
  */
 
 #include <molec/LoadConfig.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
 molec_Loader_t* molec_loader = NULL;
 
-void molec_load_parameters(const int argc, const char *argv[])
+void molec_load_parameters(const int argc, const char* argv[])
 {
     molec_parameter_init(1000);
     molec_loader = malloc(sizeof(molec_Loader_t));
@@ -34,7 +34,7 @@ void molec_load_parameters(const int argc, const char *argv[])
     MOLEC_MALLOC(molec_loader->filename, MOLEC_FILENAME_MAX_LENGTH * sizeof(char));
     memcpy(molec_loader->filename, argv[1], MOLEC_FILENAME_MAX_LENGTH * sizeof(char));
 
-    FILE *parametersFile = fopen(molec_loader->filename, "r");
+    FILE* parametersFile = fopen(molec_loader->filename, "r");
     if(parametersFile == NULL)
         molec_error("File %s does not exist\n", molec_loader->filename);
 
@@ -42,19 +42,19 @@ void molec_load_parameters(const int argc, const char *argv[])
     char value[256];
 
     int tokens;
-    while (!feof(parametersFile))
+    while(!feof(parametersFile))
     {
-        tokens = fscanf(parametersFile, "%s = %s",tag, value);
+        tokens = fscanf(parametersFile, "%255s = %255s", tag, value);
         printf("tag: <%s>, value: <%s>\n", tag, value);
 
         if(tokens == 2)
         {
             // Store value in 'value' char array into molec_parameter
-            if (strcmp(tag,'N')==0)
+            if(tag[0] == 'N' && strlen(tag) == 1)
             {
                 molec_parameter->N = atoi(value);
             }
-            if (strcmp(tag,"Nstep")==0)
+            else if(strcmp(tag, "Nstep") == 0)
             {
                 molec_parameter->Nstep = atoi(value);
             }
@@ -65,8 +65,4 @@ void molec_load_parameters(const int argc, const char *argv[])
         }
     }
     molec_cell_init();
-    else
-    {
-        molec_error("Failed to read parameters file\n");
-    }
 }
