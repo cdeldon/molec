@@ -22,11 +22,11 @@
 /**
  * @brief Return the normal vector between 2 cells
  *
- * Computes the normalizing vector of cell number 1 and number 2 which can be arbitrary between 0 and
+ * Computes the normalizing vector of cell number 1 and number 2 which can be arbitrary between 0
+ *and
  * @c molec_CellList_Parameter_t.N
  */
-Real* molec_cell_vector(int cell_nr_1,int cell_nr_2);
-
+Real[3] molec_cell_vector(int cell_nr_1, int cell_nr_2);
 
 
 /**
@@ -34,6 +34,7 @@ Real* molec_cell_vector(int cell_nr_1,int cell_nr_2);
  *
  * Computes the normalizing vector of cells and number with all indices
  */
-Real* molec_cell_vector(int idx_x,int idx_y,int idx_z,int n_idx_x,int n_idx_y,int n_idx_z);
+Real[3] molec_cell_vector(int idx_x, int idx_y, int idx_z, int n_idx_x, int n_idx_y, int n_idx_z);
 
 #endif
+
