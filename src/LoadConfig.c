@@ -27,9 +27,12 @@ void molec_load_parameters(const int argc, const char* argv[])
     // Read the simulation parameters from the file passed as first argument
     // to the executable
     if(argc < 2)
+    {
         printf("Running simulation with default parameters\n");
-
-    printf("Running simulation with parameters specified in <%s>\n", argv[1]);
+        return;
+    }
+    
+    printf("Running simulation with parameters specified in '%s'\n", argv[1]);
 
     MOLEC_MALLOC(molec_loader->filename, MOLEC_FILENAME_MAX_LENGTH * sizeof(char));
     memcpy(molec_loader->filename, argv[1], MOLEC_FILENAME_MAX_LENGTH * sizeof(char));
