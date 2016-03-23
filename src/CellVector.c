@@ -63,7 +63,7 @@ MOLEC_INLINE Real[3] molec_cell_vector(
 MOLEC_INLINE
     Real[3] molec_lookup_vec(int idx_x, int idx_y, int idx_z, int n_idx_x, int n_idx_y, int n_idx_z)
 {
-
+    
 
 
 
