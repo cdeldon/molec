@@ -15,28 +15,6 @@
 
 #include <molec/Force.h>
 #include <molec/Parameter.h>
-#include <molec/CellVector.h>
-
-/**
- * Calculate distance between x and y taking periodic boundaries into account
- */
-MOLEC_INLINE Real dist(Real x, Real y, Real L)
-{
-    Real r = x - y;
-    if(r < -L / 2)
-        r += L;
-    else if(r > L / 2)
-        r -= L;
-    return r;
-}
-
-/**
- * Calculate the positive modulo between two integers, used for periodic BC
- */
-MOLEC_INLINE int mod(int b, int m)
-{
-    return (b % m + m) % m;
-}
 
 void molec_force_gonnet(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 {
