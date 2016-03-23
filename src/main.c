@@ -14,6 +14,7 @@
  */
 
 #include <molec/Simulation.h>
+#include <molec/Force.h>
 #include <molec/LoadConfig.h>
 #include <stdlib.h>
 
@@ -23,6 +24,9 @@ int main(int argc, const char* argv[])
 
     molec_load_parameters(argc, argv);
 
-    molec_run_simulation_refrence();
+    // Run the simulation using the routing specified in the passed argument
+    // to compute the interactions between particles
+    molec_force_calculation force_calculation = &molec_force_cellList;
+    molec_run_simulation(force_calculation);
 }
 
