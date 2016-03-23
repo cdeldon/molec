@@ -20,8 +20,6 @@
 #include <molec/Parameter.h>
 
 #define MOLEC_FILENAME_MAX_LENGTH 128
-#define MOLEC_LINE_MAX_LENGTH 128
-#define MOLEC_TAG_MAX_LENGTH 16
 
 typedef struct molec_Loader
 {
