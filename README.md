@@ -19,7 +19,7 @@ For this purpose we need to be able to compute the forces ![equation](https://la
 
 ## Running the code
 A configuration file can be passed to the executable in order to set some default simulation parameters. The configuration file has to have the following structure:
-```{}
+```{sh}
 # Number of particles
 N = 1000
 # time step
