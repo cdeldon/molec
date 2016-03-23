@@ -14,6 +14,9 @@
  */
 #include "molec/Cell_norm_vec.h"
 
+
+
+
 MOLEC_INLINE Real norm(Real[3] r)
 {
     return sqrt(r[0] * r[0] + r[1] * r[1] + r[2] * r[2]);
@@ -55,5 +58,14 @@ MOLEC_INLINE Real[3] molec_cell_vector(
     norm_vec[2] = norm_vec[2] / nmm;
 
     return norm_vec;
+}
+
+MOLEC_INLINE
+    Real[3] molec_lookup_vec(int idx_x, int idx_y, int idx_z, int n_idx_x, int n_idx_y, int n_idx_z)
+{
+
+
+
+
 }
 
