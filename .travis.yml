@@ -1,3 +1,7 @@
+branches:
+  only:
+    - master
+
 install:
   - if [ "$CC" = "gcc" ]; then export CC="gcc-4.9"; fi
   - if [ "$CC" = "clang" ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then export CC="clang-3.7"; fi

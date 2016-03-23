@@ -14,15 +14,15 @@
  */
 
 #include <molec/Simulation.h>
+#include <molec/LoadConfig.h>
 #include <stdlib.h>
 
 int main(int argc, const char* argv[])
 {
     srand(42);
 
-    int N = argc > 1 ? atoi(argv[1]) : 1000;
-    int Nstep = argc > 2 ? atoi(argv[2]) : 10;
+    molec_load_parameters(argc, argv);
 
-    molec_run_simulation_refrence(N, Nstep);
+    molec_run_simulation_refrence();
 }
 

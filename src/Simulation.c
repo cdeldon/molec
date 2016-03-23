@@ -22,10 +22,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void molec_run_simulation_refrence(const int N, const int Nstep)
+void molec_run_simulation_refrence()
 {
     // Set parameters
-    molec_parameter_init(N);
+    if(molec_parameter == NULL)
+        molec_error("molec_parameter is nullptr\n");
+
+    // Local alias
+    const int N = molec_parameter->N;
+    const int Nstep = molec_parameter->Nstep;
 
     // Allocate arrays
     molec_Simulation_SOA_t* sim = malloc(sizeof(molec_Simulation_SOA_t));
