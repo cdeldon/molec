@@ -15,6 +15,7 @@
 
 #include <molec/Force.h>
 #include <molec/Parameter.h>
+#include <molec/CellVector.h>
 
 /**
  * Calculate distance between x and y taking periodic boundaries into account
