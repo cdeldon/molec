@@ -51,7 +51,7 @@ void molec_print_simulation_SOA(const molec_Simulation_SOA_t* simulation);
  * Run the refrence version of the MD-Simulation using N^2 force computation
  *
  */
-void molec_run_simulation_refrence();
+void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, Real*, int));
 
 #endif
 

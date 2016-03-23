@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void molec_run_simulation_refrence()
+void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, Real*, int))
 {
     // Set parameters
     if(molec_parameter == NULL)
@@ -61,8 +61,7 @@ void molec_run_simulation_refrence()
         Epot = 0.0;
     
         // 1. Compute force
-        //molec_force_N2_refrence(sim, &Epot, N);
-        molec_force_cellList(sim, &Epot, N);
+        molec_compute_force(sim, &Epot, N);
 
         // 2. Integrate ODE
         molec_integrator_leapfrog_refrence(sim->x, sim->v_x, sim->f_x, &Ekin_x, N);

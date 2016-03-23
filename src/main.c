@@ -17,12 +17,19 @@
 #include <molec/LoadConfig.h>
 #include <stdlib.h>
 
+// Choose one of the following routines to compute the particle interaction
+void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N);
+void molec_force_N2_refrence(molec_Simulation_SOA_t* sim, Real* Epot, const int N);
+void molec_force_gonnet(molec_Simulation_SOA_t* sim, Real* Epot, const int N);
+
 int main(int argc, const char* argv[])
 {
     srand(42);
 
     molec_load_parameters(argc, argv);
 
-    molec_run_simulation_refrence();
+    // Run the simulation using the routing specified in the passed argument
+    // to compute the interactions between particles
+    molec_run_simulation(molec_force_cellList);
 }
 
