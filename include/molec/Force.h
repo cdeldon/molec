@@ -19,6 +19,10 @@
 #include <molec/Common.h>
 #include <molec/Simulation.h>
 
+
+// Define function pointer for force calculation routine
+typedef void (*molec_force_calculation)(molec_Simulation_SOA_t*, Real*, const int);
+
 /**
  * @brief Calculate short-range interaction force using N^2 approach
  *
