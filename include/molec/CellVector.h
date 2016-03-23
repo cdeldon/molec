@@ -18,49 +18,61 @@
 
 #include <molec/CellListParam.h>
 
-#define MOLEC_DIST_PARALLEL 1.0
-#define MOLEC_DIST_DIAG_1   0.70710678118
-#define MOLEC_DIST_DIAG_2   0.57735026919
+#define MOLEC_DIST_PARALL 1.0
+#define MOLEC_DIST_DIAG_1 0.70710678118 // 1/sqrt(2)
+#define MOLEC_DIST_DIAG_2 0.57735026919 // 1/sqrt(3)
+#define MOLEC_DIST_NULLL 0.0
 
 const static Real molec_CellLookupTable[27][3] =
-{
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0}
-};
+     {
+       {-MOLEC_DIST_DIAG_2, -MOLEC_DIST_DIAG_2, -MOLEC_DIST_DIAG_2},
+       { MOLEC_DIST_NULLL,  -MOLEC_DIST_DIAG_1, -MOLEC_DIST_DIAG_1},
+       { MOLEC_DIST_DIAG_2, -MOLEC_DIST_DIAG_2, -MOLEC_DIST_DIAG_2},
+
+       {-MOLEC_DIST_DIAG_1,  MOLEC_DIST_NULLL,  -MOLEC_DIST_DIAG_1},
+       { MOLEC_DIST_NULLL,   MOLEC_DIST_NULLL,  -MOLEC_DIST_PARALL},
+       { MOLEC_DIST_DIAG_1,  MOLEC_DIST_NULLL,  -MOLEC_DIST_DIAG_1},
+
+       {-MOLEC_DIST_DIAG_2,  MOLEC_DIST_DIAG_2, -MOLEC_DIST_DIAG_2},
+       { MOLEC_DIST_NULLL,   MOLEC_DIST_DIAG_1, -MOLEC_DIST_DIAG_1},
+       { MOLEC_DIST_DIAG_2,  MOLEC_DIST_DIAG_2, -MOLEC_DIST_DIAG_2},
+
+
+
+       {-MOLEC_DIST_DIAG_1, -MOLEC_DIST_DIAG_1,  MOLEC_DIST_NULLL},
+       { MOLEC_DIST_NULLL,  -MOLEC_DIST_PARALL,  MOLEC_DIST_NULLL},
+       { MOLEC_DIST_DIAG_1, -MOLEC_DIST_DIAG_1,  MOLEC_DIST_NULLL},
+
+       {-MOLEC_DIST_PARALL, -MOLEC_DIST_NULLL,   MOLEC_DIST_NULLL},
+       { MOLEC_DIST_NULLL,  -MOLEC_DIST_NULLL,   MOLEC_DIST_NULLL},
+       { MOLEC_DIST_PARALL, -MOLEC_DIST_NULLL,   MOLEC_DIST_NULLL},
+
+       {-MOLEC_DIST_DIAG_1,  MOLEC_DIST_DIAG_1,  MOLEC_DIST_NULLL},
+       { MOLEC_DIST_NULLL,   MOLEC_DIST_PARALL,  MOLEC_DIST_NULLL},
+       { MOLEC_DIST_DIAG_1,  MOLEC_DIST_DIAG_1,  MOLEC_DIST_NULLL},
+
+
+       {-MOLEC_DIST_DIAG_2, -MOLEC_DIST_DIAG_2,  MOLEC_DIST_DIAG_2},
+       { MOLEC_DIST_NULLL,  -MOLEC_DIST_DIAG_1,  MOLEC_DIST_DIAG_1},
+       { MOLEC_DIST_DIAG_2, -MOLEC_DIST_DIAG_2,  MOLEC_DIST_DIAG_2},
+
+       {-MOLEC_DIST_DIAG_1,  MOLEC_DIST_NULLL,   MOLEC_DIST_DIAG_1},
+       { MOLEC_DIST_NULLL,   MOLEC_DIST_NULLL,   MOLEC_DIST_PARALL},
+       { MOLEC_DIST_DIAG_1,  MOLEC_DIST_NULLL,   MOLEC_DIST_DIAG_1},
+
+       {-MOLEC_DIST_DIAG_2,  MOLEC_DIST_DIAG_2,  MOLEC_DIST_DIAG_2},
+       { MOLEC_DIST_NULLL,   MOLEC_DIST_DIAG_1,  MOLEC_DIST_DIAG_1},
+       { MOLEC_DIST_DIAG_2,  MOLEC_DIST_DIAG_2,  MOLEC_DIST_DIAG_2}
+      };
 
 /**
  * @brief Return the normal vector between 2 cells
  *
  * Computes the normalizing vector of cells and number with all indices
  */
-MOLEC_INLINE void molec_cell_vector(int idx_x, int idx_y, int idx_z, int n_idx_x, int n_idx_y, int n_idx_z)
+MOLEC_INLINE void
+molec_cell_vector(int idx_x, int idx_y, int idx_z, int n_idx_x, int n_idx_y, int n_idx_z)
 {
-
 }
 
 #endif
