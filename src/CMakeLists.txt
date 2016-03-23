@@ -12,7 +12,9 @@ cmake_minimum_required(VERSION 2.8)
 
 set(MOLEC_CORE_SOURCE
     Common.c
-    Force.c
+    ForceRefrence.c
+    ForceCellList.c
+    ForceGonnet.c
     Integrator.c
     InitialCondition.c
     LoadConfig.c
