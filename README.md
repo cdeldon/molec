@@ -12,7 +12,7 @@ Molecular Dynamics project for the course *How to Write Fast Numerical Code* (26
 ## Molecular Dynamics (MD)
 Molecular dynamics simulation consists of the numerical, step-by-step, solution of the
 classical equations of motion, which for a simple atomic system may be written:
-![equation](https://latex.codecogs.com/png.latex?\large&space;\begin{align*}&space;&m_i&space;\ddot{\vec{x}}_i&space;=&space;\vec{f}_i\\&\vec{f}_i&space;=&space;-\nabla_{\vec{x}_i}\mathcal{U}(\vec{x}_i)&space;\end{align*})
+![equation](https://latex.codecogs.com/png.latex?%5Clarge%20%5Cbegin%7Balign*%7D%20%26m_i%20%5Cddot%7B%5Cvec%7Bx%7D%7D_i%20%3D%20%5Cvec%7Bf%7D_i%5C%5C%26%5Cvec%7Bf%7D_i%20%3D%20-%5Cnabla_%7B%5Cvec%7Bx%7D_i%7D%5Cmathcal%7BU%7D%28%5Cvec%7Bx%7D_i%29%20%5Cend%7Balign*%7D)
 
 
 ## References 
