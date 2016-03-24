@@ -13,18 +13,9 @@
  *  See LICENSE.txt for details.
  */
 
+#include <molec/CellVector.h>
 #include <molec/Force.h>
 #include <molec/Parameter.h>
-#include <molec/CellVector.h>
-
-/**
- * @brief Flag that indicates if need to measure number of potential interaction
- *
- * @see https://www.researchgate.net/publication/6616054_A_simple_algorithm_to_accelerate_the_computation_of_non-bonded_interactions_in_cell-based_molecular_dynamics_simulations
- */
-const static int molec_measure_interaction_fail_rate = 1;
-static molec_uint64_t num_potential_interactions = 0;
-static molec_uint32_t num_effective_interactions = 0;
 
 /**
  * Calculate distance between x and y taking periodic boundaries into account
@@ -55,7 +46,11 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
     const Real L = molec_parameter->L;
     const Real Rcut2 = molec_parameter->Rcut2;
 
+    molec_uint64_t num_potential_interactions = 0;
+    molec_uint32_t num_effective_interactions = 0;
+
     molec_CellList_Parameter_t cellList_parameter = molec_parameter->cellList;
+
     // Local aliases
     const Real* x = sim->x;
     const Real* y = sim->y;
@@ -90,7 +85,7 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
     }
 
     // cell list construction
-    int* head, *lscl;
+    int *head, *lscl;
     MOLEC_MALLOC(head, sizeof(int) * cellList_parameter.N);
     MOLEC_MALLOC(lscl, sizeof(int) * N);
 
@@ -112,97 +107,98 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 
     // Loop over the cells
     for(int idx_z = 0; idx_z < cellList_parameter.N_z; ++idx_z)
-    for(int idx_y = 0; idx_y < cellList_parameter.N_y; ++idx_y)
-    for(int idx_x = 0; idx_x < cellList_parameter.N_x; ++idx_x)
-    {
-        // compute scalar cell index
-        const int idx = idx_x + cellList_parameter.N_x * (idx_y + cellList_parameter.N_y * idx_z);
-
-        // loop over neighbour cells
-        for(int d_z = -1; d_z <= 1; ++d_z)
-        for(int d_y = -1; d_y <= 1; ++d_y)
-        for(int d_x = -1; d_x <= 1; ++d_x)
-        {
-            // compute cell index considering periodic BC
-            int n_idx_z = mod(idx_z + d_z, cellList_parameter.N_z);
-            int n_idx_y = mod(idx_y + d_y, cellList_parameter.N_y);
-            int n_idx_x = mod(idx_x + d_x, cellList_parameter.N_x);
-
-            // linear index
-            int n_idx = n_idx_x
-                        + cellList_parameter.N_x
-                              * (n_idx_y + cellList_parameter.N_y * n_idx_z);
-
-            // iterate over particles in cell idx starting at the head
-            int i = head[idx];
-            while(i != -1)
+        for(int idx_y = 0; idx_y < cellList_parameter.N_y; ++idx_y)
+            for(int idx_x = 0; idx_x < cellList_parameter.N_x; ++idx_x)
             {
-                // local aliases for particle i in cell idx
-                const Real xi = x[i];
-                const Real yi = y[i];
-                const Real zi = z[i];
+                // compute scalar cell index
+                const int idx
+                    = idx_x + cellList_parameter.N_x * (idx_y + cellList_parameter.N_y * idx_z);
 
-                Real f_xi = f_x[i];
-                Real f_yi = f_y[i];
-                Real f_zi = f_z[i];
-
-                // scan particles in cell n_idx
-                int j = head[n_idx];
-                while(j != -1)
-                {
-                    // avoid double counting of interactions
-                    if(i < j)
-                    {
-                        // count number of interactions
-                        if(molec_measure_interaction_fail_rate)
-                            ++num_potential_interactions;
-
-                        const Real xij = dist(xi, x[j], L);
-                        const Real yij = dist(yi, y[j], L);
-                        const Real zij = dist(zi, z[j], L);
-
-                        const Real r2 = xij * xij + yij * yij + zij * zij;
-
-                        if(r2 < Rcut2)
+                // loop over neighbour cells
+                for(int d_z = -1; d_z <= 1; ++d_z)
+                    for(int d_y = -1; d_y <= 1; ++d_y)
+                        for(int d_x = -1; d_x <= 1; ++d_x)
                         {
-                            // count effective number of interactions
-                            if(molec_measure_interaction_fail_rate)
-                                ++num_effective_interactions;
+                            // compute cell index considering periodic BC
+                            int n_idx_z = mod(idx_z + d_z, cellList_parameter.N_z);
+                            int n_idx_y = mod(idx_y + d_y, cellList_parameter.N_y);
+                            int n_idx_x = mod(idx_x + d_x, cellList_parameter.N_x);
 
-                            // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
-                            const Real s2 = (sigLJ * sigLJ) / r2;
-                            const Real s6 = s2 * s2 * s2;
+                            // linear index
+                            int n_idx = n_idx_x
+                                        + cellList_parameter.N_x
+                                              * (n_idx_y + cellList_parameter.N_y * n_idx_z);
 
-                            Epot_ += 4 * epsLJ * (s6 * s6 - s6);
+                            // iterate over particles in cell idx starting at the head
+                            int i = head[idx];
+                            while(i != -1)
+                            {
+                                // local aliases for particle i in cell idx
+                                const Real xi = x[i];
+                                const Real yi = y[i];
+                                const Real zi = z[i];
 
-                            const Real fr = 24 * epsLJ / r2 * (2 * s6 * s6 - s6);
+                                Real f_xi = f_x[i];
+                                Real f_yi = f_y[i];
+                                Real f_zi = f_z[i];
 
-                            f_xi += fr * xij;
-                            f_yi += fr * yij;
-                            f_zi += fr * zij;
+                                // scan particles in cell n_idx
+                                int j = head[n_idx];
+                                while(j != -1)
+                                {
+                                    // avoid double counting of interactions
+                                    if(i < j)
+                                    {
+                                        // count number of interactions
+                                        if(MOLEC_CELLLIST_COUNT_INTERACTION)
+                                            ++num_potential_interactions;
 
-                            f_x[j] -= fr * xij;
-                            f_y[j] -= fr * yij;
-                            f_z[j] -= fr * zij;
-                        }
-                    }
+                                        const Real xij = dist(xi, x[j], L);
+                                        const Real yij = dist(yi, y[j], L);
+                                        const Real zij = dist(zi, z[j], L);
 
-                    // next particle inside cell n_idx
-                    j = lscl[j];
-                }
+                                        const Real r2 = xij * xij + yij * yij + zij * zij;
 
-                f_x[i] = f_xi;
-                f_y[i] = f_yi;
-                f_z[i] = f_zi;
+                                        if(r2 < Rcut2)
+                                        {
+                                            // count effective number of interactions
+                                            if(MOLEC_CELLLIST_COUNT_INTERACTION)
+                                                ++num_effective_interactions;
 
-                // next particle inside cell idx
-                i = lscl[i];
+                                            // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
+                                            const Real s2 = (sigLJ * sigLJ) / r2;
+                                            const Real s6 = s2 * s2 * s2;
 
-            } // finished particles in cell idx
+                                            Epot_ += 4 * epsLJ * (s6 * s6 - s6);
 
-        } // end loop over neighbur cells n_idx
+                                            const Real fr = 24 * epsLJ / r2 * (2 * s6 * s6 - s6);
 
-    } // end loop over cells idx
+                                            f_xi += fr * xij;
+                                            f_yi += fr * yij;
+                                            f_zi += fr * zij;
+
+                                            f_x[j] -= fr * xij;
+                                            f_y[j] -= fr * yij;
+                                            f_z[j] -= fr * zij;
+                                        }
+                                    }
+
+                                    // next particle inside cell n_idx
+                                    j = lscl[j];
+                                }
+
+                                f_x[i] = f_xi;
+                                f_y[i] = f_yi;
+                                f_z[i] = f_zi;
+
+                                // next particle inside cell idx
+                                i = lscl[i];
+
+                            } // finished particles in cell idx
+
+                        } // end loop over neighbur cells n_idx
+
+            } // end loop over cells idx
 
     // free memory
     MOLEC_FREE(c_idx);
@@ -212,8 +208,7 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
     *Epot = Epot_;
 
     // print out percentage of effective interactions
-    if(molec_measure_interaction_fail_rate)
-        printf("\t Percentage of failed potential interactions using cell list: %3.2f\n",
-               1.-((double) num_effective_interactions)/((double) num_potential_interactions));
+    if(MOLEC_CELLLIST_COUNT_INTERACTION)
+        printf("\tPercentage of failed potential interactions: %3.2f\n",
+               1. - ((double) num_effective_interactions) / ((double) num_potential_interactions));
 }
-

@@ -51,6 +51,11 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 option(MOLEC_UNITTEST "Build the UnitTests" ON)
 
+option(MOLEC_CELLLIST_COUNT "Count missrate of cell-list ineractions" OFF)
+if(MOLEC_CELLLIST_COUNT)
+    add_definitions(-DMOLEC_CELLLIST_COUNT_INTERACTION=1)
+endif(MOLEC_CELLLIST_COUNT)
+
 ### Doxygen Documentation
 find_package(Doxygen)
 option(MOLEC_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" 

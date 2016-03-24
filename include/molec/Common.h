@@ -76,3 +76,12 @@ void molec_print_array(const Real* array, const int N);
 
 #endif
 
+/**
+ * Count and report the cell lists interaction miss-rate
+ *
+ * @see http://tiny.cc/1avaay
+ */
+#ifndef MOLEC_CELLLIST_COUNT_INTERACTION
+#define MOLEC_CELLLIST_COUNT_INTERACTION 0
+#endif
+
