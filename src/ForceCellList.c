@@ -18,6 +18,15 @@
 #include <molec/CellVector.h>
 
 /**
+ * @brief Flag that indicates if need to measure number of potential interaction
+ *
+ * @see https://www.researchgate.net/publication/6616054_A_simple_algorithm_to_accelerate_the_computation_of_non-bonded_interactions_in_cell-based_molecular_dynamics_simulations
+ */
+const static int molec_measure_interaction_fail_rate = 1;
+static molec_uint64_t num_potential_interactions = 0;
+static molec_uint32_t num_effective_interactions = 0;
+
+/**
  * Calculate distance between x and y taking periodic boundaries into account
  */
 MOLEC_INLINE Real dist(Real x, Real y, Real L)
@@ -144,6 +153,10 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
                     // avoid double counting of interactions
                     if(i < j)
                     {
+                        // count number of interactions
+                        if(molec_measure_interaction_fail_rate)
+                            ++num_potential_interactions;
+
                         const Real xij = dist(xi, x[j], L);
                         const Real yij = dist(yi, y[j], L);
                         const Real zij = dist(zi, z[j], L);
@@ -152,6 +165,10 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 
                         if(r2 < Rcut2)
                         {
+                            // count effective number of interactions
+                            if(molec_measure_interaction_fail_rate)
+                                ++num_effective_interactions;
+
                             // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
                             const Real s2 = (sigLJ * sigLJ) / r2;
                             const Real s6 = s2 * s2 * s2;
@@ -193,5 +210,10 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
     MOLEC_FREE(lscl);
 
     *Epot = Epot_;
+
+    // print out percentage of effective interactions
+    if(molec_measure_interaction_fail_rate)
+        printf("\t Percentage of failed potential interactions using cell list: %3.2f\n",
+               1.-((double) num_effective_interactions)/((double) num_potential_interactions));
 }
 
