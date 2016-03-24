@@ -51,7 +51,7 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 option(MOLEC_UNITTEST "Build the UnitTests" ON)
 
-option(MOLEC_CELLLIST_COUNT "Count missrate of cell-list ineractions" OFF)
+option(MOLEC_CELLLIST_COUNT "Count missrate of cell-list interactions" OFF)
 if(MOLEC_CELLLIST_COUNT)
     add_definitions(-DMOLEC_CELLLIST_COUNT_INTERACTION=1)
 endif(MOLEC_CELLLIST_COUNT)
