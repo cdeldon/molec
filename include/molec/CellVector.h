@@ -19,7 +19,7 @@
 #include <molec/CellListParam.h>
 
 //  The cell indices are arranged as shown in the illustration below
-//  Note that the cell list is traversed with slowing running index 'z', and
+//  Note that the cell list is traversed with slowest running index 'z', and
 //  fastest running index 'x'.
 //
 //                     _________________________
