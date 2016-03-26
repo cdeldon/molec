@@ -15,6 +15,7 @@
 
 #include <molec/Force.h>
 #include <molec/Parameter.h>
+#include <molec/CellVector.h>
 
 void molec_force_gonnet(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 {

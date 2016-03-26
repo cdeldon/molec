@@ -15,28 +15,12 @@
 
 #include <molec/Force.h>
 #include <molec/Parameter.h>
+#include <molec/Inline.h>
 
-/**
- * Calculate distance between x and y taking periodic boundaries into account
- */
-MOLEC_INLINE Real dist(Real x, Real y, Real L)
-{
-    Real r = x - y;
-    if(r < -L / 2)
-        r += L;
-    else if(r > L / 2)
-        r -= L;
-    return r;
-}
 
 void molec_force_N2_refrence(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 {
-    assert(molec_parameter);
-    const Real sigLJ = molec_parameter->sigLJ;
-    const Real epsLJ = molec_parameter->epsLJ;
     const Real L = molec_parameter->L;
-    const Real Rcut2 = molec_parameter->Rcut2;
-
     // Local aliases
     const Real* x = sim->x;
     const Real* y = sim->y;
@@ -53,6 +37,7 @@ void molec_force_N2_refrence(molec_Simulation_SOA_t* sim, Real* Epot, const int 
 
     for(int i = 0; i < N; ++i)
     {
+
         const Real xi = x[i];
         const Real yi = y[i];
         const Real zi = z[i];
@@ -63,30 +48,16 @@ void molec_force_N2_refrence(molec_Simulation_SOA_t* sim, Real* Epot, const int 
 
         for(int j = i + 1; j < N; ++j)
         {
-            const Real xij = dist(xi, x[j], L);
-            const Real yij = dist(yi, y[j], L);
-            const Real zij = dist(zi, z[j], L);
+        const Real xij = dist(xi, x[j], L);
+        const Real yij = dist(yi, y[j], L);
+        const Real zij = dist(zi, z[j], L);
 
-            const Real r2 = xij * xij + yij * yij + zij * zij;
+        Real fr=update(xij,yij,zij,&f_xi,&f_yi,&f_zi,&Epot_);
 
-            if(r2 < Rcut2)
-            {
-                // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
-                const Real s2 = (sigLJ * sigLJ) / r2;
-                const Real s6 = s2 * s2 * s2;
+        f_x[j] -= fr * xij;
+        f_y[j] -= fr * yij;
+        f_z[j] -= fr * zij;
 
-                Epot_ += 4 * epsLJ * (s6 * s6 - s6);
-
-                const Real fr = 24 * epsLJ / r2 * (2 * s6 * s6 - s6);
-
-                f_xi += fr * xij;
-                f_yi += fr * yij;
-                f_zi += fr * zij;
-
-                f_x[j] -= fr * xij;
-                f_y[j] -= fr * yij;
-                f_z[j] -= fr * zij;
-            }
         }
 
         f_x[i] = f_xi;
