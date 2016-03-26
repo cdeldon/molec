@@ -34,7 +34,7 @@ TEST_CASE(molec_UnittestParser)
     fputs("N = 1234\n", fp);
     fputs("dt = 0.123\n", fp);
     fputs("Nstep = 123\n", fp);
-    fputs("L = 12.5\n", fp);
+    fputs("rho = 1.05\n", fp);
     fputs("mass = 3\n", fp);
     fputs("Rcut = 13.1\n", fp);
     fputs("epsLJ = 14.5\n", fp);
@@ -57,7 +57,7 @@ TEST_CASE(molec_UnittestParser)
     CHECK(molec_parameter->N == 1234);
     CHECK(molec_parameter->dt == 0.123);
     CHECK(molec_parameter->Nstep == 123);
-    CHECK(molec_parameter->L == 12.5);
+    CHECK(molec_parameter->rho == 1.05);
     CHECK(molec_parameter->mass == 3);
     CHECK(molec_parameter->Rcut == 13.1);
     CHECK(molec_parameter->epsLJ == 14.5);

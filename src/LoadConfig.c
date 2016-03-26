@@ -16,6 +16,7 @@
 #include <molec/LoadConfig.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 molec_Loader_t* molec_loader = NULL;
 
@@ -64,9 +65,9 @@ void molec_load_parameters(const int argc, const char* argv[])
             {
                 molec_parameter->Nstep = atoi(value);
             }
-            else if(strcmp(tag, "L") == 0)
+            else if(strcmp(tag, "rho") == 0)
             {
-                molec_parameter->L = atof(value);
+                molec_parameter->rho = atof(value);
             }
             else if(strcmp(tag, "mass") == 0)
             {
@@ -95,5 +96,12 @@ void molec_load_parameters(const int argc, const char* argv[])
             }
         }
     }
+
+    // Determine bounding box size dependind of N and rho
+    // such that rho = N/(L*L*L)
+    molec_parameter->L = pow(((Real) molec_parameter->N) / molec_parameter->rho,(1./3));
+
+    printf("resulting N: %d, rho: %f, L:%f\n", molec_parameter->N,
+           molec_parameter->rho, molec_parameter->L);
     molec_cell_init();
 }

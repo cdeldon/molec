@@ -35,6 +35,9 @@ typedef struct molec_Parameter
     /** Number of simulation steps */
     int Nstep;
 
+    /** Density of particles per unit volume */
+    Real rho;
+
     /** Extend of the bounding box */
     Real L;
 
