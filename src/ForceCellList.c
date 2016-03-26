@@ -22,11 +22,11 @@
 
 void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 {
-    assert(molec_parameter);
-    const Real sigLJ = molec_parameter->sigLJ;
-    const Real epsLJ = molec_parameter->epsLJ;
+    //assert(molec_parameter);
+    //const Real sigLJ = molec_parameter->sigLJ;
+    //const Real epsLJ = molec_parameter->epsLJ;
     const Real L = molec_parameter->L;
-    const Real Rcut2 = molec_parameter->Rcut2;
+    //const Real Rcut2 = molec_parameter->Rcut2;
 
     molec_CellList_Parameter_t cellList_parameter = molec_parameter->cellList;
     // Local aliases
@@ -130,26 +130,11 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
                         const Real yij = dist(yi, y[j], L);
                         const Real zij = dist(zi, z[j], L);
 
-                        const Real r2 = xij * xij + yij * yij + zij * zij;
+                        Real fr=update(xij,yij,zij,&f_xi,&f_yi,&f_zi,&Epot_);
 
-                        if(r2 < Rcut2)
-                        {
-                            // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
-                            const Real s2 = (sigLJ * sigLJ) / r2;
-                            const Real s6 = s2 * s2 * s2;
-
-                            Epot_ += 4 * epsLJ * (s6 * s6 - s6);
-
-                            const Real fr = 24 * epsLJ / r2 * (2 * s6 * s6 - s6);
-
-                            f_xi += fr * xij;
-                            f_yi += fr * yij;
-                            f_zi += fr * zij;
-
-                            f_x[j] -= fr * xij;
-                            f_y[j] -= fr * yij;
-                            f_z[j] -= fr * zij;
-                        }
+                        f_x[j] -= fr * xij;
+                        f_y[j] -= fr * yij;
+                        f_z[j] -= fr * zij;
                     }
 
                     // next particle inside cell n_idx
