@@ -34,9 +34,13 @@ void molec_parameter_init(int N)
     molec_parameter->Rcut = 2.5;
     molec_parameter->Rcut2 = 2.5 * 2.5;
     molec_parameter->scaling = 0.05;
-    molec_parameter->L = 10.0;
+    molec_parameter->rho = 1.25;
     molec_parameter->epsLJ = 1.0;
     molec_parameter->sigLJ = 1.0;
+
+    // Determine bounding box size dependind of N and rho
+    // such that rho = N/(L*L*L)
+    molec_parameter->L = pow(((Real) molec_parameter->N) / molec_parameter->rho,(1./3));
 
     // Initialize the cell list associated with the defined bounding box,
     // and cut off radius
