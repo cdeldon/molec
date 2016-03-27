@@ -21,16 +21,16 @@ For this purpose we need to be able to compute the forces ![equation](https://la
 A configuration file can be passed to the executable in order to set some default simulation parameters. The configuration file has to have the following structure:
 ```{sh}
 # Number of particles
-N = 1000
+N = 10000
 # time step
 dt = 0.005 
 # number of simulation steps
 Nstep = 100
-# size of periodic bounding box
-L = 20
+# particle density (particles per unit volume)
+rho = 0.4
 # mass of each particle
 mass = 1
-# cutodd radius
+# cutoff radius
 Rcut = 2.5
 # Lennard-Jones parameters
 epsLJ = 1
