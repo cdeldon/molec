@@ -24,7 +24,9 @@ MOLEC_INLINE int mod(int b, int m)
 {
     return (b % m + m) % m;
 }
-
+/**
+  *Update routine for the innermost force calculation between two particles
+  */
 MOLEC_INLINE Real update(Real xij,Real yij,Real zij,Real* f_xi,Real* f_yi,Real* f_zi,Real* Epot_)
 {
     assert(molec_parameter);
