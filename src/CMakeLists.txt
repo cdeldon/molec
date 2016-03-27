@@ -21,6 +21,7 @@ set(MOLEC_CORE_SOURCE
     Parameter.c
     Periodic.c
     Simulation.c
+    Sort.c
     Timer.c
 )
 
