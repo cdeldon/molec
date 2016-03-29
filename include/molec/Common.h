@@ -91,5 +91,5 @@ void molec_print_array(const Real* array, const int N);
  * copies of position and velocity arrays (swap)
  */
 #ifndef MOLEC_SOA_SWAP
-#define MOLEC_SOA_SWAP 1
+#define MOLEC_SOA_SWAP 0
 #endif

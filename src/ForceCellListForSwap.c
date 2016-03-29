@@ -42,14 +42,7 @@ MOLEC_INLINE int mod(int b, int m)
 void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 {
 
-#if !MOLEC_SOA_SWAP
-    // run simulation with this force computation routine only
-    // if the simulation structure molec_Simulation_SOA_t also contains
-    // swapping arrays
-    molec_error("Impossible to run 'molec_force_cellList_for_swap()'"
-                " using a SOA without arrays copy!\n"
-                "Define 'MOLEC_SOA_SWAP=1 to use this function\n\n");
-#endif
+#if MOLEC_SOA_SWAP
 
     assert(molec_parameter);
     const Real sigLJ = molec_parameter->sigLJ;
@@ -347,6 +340,16 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
     if(MOLEC_CELLLIST_COUNT_INTERACTION)
         printf("\tPercentage of failed potential interactions: %3.2f\n",
                1. - ((double) num_effective_interactions) / ((double) num_potential_interactions));
+
+#else
+
+    // run simulation with this force computation routine only
+    // if the simulation structure molec_Simulation_SOA_t also contains
+    // swapping arrays
+    molec_error("Impossible to run 'molec_force_cellList_for_swap()'"
+                " using a SOA without arrays copy!\n"
+                "Define 'MOLEC_SOA_SWAP=1 to use this function\n\n");
+#endif
 
 }
 
