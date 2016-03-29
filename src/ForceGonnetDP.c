@@ -18,7 +18,7 @@
 #include <molec/CellVector.h>
 #include <molec/Inline.h>
 
-void molec_force_gonnet_dp(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
+void molec_force_gonnet(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 {
     //local alias for L
     //const Real L = molec_parameter->L;
