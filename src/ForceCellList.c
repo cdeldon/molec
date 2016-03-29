@@ -20,11 +20,11 @@
 
 void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 {
-    //assert(molec_parameter);
-    //const Real sigLJ = molec_parameter->sigLJ;
-    //const Real epsLJ = molec_parameter->epsLJ;
+    assert(molec_parameter);
+    const Real sigLJ = molec_parameter->sigLJ;
+    const Real epsLJ = molec_parameter->epsLJ;
     const Real L = molec_parameter->L;
-    //const Real Rcut2 = molec_parameter->Rcut2;
+    const Real Rcut2 = molec_parameter->Rcut2;
 
     molec_uint64_t num_potential_interactions = 0;
     molec_uint32_t num_effective_interactions = 0;
