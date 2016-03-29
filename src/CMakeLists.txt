@@ -16,7 +16,6 @@ set(MOLEC_CORE_SOURCE
     ForceCellList.c
     ForceCellListFor.c
     ForceGonnet.c
-    ForceGonnetDP.c
     Integrator.c
     InitialCondition.c
     LoadConfig.c
