@@ -66,9 +66,23 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
     const Real* x = sim->x;
     const Real* y = sim->y;
     const Real* z = sim->z;
+    const Real* v_x = sim->v_x;
+    const Real* v_y = sim->v_y;
+    const Real* v_z = sim->v_z;
     Real* f_x = sim->f_x;
     Real* f_y = sim->f_y;
     Real* f_z = sim->f_z;
+
+    // Local aliases for swapping and sorting
+    // the following arrays will be filled in the order at which the particles
+    // are accessed in the cell list, this should guarantee locality for the next steps
+    Real* x_copy = sim->x_copy;
+    Real* y_copy = sim->y_copy;
+    Real* z_copy = sim->z_copy;
+    Real* v_x_copy = sim->v_x_copy;
+    Real* v_y_copy = sim->v_y_copy;
+    Real* v_z_copy = sim->v_z_copy;
+
 
     Real Epot_ = 0;
 
@@ -153,6 +167,9 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
     memset(f_y, 0, N * sizeof(Real));
     memset(f_z, 0, N * sizeof(Real));
 
+    // stores the (temporal) accessed position of the particles
+    molec_uint64_t particle_access_order = 0;
+
     // Loop over the cells
     for(int idx_z = 0; idx_z < cellList_parameter.N_z; ++idx_z)
         for(int idx_y = 0; idx_y < cellList_parameter.N_y; ++idx_y)
@@ -173,6 +190,19 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
                         // next particle inside cell idx
                         particles_in_cell_idx[p] = lscl[particles_in_cell_idx[p-1]];
                     }
+                }
+
+                // store the particle into the swap arrays for the next loop
+                for(int p = 0; p < n_particles_in_cell_idx; ++p, ++particle_access_order)
+                {
+                    int i = particles_in_cell_idx[p];
+
+                    x_copy[particle_access_order] = x[i];
+                    y_copy[particle_access_order] = y[i];
+                    z_copy[particle_access_order] = z[i];
+                    v_x_copy[particle_access_order] = v_x[i];
+                    v_y_copy[particle_access_order] = v_y[i];
+                    v_z_copy[particle_access_order] = v_z[i];
                 }
 
                 // loop over neighbour cells
@@ -271,6 +301,33 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
                         } // end loop over neighbor cells n_idx
 
             } // end loop over cells idx
+
+    // swap arrays for next iteration
+    Real *t;
+
+    t = sim->x;
+    sim->x = sim->x_copy;
+    sim->x_copy = t;
+
+    t = sim->y;
+    sim->y = sim->y_copy;
+    sim->y_copy = t;
+
+    t = sim->z;
+    sim->z = sim->z_copy;
+    sim->z_copy = t;
+
+    t = sim->v_x;
+    sim->v_x = sim->v_x_copy;
+    sim->v_x_copy = t;
+
+    t = sim->v_y_copy;
+    sim->v_y = sim->v_y_copy;
+    sim->v_y_copy = t;
+
+    t = sim->v_z;
+    sim->v_z = sim->v_z_copy;
+    sim->v_z_copy = t;
 
 
     //======== FREE MEMORY ========//
