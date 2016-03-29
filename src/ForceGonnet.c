@@ -280,5 +280,4 @@ void molec_force_gonnet(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
     if(MOLEC_CELLLIST_COUNT_INTERACTION)
         printf("\tPercentage of failed potential interactions: %3.2f\n",
                1. - ((double) num_effective_interactions) / ((double) num_potential_interactions));
-
 }

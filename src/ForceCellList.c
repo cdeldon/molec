@@ -18,34 +18,13 @@
 #include <molec/Parameter.h>
 #include <molec/Sort.h>
 
-/**
- * Calculate distance between x and y taking periodic boundaries into account
- */
-MOLEC_INLINE Real dist(Real x, Real y, Real L)
-{
-    Real r = x - y;
-    if(r < -L / 2)
-        r += L;
-    else if(r > L / 2)
-        r -= L;
-    return r;
-}
-
-/**
- * Calculate the positive modulo between two integers, used for periodic BC
- */
-MOLEC_INLINE int mod(int b, int m)
-{
-    return (b % m + m) % m;
-}
-
 void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 {
-    assert(molec_parameter);
-    const Real sigLJ = molec_parameter->sigLJ;
-    const Real epsLJ = molec_parameter->epsLJ;
+    //assert(molec_parameter);
+    //const Real sigLJ = molec_parameter->sigLJ;
+    //const Real epsLJ = molec_parameter->epsLJ;
     const Real L = molec_parameter->L;
-    const Real Rcut2 = molec_parameter->Rcut2;
+    //const Real Rcut2 = molec_parameter->Rcut2;
 
     molec_uint64_t num_potential_interactions = 0;
     molec_uint32_t num_effective_interactions = 0;
