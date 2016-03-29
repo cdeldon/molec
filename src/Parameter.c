@@ -80,13 +80,16 @@ void molec_print_parameters()
     printf("\tLennard Jones:\n \t\t\tepsilon:\t%f\n\t\t\tsigma:\t\t%f\n",
            molec_parameter->epsLJ, molec_parameter->sigLJ);
 
-    printf("\n\tCell List:\n");
-    printf("\t\tNumber of cells:\t%d x %d x %d\n",
-          molec_parameter->cellList.N_x,molec_parameter->cellList.N_y,molec_parameter->cellList.N_z);
-    printf("\t\tNTotal number of cells:\t%d\n",molec_parameter->cellList.N);
-    printf("\t\tCell lenght:\t\t%2.1f x %2.1f x %2.1f\n",
-           molec_parameter->cellList.c_x, molec_parameter->cellList.c_y, molec_parameter->cellList.c_z);
-    printf("\t\t<#particles> per cell:\t%d", ((int) molec_parameter->N / molec_parameter->cellList.N));
+    if(molec_parameter->cellList.N!=0)
+    {
+        printf("\n\tCell List:\n");
+        printf("\t\tNumber of cells:\t%d x %d x %d\n",
+              molec_parameter->cellList.N_x,molec_parameter->cellList.N_y,molec_parameter->cellList.N_z);
+        printf("\t\tNTotal number of cells:\t%d\n",molec_parameter->cellList.N);
+        printf("\t\tCell lenght:\t\t%2.1f x %2.1f x %2.1f\n",
+               molec_parameter->cellList.c_x, molec_parameter->cellList.c_y, molec_parameter->cellList.c_z);
+        printf("\t\t<#particles> per cell:\t%d", ((int) molec_parameter->N / molec_parameter->cellList.N));
+    }
 
     printf("\n\n");
 }
