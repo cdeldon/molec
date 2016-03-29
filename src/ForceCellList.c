@@ -52,7 +52,7 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 
     molec_CellList_Parameter_t cellList_parameter = molec_parameter->cellList;
 
-    // Sort the particles
+    // Sort the particles in ascending order w.r.t. x coordinates
     molec_sort_qsort(sim);
 
     // Local aliases

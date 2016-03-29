@@ -20,6 +20,24 @@
 #include <molec/Simulation.h>
 
 /**
+  * @brief Structure that helps in defining a custom sorting algorithm
+  *
+  * @param key      contains the value of the particle to be compared with the
+  *                 other particles to be sorted
+  * @param value    integer index used to sort other arrays accordingly
+  */
+typedef struct molec_Sort_Pair {
+    Real key;
+    int value;
+} molec_Sort_Pair_t;
+
+
+/**
+  * @brief Compares two @c molec_Sort_Pair_t
+  */
+int molec_compare(const void *x, const void *y);
+
+/**
  * @brief Routine that sorts the particles in an increasing order according to the x component
  *
  * Routine that sorts the particles in an increasing order according to the x component

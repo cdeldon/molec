@@ -17,15 +17,9 @@
 #include <molec/Parameter.h>
 #include <string.h>
 
-typedef struct molec_Sort_Pair {
-    int key, value;
-} molec_Sort_Pair_t;
-
 int molec_compare(const void *x, const void *y)
 {
-    Real a = ((const molec_Sort_Pair_t*)x)->key;
-    Real b = ((const molec_Sort_Pair_t*)y)->key;
-    return a < b ? -1 : a > b;
+    return ( ((molec_Sort_Pair_t*)x)->key > ((molec_Sort_Pair_t*)y)->key );
 }
 
 void molec_sort_qsort(molec_Simulation_SOA_t* sim)

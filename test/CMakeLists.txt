@@ -17,6 +17,7 @@ set(UNITTEST_SOURCE
     UnittestTimer.c
     UnittestParser.c
     UnittestCellVector.c
+    UnittestSort.c
 )
 
 set(UNITTEST_HEADER
