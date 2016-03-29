@@ -17,9 +17,16 @@
 #include <molec/Parameter.h>
 #include <string.h>
 
-int molec_compare(const void *x, const void *y)
+int molec_compare(const void* pair1, const void* pair2)
 {
-    return ( ((molec_Sort_Pair_t*)x)->key > ((molec_Sort_Pair_t*)y)->key );
+    Real pair1_key = (Real) ((molec_Sort_Pair_t*) pair1)->key;
+    Real pair2_key = (Real) ((molec_Sort_Pair_t*) pair2)->key;
+    
+    // Equalilty will never happen
+    if(pair1_key < pair2_key) 
+        return -1;
+    else
+        return 1;
 }
 
 void molec_sort_qsort(molec_Simulation_SOA_t* sim)
@@ -35,14 +42,17 @@ void molec_sort_qsort(molec_Simulation_SOA_t* sim)
 
     const int N = molec_parameter->N;
 
-    molec_Sort_Pair_t *key;
+    molec_Sort_Pair_t* key;
     MOLEC_MALLOC(key, N * sizeof(molec_Sort_Pair_t));
 
-    for(int i=0;i<N;++i){
+    for(int i = 0; i < N; ++i)
+    {
         key[i].key  = x[i];
-        key[i].value=i;
+        key[i].value = i;
     }
+    
     qsort(key, N, sizeof(molec_Sort_Pair_t), molec_compare);
+    
     Real *x_temp, *y_temp, *z_temp;
     Real *v_x_temp, *v_y_temp, *v_z_temp;
 
@@ -60,7 +70,8 @@ void molec_sort_qsort(molec_Simulation_SOA_t* sim)
     memcpy(v_y_temp, v_y, N * sizeof(Real));
     memcpy(v_z_temp, v_z, N * sizeof(Real));
 
-    for(int i=0;i<N;++i){
+    for(int i=0; i < N; ++i)
+    {
         x[i] = x_temp[key[i].value];
         y[i] = y_temp[key[i].value];
         z[i] = z_temp[key[i].value];
