@@ -101,7 +101,9 @@ void molec_force_gonnet(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
     // n_particles_per_cell only once
     max_particles_per_cell = n_particles_per_cell[0];
     for(int c = 1; c < cellList_parameter.N; ++c)
+    {
         max_particles_per_cell = fmax(max_particles_per_cell, n_particles_per_cell[c]);
+    }
 
     // datastructure representing the cell list
     int *head;                      // head[idx] contains the index of first particle in cell idx
