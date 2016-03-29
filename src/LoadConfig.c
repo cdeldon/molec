@@ -101,7 +101,7 @@ void molec_load_parameters(const int argc, const char* argv[])
     // such that rho = N/(L*L*L)
     molec_parameter->L = pow(((Real) molec_parameter->N) / molec_parameter->rho,(1./3));
 
-    printf("resulting N: %d, rho: %f, L:%f\n", molec_parameter->N,
-           molec_parameter->rho, molec_parameter->L);
     molec_cell_init();
+
+    molec_print_parameters();
 }

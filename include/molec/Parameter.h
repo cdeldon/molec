@@ -79,5 +79,10 @@ extern molec_Parameter_t* molec_parameter;
  */
 void molec_parameter_init(int N);
 
+/**
+ * @brief Prints the simulation paramteres on the terminal
+ */
+void molec_print_parameters();
+
 #endif
 
