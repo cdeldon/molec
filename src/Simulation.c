@@ -56,7 +56,7 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
     
     printf("\n      ================ MOLEC - Simulation steps ================\n\n");
     printf("%10s\t%15s\t%15s\t%15s\n", "Step", "Ekin", "Epot", "Etot");
-    for(int n = 0; n < Nstep; ++n)
+    for(int n = 1; n <= Nstep; ++n)
     {
         Ekin_x = Ekin_y = Ekin_z = 0.0;
         Epot = 0.0;
