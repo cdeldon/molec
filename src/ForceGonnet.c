@@ -62,8 +62,15 @@ void molec_force_gonnet(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 
     Real Epot_ = 0;
 
-    // for each particle compute cell index
-    int *c_idx, *n_particles_per_cell, max_particles_per_cell = 0;
+
+    //======== CELL LIST CONSTRUCTION ========//
+
+    // compute cell index for each particle in the system
+    int *c_idx;                     // c_idx[i] contains cell index idx of particle i
+    int *n_particles_per_cell;      // n_particles_per_cell[idx] contains the number
+                                    // of particles in cell idx
+    int max_particles_per_cell = 0;
+
     MOLEC_MALLOC(c_idx, sizeof(int) * N);
     MOLEC_MALLOC(n_particles_per_cell, sizeof(int) * cellList_parameter.N);
     memset(n_particles_per_cell, 0, sizeof(int) * cellList_parameter.N);
@@ -89,16 +96,28 @@ void molec_force_gonnet(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
         // increase the counter that stores the number of particles located in cell idx
         ++n_particles_per_cell[idx];
     }
+
     // get the maximum number of particles in the cells (in order to malloc and free
     // n_particles_per_cell only once
     max_particles_per_cell = n_particles_per_cell[0];
     for(int c = 1; c < cellList_parameter.N; ++c)
         max_particles_per_cell = fmax(max_particles_per_cell, n_particles_per_cell[c]);
 
-    // cell list construction
-    int *head, *lscl, *particles_in_cell_idx, *particles_in_cell_n_idx;
+    // datastructure representing the cell list
+    int *head;                      // head[idx] contains the index of first particle in cell idx
+                                    // if head[idx] == -1, then cell is empty
+    int *lscl;                      // lscl[i] contains index of next particle in same cell as i
+                                    // if lscl[i] == -1, then i was last particle in cell idx
+
     MOLEC_MALLOC(head, sizeof(int) * cellList_parameter.N);
     MOLEC_MALLOC(lscl, sizeof(int) * N);
+
+    // arrays containing the indices od the particles in cell idx and n_idx respectively
+    // note that their size is greater (or equal) than the number of particles in the
+    // respective cell; this is done to avoid to malloc and free the arrays for every cell iteration
+    int *particles_in_cell_idx;
+    int *particles_in_cell_n_idx;
+
     MOLEC_MALLOC(particles_in_cell_idx, max_particles_per_cell * sizeof(int));
     MOLEC_MALLOC(particles_in_cell_n_idx, max_particles_per_cell * sizeof(int));
 
@@ -114,6 +133,9 @@ void molec_force_gonnet(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
         head[c_idx[i]] = i;
     }
 
+
+    //======== CELL ITERATION ========//
+
     // Reset forces
     memset(f_x, 0, N * sizeof(Real));
     memset(f_y, 0, N * sizeof(Real));
@@ -128,15 +150,17 @@ void molec_force_gonnet(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
                 const int idx
                     = idx_x + cellList_parameter.N_x * (idx_y + cellList_parameter.N_y * idx_z);
 
-                // extract the particles that lie in this cell (cell idx)
+                // extract the particles that lie in cell idx
                 const int n_particles_in_cell_idx = n_particles_per_cell[idx];
                 particles_in_cell_idx[0] = head[idx];
 
                 if(particles_in_cell_idx[0] != -1)
-                for(int p = 1; p < n_particles_in_cell_idx; ++p)
                 {
-                    // next particle inside cell idx
-                    particles_in_cell_idx[p] = lscl[particles_in_cell_idx[p-1]];
+                    for(int p = 1; p < n_particles_in_cell_idx; ++p)
+                    {
+                        // next particle inside cell idx
+                        particles_in_cell_idx[p] = lscl[particles_in_cell_idx[p-1]];
+                    }
                 }
 
                 // loop over neighbour cells
@@ -149,16 +173,15 @@ void molec_force_gonnet(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
                             int n_idx_y = mod(idx_y + d_y, cellList_parameter.N_y);
                             int n_idx_x = mod(idx_x + d_x, cellList_parameter.N_x);
 
-                            // linear index
+                            // linear index of neighbour cell
                             int n_idx = n_idx_x
                                         + cellList_parameter.N_x
                                               * (n_idx_y + cellList_parameter.N_y * n_idx_z);
 
-                            // extract the particles that lie in this cell (cell n_idx)
+                            // extract the particles that lie in cell n_idx
                             const int n_particles_in_cell_n_idx = n_particles_per_cell[n_idx];
 
                             particles_in_cell_n_idx[0] = head[n_idx];
-                            // if cell is not empty, fill up array of indices
                             if(particles_in_cell_n_idx[0] != -1)
                             {
                                 for(int p = 1; p < n_particles_in_cell_n_idx; ++p)
@@ -168,8 +191,8 @@ void molec_force_gonnet(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
                                 }
                             }
 
-                            // iterate over particles in cell idx starting at the head
-                            for(int pi= 0; pi < n_particles_in_cell_idx; ++pi)
+                            // iterate over particles in cell idx
+                            for(int pi = 0; pi < n_particles_in_cell_idx; ++pi)
                             {
                                 int i = particles_in_cell_idx[pi];
 
@@ -182,7 +205,7 @@ void molec_force_gonnet(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
                                 Real f_yi = f_y[i];
                                 Real f_zi = f_z[i];
 
-                                // scan particles in cell n_idx
+                                // iterate over particles in cell n_idx
                                 for(int pj = 0; pj < n_particles_in_cell_n_idx; ++pj)
                                 {
                                     int j = particles_in_cell_n_idx[pj];
@@ -237,11 +260,15 @@ void molec_force_gonnet(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 
             } // end loop over cells idx
 
-    // free memory
+
+    //======== FREE MEMORY ========//
+
     MOLEC_FREE(c_idx);
     MOLEC_FREE(n_particles_per_cell);
+
     MOLEC_FREE(head);
     MOLEC_FREE(lscl);
+
     MOLEC_FREE(particles_in_cell_idx);
     MOLEC_FREE(particles_in_cell_n_idx);
 
