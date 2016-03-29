@@ -14,6 +14,7 @@ set(MOLEC_CORE_SOURCE
     Common.c
     ForceRefrence.c
     ForceCellList.c
+    ForceCellListFor.c
     ForceGonnet.c
     Integrator.c
     InitialCondition.c

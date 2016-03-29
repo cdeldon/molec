@@ -26,7 +26,7 @@ int main(int argc, const char* argv[])
 
     // Run the simulation using the routing specified in the passed argument
     // to compute the interactions between particles
-    molec_force_calculation force_calculation = &molec_force_gonnet;
+    molec_force_calculation force_calculation = &molec_force_cellList_for;
     molec_run_simulation(force_calculation);
 }
 
