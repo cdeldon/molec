@@ -33,6 +33,7 @@ int main(int argc, char* argv[])
     REGISTER_TEST_CASE(molec_UnittestPeriodicRefrence);
     REGISTER_TEST_CASE(molec_UnittestCellVectorDirections);
     REGISTER_TEST_CASE(molec_UnittestSort);
+    REGISTER_TEST_CASE(molec_UnittestCompare);
 
     int ret = tinytest_run();
     tinytest_free();

@@ -22,8 +22,8 @@
 /**
   * @brief Structure that helps in defining a custom sorting algorithm
   *
-  * @param key      contains the value of the particle to be compared with the
-  *                 other particles to be sorted
+  * @param key      contains the value of the particle to be compared with the other particles to 
+  *                 be sorted
   * @param value    integer index used to sort other arrays accordingly
   */
 typedef struct molec_Sort_Pair {
@@ -34,8 +34,12 @@ typedef struct molec_Sort_Pair {
 
 /**
   * @brief Compares two @c molec_Sort_Pair_t
+  *
+  * The return value is determined by:
+  * -1	pair1 goes before pair2
+  *  1	pair1 goes after pair2
   */
-int molec_compare(const void *x, const void *y);
+int molec_compare(const void* pair1, const void* pair2);
 
 /**
  * @brief Routine that sorts the particles in an increasing order according to the x component
@@ -45,4 +49,4 @@ int molec_compare(const void *x, const void *y);
  */
 void molec_sort_qsort(molec_Simulation_SOA_t* sim);
 
-#endif // MOLEC_SORT_H
+#endif 
