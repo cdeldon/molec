@@ -9,7 +9,7 @@
 # Group Project
 Molecular Dynamics project for the course *How to Write Fast Numerical Code* (263-2300).
 
-# TODO list
+## TODO list
 - [ ] sorting routine (at the end of force calculation, exploiting the already processed elements in the same order
 - [ ] dummy implementation of cell list (no scalar replacement, arrays of arrays)
 
@@ -31,7 +31,7 @@ dt = 0.005
 # number of simulation steps
 Nstep = 100
 # particle density (particles per unit volume)
-rho = 0.4
+rho = 1.2
 # mass of each particle
 mass = 1
 # cutoff radius
