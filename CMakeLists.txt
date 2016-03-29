@@ -56,6 +56,11 @@ if(MOLEC_CELLLIST_COUNT)
     add_definitions(-DMOLEC_CELLLIST_COUNT_INTERACTION=1)
 endif(MOLEC_CELLLIST_COUNT)
 
+option(MOLEC_SOA_SWAP "Simulation structure contains swap arrays" OFF)
+if(MOLEC_SOA_SWAP)
+    add_definitions(-DMOLEC_SOA_SWAP=1)
+endif(MOLEC_SOA_SWAP)
+
 ### Doxygen Documentation
 find_package(Doxygen)
 option(MOLEC_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" 

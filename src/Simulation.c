@@ -43,6 +43,16 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
     MOLEC_MALLOC(sim->v_y, sizeof(Real) * N);
     MOLEC_MALLOC(sim->v_z, sizeof(Real) * N);
 
+#if MOLEC_SOA_SWAP
+    MOLEC_MALLOC(sim->x_copy, sizeof(Real) * N);
+    MOLEC_MALLOC(sim->y_copy, sizeof(Real) * N);
+    MOLEC_MALLOC(sim->z_copy, sizeof(Real) * N);
+
+    MOLEC_MALLOC(sim->v_x_copy, sizeof(Real) * N);
+    MOLEC_MALLOC(sim->v_y_copy, sizeof(Real) * N);
+    MOLEC_MALLOC(sim->v_z_copy, sizeof(Real) * N);
+#endif
+
     MOLEC_MALLOC(sim->f_x, sizeof(Real) * N);
     MOLEC_MALLOC(sim->f_y, sizeof(Real) * N);
     MOLEC_MALLOC(sim->f_z, sizeof(Real) * N);
@@ -90,6 +100,16 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
     MOLEC_FREE(sim->v_x);
     MOLEC_FREE(sim->v_y);
     MOLEC_FREE(sim->v_z);
+
+#if MOLEC_SOA_SWAP
+    MOLEC_FREE(sim->x_copy);
+    MOLEC_FREE(sim->y_copy);
+    MOLEC_FREE(sim->z_copy);
+
+    MOLEC_FREE(sim->v_x_copy);
+    MOLEC_FREE(sim->v_y_copy);
+    MOLEC_FREE(sim->v_z_copy);
+#endif
 
     MOLEC_FREE(sim->f_x);
     MOLEC_FREE(sim->f_y);
