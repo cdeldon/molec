@@ -38,6 +38,7 @@ typedef struct molec_Sort_Pair {
   * The return value is determined by:
   * -1	pair1 goes before pair2
   *  1	pair1 goes after pair2
+  *
   */
 int molec_compare(const void* pair1, const void* pair2);
 
