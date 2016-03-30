@@ -18,6 +18,7 @@ set(UNITTEST_SOURCE
     UnittestParser.c
     UnittestCellVector.c
     UnittestSort.c
+    UnittestForce.c
 )
 
 set(UNITTEST_HEADER

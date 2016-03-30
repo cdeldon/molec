@@ -96,3 +96,73 @@ void molec_sort_qsort(molec_Simulation_SOA_t* sim)
     sim->v_y = v_y;
     sim->v_z = v_z;
 }
+
+
+void molec_sort_qsort_forces(molec_Simulation_SOA_t* sim)
+{
+    // Local aliases
+    Real *x = sim->x;
+    Real *y = sim->y;
+    Real *z = sim->z;
+
+    Real *f_x = sim->f_x;
+    Real *f_y = sim->f_y;
+    Real *f_z = sim->f_z;
+
+
+    const int N = molec_parameter->N;
+
+    molec_Sort_Pair_t* key;
+    MOLEC_MALLOC(key, N * sizeof(molec_Sort_Pair_t));
+
+    for(int i = 0; i < N; ++i)
+    {
+        key[i].key  = x[i];
+        key[i].value = i;
+    }
+
+    qsort(key, N, sizeof(molec_Sort_Pair_t), molec_compare);
+
+    Real *x_temp, *y_temp, *z_temp;
+    Real *f_x_temp, *f_y_temp, *f_z_temp;
+
+    MOLEC_MALLOC(x_temp, N * sizeof(Real));
+    MOLEC_MALLOC(y_temp, N * sizeof(Real));
+    MOLEC_MALLOC(z_temp, N * sizeof(Real));
+    MOLEC_MALLOC(f_x_temp, N * sizeof(Real));
+    MOLEC_MALLOC(f_y_temp, N * sizeof(Real));
+    MOLEC_MALLOC(f_z_temp, N * sizeof(Real));
+
+    memcpy(x_temp, x, N * sizeof(Real));
+    memcpy(y_temp, y, N * sizeof(Real));
+    memcpy(z_temp, z, N * sizeof(Real));
+    memcpy(f_x_temp, f_x, N * sizeof(Real));
+    memcpy(f_y_temp, f_y, N * sizeof(Real));
+    memcpy(f_z_temp, f_z, N * sizeof(Real));
+
+    for(int i=0; i < N; ++i)
+    {
+        x[i] = x_temp[key[i].value];
+        y[i] = y_temp[key[i].value];
+        z[i] = z_temp[key[i].value];
+        f_x[i] = f_x_temp[key[i].value];
+        f_y[i] = f_y_temp[key[i].value];
+        f_z[i] = f_z_temp[key[i].value];
+    }
+
+    MOLEC_FREE(x_temp);
+    MOLEC_FREE(y_temp);
+    MOLEC_FREE(z_temp);
+    MOLEC_FREE(f_x_temp);
+    MOLEC_FREE(f_y_temp);
+    MOLEC_FREE(f_z_temp);
+
+    MOLEC_FREE(key);
+
+    sim->x = x;
+    sim->y = y;
+    sim->z = z;
+    sim->f_x = f_x;
+    sim->f_y = f_y;
+    sim->f_z = f_z;
+}
