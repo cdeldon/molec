@@ -24,6 +24,11 @@
 #include <string.h>
 #include <stdlib.h>
 
+/**
+ * Number of atoms used during unittesting (defined in Unittest.c)
+ */
+extern int molec_NAtoms;
+
 /* Macro for generating random numbers */
 #define MOLEC_RANDOM (((Real)rand()) / RAND_MAX)
 

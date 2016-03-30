@@ -15,6 +15,8 @@
 
 #include "Unittest.h"
 
+int molec_NAtoms = 1000;
+
  Real* molec_init_vector(const int N)
  {
      Real* vec;
@@ -44,7 +46,7 @@ void molec_free_vector(Real* vec)
 
 molec_Simulation_SOA_t* molec_setup_simulation_SOA()
 {
-    const int N = 1000;
+    const int N = molec_NAtoms;
 
     // Set parameters
     molec_parameter_init(N);
