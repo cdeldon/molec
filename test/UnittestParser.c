@@ -35,7 +35,7 @@ TEST_CASE(molec_UnittestParser)
     fputs("dt = 0.123\n", fp);
     fputs("Nstep = 123\n", fp);
     fputs("rho = 1.05\n", fp);
-    fputs("mass = 3\n", fp);
+    fputs("mass = 3.0\n", fp);
     fputs("Rcut = 13.1\n", fp);
     fputs("epsLJ = 14.5\n", fp);
     fputs("sigLJ = 12.5\n", fp);
@@ -52,17 +52,17 @@ TEST_CASE(molec_UnittestParser)
     memcpy((void*) argv[1], unittestFile, sizeof(unittestFile));
 
     // Parse file
-    molec_load_parameters(argc, argv);
+    molec_load_parameters(argc, argv, 0);
 
-    CHECK(molec_parameter->N == 1234);
-    CHECK(molec_parameter->dt == 0.123);
-    CHECK(molec_parameter->Nstep == 123);
-    CHECK(molec_parameter->rho == 1.05);
-    CHECK(molec_parameter->mass == 3);
-    CHECK(molec_parameter->Rcut == 13.1);
-    CHECK(molec_parameter->epsLJ == 14.5);
-    CHECK(molec_parameter->sigLJ == 12.5);
-    CHECK(molec_parameter->scaling == 0.25);
+    CHECK_EQ_INTEGER(molec_parameter->N, 1234);
+    CHECK_EQ_DOUBLE(molec_parameter->dt, 0.123);
+    CHECK_EQ_INTEGER(molec_parameter->Nstep, 123);
+    CHECK_EQ_DOUBLE(molec_parameter->rho, 1.05);
+    CHECK_EQ_DOUBLE(molec_parameter->mass, 3.0);
+    CHECK_EQ_DOUBLE(molec_parameter->Rcut, 13.1);
+    CHECK_EQ_DOUBLE(molec_parameter->epsLJ, 14.5);
+    CHECK_EQ_DOUBLE(molec_parameter->sigLJ, 12.5);
+    CHECK_EQ_DOUBLE(molec_parameter->scaling, 0.25);
 
     remove("molec_UnittestParser.txt");
 }

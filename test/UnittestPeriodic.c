@@ -36,7 +36,10 @@ TEST_CASE(molec_UnittestPeriodicRefrence)
     
     // Check if all the atoms are back in the bounding box
     for(int i = 0; i < N; ++i)
-        CHECK(sim->x[i] <= L && sim->x[i] >= 0.0)
-
+    {
+        CHECK_LE_DOUBLE(sim->x[i], L); 
+        CHECK_GE_DOUBLE(sim->x[i], 0.0);
+    }
+    
     molec_teardown_simulation_SOA(sim);
 }

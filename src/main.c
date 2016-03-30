@@ -22,7 +22,7 @@ int main(int argc, const char* argv[])
 {
     srand(42);
 
-    molec_load_parameters(argc, argv);
+    molec_load_parameters(argc, argv, 1);
 
     // Run the simulation using the routing specified in the passed argument
     // to compute the interactions between particles
