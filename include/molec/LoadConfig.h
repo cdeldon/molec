@@ -39,10 +39,11 @@ extern molec_Loader_t* molec_loader;
  * If a valid external file is passed as argument to the executable, the program
  * will run the simulation using the parameters specified in that file
  *
- * @param argc   number of arguments given to the executable
- * @param argv   array of char* containing the passed arguments
+ * @param argc      Number of arguments given to the executable
+ * @param argv      Array of char* containing the passed arguments
+ * @param verbose   Print parsed parameters
  */
-void molec_load_parameters(const int argc, const char *argv[]);
+void molec_load_parameters(const int argc, const char *argv[], int verbose);
 
 #endif
 

@@ -20,7 +20,7 @@
 
 molec_Loader_t* molec_loader = NULL;
 
-void molec_load_parameters(const int argc, const char* argv[])
+void molec_load_parameters(const int argc, const char* argv[], int verbose)
 {
     molec_parameter_init(1000);
     molec_loader = malloc(sizeof(molec_Loader_t));
@@ -30,17 +30,18 @@ void molec_load_parameters(const int argc, const char* argv[])
     if(argc < 2)
     {
         printf("Running simulation with default parameters\n");
-        return;
+        goto exit;
     }
     
-    printf("Running simulation with parameters specified in '%s'\n", argv[1]);
+    if(verbose)
+        printf("Running simulation with parameters specified in '%s'\n", argv[1]);
 
     MOLEC_MALLOC(molec_loader->filename, MOLEC_FILENAME_MAX_LENGTH * sizeof(char));
     memcpy(molec_loader->filename, argv[1], MOLEC_FILENAME_MAX_LENGTH * sizeof(char));
 
     FILE* parametersFile = fopen(molec_loader->filename, "r");
     if(parametersFile == NULL)
-        molec_error("File %s does not exist\n", molec_loader->filename);
+        molec_error("File '%s' does not exist\n", molec_loader->filename);
 
     char tag[256];
     char value[256];
@@ -103,5 +104,7 @@ void molec_load_parameters(const int argc, const char* argv[])
 
     molec_cell_init();
 
-    molec_print_parameters();
+exit:
+    if(verbose)
+        molec_print_parameters();
 }
