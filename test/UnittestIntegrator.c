@@ -30,17 +30,35 @@ int num_integrators = 0;
 void molec_register_integrator(molec_integrator integrator);
 
 /**
- * Verify new integrators by comparing their output to the reference
- * implementation molec_integrator_leapfrog_refrence()
+ * Compare the outpout of the registered integrators with the output of the
+ * reference implementation (molec_integrator_leapfrog_refrence()).
  */
+void molec_run_integrator_test();
+
 TEST_CASE(molec_UnittestIntegrator)
 {
-    // register integrators
     molec_register_integrator(&molec_integrator_leapfrog_unroll_2);
 
-    //  initialize simulation parameters
-    const int N = 1000;
-    molec_parameter_init(N);
+    //  initialize simulation parameters and run test
+    molec_parameter_init(1000);
+    molec_run_integrator_test();
+
+    // [optional] repeat with different parameter configurations
+    // for example
+    molec_parameter->N = 100;
+    molec_parameter->dt = 0.1;
+    molec_run_integrator_test();
+}
+
+void molec_register_integrator(molec_integrator integrator)
+{
+    integrators[num_integrators] = integrator;
+    num_integrators++;
+}
+
+void molec_run_integrator_test()
+{
+    const int N = molec_parameter->N;
 
     // generate random initial position, velocity and force vectors
     Real* x_init = molec_random_vector(N);
@@ -77,10 +95,4 @@ TEST_CASE(molec_UnittestIntegrator)
 
     molec_free_vector(x_ref);
     molec_free_vector(v_ref);
-}
-
-void molec_register_integrator(molec_integrator integrator)
-{
-    integrators[num_integrators] = integrator;
-    num_integrators++;
 }
