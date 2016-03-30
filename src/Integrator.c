@@ -42,3 +42,78 @@ void molec_integrator_leapfrog_refrence(Real* x, Real* v, const Real* f, Real* E
     *Ekin = Ekin_;
 }
 
+void molec_integrator_leapfrog_unroll_2(Real* x, Real* v, const Real* f, Real* Ekin, const int N)
+{
+    assert(molec_parameter);
+    const Real dt = molec_parameter->dt;
+    const Real m = molec_parameter->mass;
+    const Real m0125 = 0.125 * m;
+    const Real minv = 1.0 / molec_parameter->mass;
+   
+    // Loop logic
+    int i = 0;
+    const int N2 = N / 2;
+    const int N2_upper = N2 * 2;
+   
+    // Temporaries
+    Real x_00, x_01;
+    Real v_00, v_01;    
+    Real v_2_00, v_2_01;    
+    Real v_old_00, v_old_01;   
+    Real f_minv_00, f_minv_01;
+    
+    Real Ekin_00 = 0.0, Ekin_01 = 0.0;
+    
+    for(i = 0; i < N2_upper; i += 2)
+    {
+        // Load 
+        v_old_00 = v[i + 0];
+        v_old_01 = v[i + 1];
+        
+        v_00 = v[i + 0];
+        v_01 = v[i + 1];
+        
+        // Compute
+        f_minv_00 = f[i + 0] * minv;
+        f_minv_01 = f[i + 1] * minv;
+        
+        v_00 = v_00 + dt * f_minv_00;
+        v_01 = v_01 + dt * f_minv_01;
+        
+        v_2_00 = (v_00 + v_old_00) * (v_00 + v_old_00);
+        v_2_01 = (v_01 + v_old_01) * (v_01 + v_old_01);
+        
+        Ekin_00 = Ekin_00 + m0125 * v_2_00;
+        Ekin_01 = Ekin_01 + m0125 * v_2_01;
+        
+        // Store
+        v[i + 0] = v_00;
+        v[i + 1] = v_01;
+    }
+    for(i = N2_upper; i < N; ++i)
+    {
+        v_old_00 = v[i];
+        v[i] = v[i] + dt * f[i] * minv;
+        Ekin_00 = Ekin_00 + m0125 * (v[i] + v_old_00) * (v[i] + v_old_00);
+    }
+        
+    *Ekin = Ekin_00 + Ekin_01;    
+
+    for(i = 0; i < N2_upper; i += 2)
+    {
+        // Load
+        x_00 = x[i + 0];
+        x_01 = x[i + 1];
+        
+        // Compute
+        x_00 = x_00 + dt * v[i + 0];
+        x_01 = x_01 + dt * v[i + 1];
+
+        // Store
+        x[i + 0] = x_00;
+        x[i + 1] = x_01;
+    }
+    for(i = N2_upper; i < N; ++i)
+        x[i] = x[i] + dt * v[i];
+}
+
