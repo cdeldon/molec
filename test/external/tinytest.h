@@ -586,6 +586,11 @@ extern "C" {
  * DECLARATION
 \**************************************************************************************************/
 
+#ifdef TINYTEST_COMPILER_MSVC
+#pragma warning(disable : 4996)
+#pragma warning(disable : 4477)
+#endif
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
