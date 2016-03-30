@@ -53,9 +53,9 @@ void molec_cell_init()
     const Real Rcut = molec_parameter->Rcut;
 
     // compute the number of cells per dimension
-    molec_parameter->cellList.N_x = floor(L / Rcut);
-    molec_parameter->cellList.N_y = floor(L / Rcut);
-    molec_parameter->cellList.N_z = floor(L / Rcut);
+    molec_parameter->cellList.N_x = fmax(1, floor(L / Rcut));
+    molec_parameter->cellList.N_y = fmax(1, floor(L / Rcut));
+    molec_parameter->cellList.N_z = fmax(1, floor(L / Rcut));
 
     molec_parameter->cellList.N = molec_parameter->cellList.N_x * molec_parameter->cellList.N_y
                                   * molec_parameter->cellList.N_z;

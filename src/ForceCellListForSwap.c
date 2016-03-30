@@ -53,7 +53,6 @@ static Real* v_x_copy;
 static Real* v_y_copy;
 static Real* v_z_copy;
 
-
 void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 {
     assert(molec_parameter);
@@ -89,9 +88,7 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
     Real* f_y = sim->f_y;
     Real* f_z = sim->f_z;
 
-
     Real Epot_ = 0;
-
 
     //======== CELL LIST CONSTRUCTION ========//
 
@@ -120,11 +117,10 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
         int idx_z = z[i] / cellList_parameter.c_z;
 
         // linear index of cell
-        int idx = idx_x + cellList_parameter.N_x * (idx_y + cellList_parameter.N_y * idx_z);
-        c_idx[i] = idx;
+        c_idx[i] = idx_x + cellList_parameter.N_x * (idx_y + cellList_parameter.N_y * idx_z);
 
         // increase the counter that stores the number of particles located in cell idx
-        ++n_particles_per_cell[idx];
+        ++n_particles_per_cell[c_idx[i]];
     }
 
     // get the maximum number of particles in the cells (in order to malloc and free
@@ -139,12 +135,12 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
     int *head;                      // head[idx] contains the index of first particle in cell idx
                                     // if head[idx] == -1, then cell is empty
     int *lscl;                      // lscl[i] contains index of next particle in same cell as i
-                                    // if lscl[i] == -1, then i was last particle in cell idx
+                                    // if lscl[i] == -1, then i was last particle of the cell
 
     MOLEC_MALLOC(head, sizeof(int) * cellList_parameter.N);
     MOLEC_MALLOC(lscl, sizeof(int) * N);
 
-    // arrays containing the indices od the particles in cell idx and n_idx respectively
+    // arrays containing the indices of the particles in cell idx and n_idx respectively
     // note that their size is greater (or equal) than the number of particles in the
     // respective cell; this is done to avoid to malloc and free the arrays for every cell iteration
     int *particles_in_cell_idx;
@@ -159,9 +155,10 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
 
     // generate cell list, lscl[i] contains index of next particle inside
     // the same cell, if lscs[i] == -1, then 'i' was the last particle of the cell
-    for(int i = 0; i < N; ++i)
+    for(int i = N-1; i >= 0; --i)
     {
         lscl[i] = head[c_idx[i]];
+        // now 'i' is the 'head' of cell 'idx'
         head[c_idx[i]] = i;
     }
 
@@ -210,6 +207,7 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
                     v_y_copy[particle_access_order] = v_y[i];
                     v_z_copy[particle_access_order] = v_z[i];
                 }
+
 
                 // loop over neighbour cells
                 for(int d_z = -1; d_z <= 1; ++d_z)
@@ -335,6 +333,7 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
     t = sim->v_z;
     sim->v_z = v_z_copy;
     v_z_copy = t;
+
 
     //======== FREE MEMORY ========//
 

@@ -24,7 +24,7 @@ void molec_integrator_leapfrog_refrence(Real* x, Real* v, const Real* f, Real* E
     
     Real v_old = 0;
     Real Ekin_ = 0;
-    
+
     // Integrate velocity: v_{i+1/2} = v_{i-1/2} + dt * f_i / m
     for(int i = 0; i < N; ++i)
     {
