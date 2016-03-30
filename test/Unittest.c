@@ -15,6 +15,33 @@
 
 #include "Unittest.h"
 
+ Real* molec_init_vector(const int N)
+ {
+     Real* vec;
+     MOLEC_MALLOC(vec, sizeof(Real) * N);
+     return vec;
+ }
+
+Real* molec_random_vector(const int N)
+{
+    Real* vec;
+    MOLEC_MALLOC(vec, sizeof(Real) * N);
+    for (int i=0; i < N; i++) vec[i] = MOLEC_RANDOM;
+    return vec;
+}
+
+Real* molec_copy_vector(const Real* vec, const int N)
+{
+    Real* vec_cpy = malloc(sizeof(Real) * N);
+    memcpy(vec_cpy, vec, sizeof(Real) * N);
+    return vec_cpy;
+}
+
+void molec_free_vector(Real* vec)
+{
+    MOLEC_FREE(vec);
+}
+
 molec_Simulation_SOA_t* molec_setup_simulation_SOA()
 {
     const int N = 1000;

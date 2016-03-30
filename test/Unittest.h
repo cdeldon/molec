@@ -21,6 +21,32 @@
 #include <molec/Parameter.h>
 #include <molec/Simulation.h>
 
+#include <string.h>
+#include <stdlib.h>
+
+/* Macro for generating random numbers */
+#define MOLEC_RANDOM (((Real)rand()) / RAND_MAX)
+
+/**
+ * Allocate memory for an array of size N
+ */
+ Real* molec_init_vector(const int N);
+
+/**
+ * Generate a random array of size N
+ */
+Real* molec_random_vector(const int N);
+
+/**
+ *  Return a deep copy of the given array
+ */
+Real* molec_copy_vector(const Real* vec, const int N);
+
+/**
+ * Free array
+ */
+void molec_free_vector(Real*);
+
 /**
  * @brief Setup and initialize the simulation struct using molec_NAtoms atoms
  *
