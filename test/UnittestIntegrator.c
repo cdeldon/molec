@@ -40,13 +40,8 @@ TEST_CASE(molec_UnittestIntegrator)
     molec_register_integrator(&molec_integrator_leapfrog_unroll_2);
 
     //  initialize simulation parameters and run test
-    molec_parameter_init(1000);
-    molec_run_integrator_test();
-
-    // [optional] repeat with different parameter configurations
-    // for example
-    molec_parameter->N = 100;
-    molec_parameter->dt = 0.1;
+    molec_NAtoms = 1000;
+    molec_parameter_init(molec_NAtoms);
     molec_run_integrator_test();
 }
 
