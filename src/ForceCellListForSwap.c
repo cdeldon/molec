@@ -39,11 +39,23 @@ MOLEC_INLINE int mod(int b, int m)
     return (b % m + m) % m;
 }
 
+/**
+ * @brief Static arrays needed to perform an 'on the fly' sorting
+ *
+ * The following arrays are used as temporary containers for the
+ * newly sorted particles. At the end of each timestep, these temporary
+ * arrays are swapped with the ones contained in @c molec_Simulation_SOA_t
+ */
+static Real* x_copy;
+static Real* y_copy;
+static Real* z_copy;
+static Real* v_x_copy;
+static Real* v_y_copy;
+static Real* v_z_copy;
+
+
 void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 {
-
-#if MOLEC_SOA_SWAP
-
     assert(molec_parameter);
     const Real sigLJ = molec_parameter->sigLJ;
     const Real epsLJ = molec_parameter->epsLJ;
@@ -55,6 +67,17 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
 
     molec_CellList_Parameter_t cellList_parameter = molec_parameter->cellList;
 
+    // If it is the first iteration, we can malloc memory for the static swap arrays
+    if(!x_copy)
+    {
+        MOLEC_MALLOC(x_copy, N * sizeof(Real));
+        MOLEC_MALLOC(y_copy, N * sizeof(Real));
+        MOLEC_MALLOC(z_copy, N * sizeof(Real));
+        MOLEC_MALLOC(v_x_copy, N * sizeof(Real));
+        MOLEC_MALLOC(v_y_copy, N * sizeof(Real));
+        MOLEC_MALLOC(v_z_copy, N * sizeof(Real));
+    }
+
     // Local aliases
     const Real* x = sim->x;
     const Real* y = sim->y;
@@ -65,16 +88,6 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
     Real* f_x = sim->f_x;
     Real* f_y = sim->f_y;
     Real* f_z = sim->f_z;
-
-    // Local aliases for swapping and sorting
-    // the following arrays will be filled in the order at which the particles
-    // are accessed in the cell list, this should guarantee locality for the next steps
-    Real* x_copy = sim->x_copy;
-    Real* y_copy = sim->y_copy;
-    Real* z_copy = sim->z_copy;
-    Real* v_x_copy = sim->v_x_copy;
-    Real* v_y_copy = sim->v_y_copy;
-    Real* v_z_copy = sim->v_z_copy;
 
 
     Real Epot_ = 0;
@@ -295,33 +308,33 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
 
             } // end loop over cells idx
 
-    // swap arrays for next iteration
+
+    // swap the temporary sorted arrays with the default ones
     Real *t;
 
     t = sim->x;
-    sim->x = sim->x_copy;
-    sim->x_copy = t;
+    sim->x = x_copy;
+    x_copy = t;
 
     t = sim->y;
-    sim->y = sim->y_copy;
-    sim->y_copy = t;
+    sim->y = y_copy;
+    y_copy = t;
 
     t = sim->z;
-    sim->z = sim->z_copy;
-    sim->z_copy = t;
+    sim->z = z_copy;
+    z_copy = t;
 
     t = sim->v_x;
-    sim->v_x = sim->v_x_copy;
-    sim->v_x_copy = t;
+    sim->v_x = v_x_copy;
+    v_x_copy = t;
 
-    t = sim->v_y_copy;
-    sim->v_y = sim->v_y_copy;
-    sim->v_y_copy = t;
+    t = sim->v_y;
+    sim->v_y = v_y_copy;
+    v_y_copy = t;
 
     t = sim->v_z;
-    sim->v_z = sim->v_z_copy;
-    sim->v_z_copy = t;
-
+    sim->v_z = v_z_copy;
+    v_z_copy = t;
 
     //======== FREE MEMORY ========//
 
@@ -340,16 +353,6 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
     if(MOLEC_CELLLIST_COUNT_INTERACTION)
         printf("\tPercentage of failed potential interactions: %3.2f\n",
                1. - ((double) num_effective_interactions) / ((double) num_potential_interactions));
-
-#else
-
-    // run simulation with this force computation routine only
-    // if the simulation structure molec_Simulation_SOA_t also contains
-    // swapping arrays
-    molec_error("Impossible to run 'molec_force_cellList_for_swap()'"
-                " using a SOA without arrays copy!\n"
-                "Define 'MOLEC_SOA_SWAP=1 to use this function\n\n");
-#endif
 
 }
 

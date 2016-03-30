@@ -46,18 +46,6 @@ void molec_set_initial_condition(molec_Simulation_SOA_t* sim)
     for(int i = 0; i < N; ++i)
         sim->v_x[i] = sim->v_y[i] = sim->v_z[i] = 0.0;
 
-#if MOLEC_SOA_SWAP
-    for(int i = 0; i < N; ++i)
-    {
-        sim->x_copy[i] = sim->x[i];
-        sim->y_copy[i] = sim->y[i];
-        sim->z_copy[i] = sim->z[i];
-        sim->v_x_copy[i] = sim->v_x[i];
-        sim->v_y_copy[i] = sim->v_y[i];
-        sim->v_z_copy[i] = sim->v_z[i];
-    }
-#endif
-
     // Set initial forces
     for(int i = 0; i < N; ++i)
         sim->f_x[i] = sim->f_y[i] = sim->f_z[i] = 0.0;

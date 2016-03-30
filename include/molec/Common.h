@@ -84,12 +84,3 @@ void molec_print_array(const Real* array, const int N);
 #ifndef MOLEC_CELLLIST_COUNT_INTERACTION
 #define MOLEC_CELLLIST_COUNT_INTERACTION 0
 #endif
-
-
-/**
- * Decide if use a data structure with or without
- * copies of position and velocity arrays (swap)
- */
-#ifndef MOLEC_SOA_SWAP
-#define MOLEC_SOA_SWAP 0
-#endif

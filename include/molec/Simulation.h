@@ -18,8 +18,6 @@
 
 #include <molec/Common.h>
 
-#if !MOLEC_SOA_SWAP
-
 /**
  * @brief Struct of arrays of the position, velocity and force arrays
  * 
@@ -44,38 +42,7 @@ typedef struct molec_Simulation_SOA
 
 } molec_Simulation_SOA_t;
 
-#else
 
-typedef struct molec_Simulation_SOA_swap
-{
-        /** Position */
-        Real* x;
-        Real* y;
-        Real* z;
-
-        /** Velocity */
-        Real* v_x;
-        Real* v_y;
-        Real* v_z;
-
-        /** Position copy */
-        Real * x_copy;
-        Real * y_copy;
-        Real * z_copy;
-
-        /** Velocity copy */
-        Real* v_x_copy;
-        Real* v_y_copy;
-        Real* v_z_copy;
-
-        /** Force */
-        Real* f_x;
-        Real* f_y;
-        Real* f_z;
-
-} molec_Simulation_SOA_t;
-
-#endif
 
 /**
  * Print the current state of the simulation
