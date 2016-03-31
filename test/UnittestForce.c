@@ -30,6 +30,11 @@ static int molec_num_functions = 0;
 molec_force_calculation force_routines[MOLEC_MAX_FORCE_ROUTINES];
 char* force_routines_name[MOLEC_MAX_FORCE_ROUTINES];
 
+/**
+ * @brief adds a force calculation routine to be checked by the test
+ * @param f      function pointer of type @c molec_force_calculation
+ * @param name   short description of force routine
+ */
 void add_function(molec_force_calculation f, char *name)
 {
     if(molec_num_functions >= MOLEC_MAX_FORCE_ROUTINES)
@@ -44,6 +49,15 @@ void add_function(molec_force_calculation f, char *name)
     ++molec_num_functions;
 }
 
+/**
+ * @brief called by the test at the begin of the testcase
+ *
+ * All force calculation routines that have to be checked are
+ * to be added inside this function as follows:
+ * @code
+ * add_function(&<name_of_force_routine>, "this is a short description");
+ * @endcode
+ */
 void molec_force_test_register_functions()
 {
     // Registers slow_filter with the driver
@@ -55,6 +69,15 @@ void molec_force_test_register_functions()
     // add here functions to be registered
 }
 
+/**
+ * @brief computes the reference forces acting on the particles
+ *
+ * Computes the reference forces acting on the particles using a
+ * straight forward N2 implementation
+ *
+ * @param sim   simulation struct containing particle position
+ * @param N     number of particles in the simulation
+ */
 void molec_compute_reference_forces(molec_Simulation_SOA_t* sim, const int N)
 {
     Real Epot;
@@ -77,6 +100,14 @@ void molec_compute_reference_forces(molec_Simulation_SOA_t* sim, const int N)
     memcpy(f_z_reference, sim->f_z, N * sizeof(Real));
 }
 
+/**
+ * @brief Compares the forces computed with the force routine passed as argument with the reference one
+ *
+ * @param force_routine   function pointer to force calculation routine to be tested
+ * @param sim             simulation struct containing particle position and forces
+ * @param N               number of particles in the simulation
+ * @param description     short description of force calculation routine (used for error messages)
+ */
 void molec_check_forces(molec_force_calculation force_routine, molec_Simulation_SOA_t* sim,
                         const int N, const char* description)
 {
@@ -103,8 +134,8 @@ void molec_check_forces(molec_force_calculation force_routine, molec_Simulation_
  */
 TEST_CASE(molec_UnittestForce)
 {
-    const int n_atoms_per_dimension = 15;
-    const int r_seed = 42;
+    const int n_atoms_per_dimension = 45;
+    const int r_seed = 40;
 
     molec_NAtoms = pow(n_atoms_per_dimension, 3);
 
@@ -125,8 +156,6 @@ TEST_CASE(molec_UnittestForce)
         // reset the configurations of the atoms
         srand(r_seed);
         molec_set_initial_condition(sim);
-
-        //printf("Running force comparison with %s\n", force_routines_name[r]);
 
         // compute the forces using the routines specified above
         molec_check_forces(force_routines[r], sim, N, force_routines_name[r]);
