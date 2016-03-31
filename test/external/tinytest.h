@@ -42,7 +42,7 @@ extern "C" {
 
 /**************************************************************************************************\
  * CONFIGURATION
-/**************************************************************************************************/
+\**************************************************************************************************/
 
 #define TINYTEST_VERSION_MAJOR 0
 #define TINYTEST_VERSION_MINOR 0
@@ -244,7 +244,7 @@ extern "C" {
 
 #define ALLCLOSE_FLOAT_MSG(a, b, N, atol, rtol, msg)                                               \
     TINYTEST_INTERNAL_ALLCLOSE_X(float , a, b, N, atol, rtol, msg)
-#define ALLCLOSE_FLOAT_3_MSG(a, b, N)                                                              \
+#define ALLCLOSE_FLOAT_3_MSG(a, b, N, msg)                                                         \
     TINYTEST_INTERNAL_ALLCLOSE_X(float, a, b, N, 1e-08, 1e-05, msg)
 
 /**
@@ -335,7 +335,7 @@ extern "C" {
         if(TINYTEST_UNLIKELY((expr) == 0))                                                         \
         {                                                                                          \
             tinytest_assertFail(#expr);                                                            \
-            if(msg) fprintf(stderr, "\t%s\n\n", msg);                                              \
+            if(msg) fprintf(stderr, "\t%s\n\n", (const char*)msg);                                 \
         }                                                                                          \
     } while(tinytest_isSame(0));
 
@@ -348,7 +348,7 @@ extern "C" {
         if(TINYTEST_UNLIKELY(!((a) CMP(b))))                                                       \
         {                                                                                          \
             tinytest_assertFail("%s %s %s", #a, #CMP, #b);                                         \
-            if(msg) fprintf(stderr, "%s\n\n", msg);                                                \
+            if(msg) fprintf(stderr, "\t%s\n\n", (const char*)msg);                                 \
             fprintf(stderr, "with:\n  %s = %f\n  %s = %f\n\n", #a, a, #b, b);                      \
         }                                                                                          \
     } while(tinytest_isSame(0));
@@ -362,7 +362,7 @@ extern "C" {
         if(TINYTEST_UNLIKELY(!((a) CMP(b))))                                                       \
         {                                                                                          \
             tinytest_assertFail("%s %s %s", #a, #CMP, #b);                                         \
-            if(msg) fprintf(stderr, "%s\n\n", msg);                                                \
+            if(msg) fprintf(stderr, "\t%s\n\n", (const char*)msg);                                 \
             fprintf(stderr, "with:\n  %s = %i\n  %s = %i\n\n", #a, a, #b, b);                      \
         }                                                                                          \
     } while(tinytest_isSame(0));
@@ -376,7 +376,7 @@ extern "C" {
         if(TINYTEST_UNLIKELY(!((a) CMP(b))))                                                       \
         {                                                                                          \
             tinytest_assertFail("%s %s %s", #a, #CMP, #b);                                         \
-            if(msg) fprintf(stderr, "%s\n\n", msg);                                                \
+            if(msg) fprintf(stderr, "\t%s\n\n", (const char*)msg);                                 \
             fprintf(stderr, "with:\n  %s = %u\n  %s = %u\n\n", #a, a, #b, b);                      \
         }                                                                                          \
     } while(tinytest_isSame(0));
@@ -391,7 +391,7 @@ extern "C" {
         if(TINYTEST_UNLIKELY(fabs(a - b) > tol))                                                   \
         {                                                                                          \
             tinytest_assertFail("fabs(%s - %s) <= tol", #a, #b);                                   \
-            if(msg) fprintf(stderr, "%s\n\n", msg);                                                \
+            if(msg) fprintf(stderr, "\t%s\n\n", (const char*)msg);                                 \
             fprintf(stderr, "with:\n  %s = %f\n  %s = %f\n\n", #a, a, #b, b);                      \
         }                                                                                          \
     } while(tinytest_isSame(0));
@@ -419,7 +419,7 @@ extern "C" {
                     }                                                                              \
                     tinytest_colorPrintf(stderr, COLOR_YELLOW, "\t%s[%i] %s %s[%i]\n", #a, i,      \
                                         #CMP, #b, i);                                              \
-                    if(msg) fprintf(stderr, "\n%s\n", msg);                                        \
+                    if(msg) fprintf(stderr, "\n%s\n", (const char*)msg);                           \
                     fprintf(stderr, "\nwith:\n  %s[%i] = %f\n  %s[%i] = %f\n\n", #a, i, (a)[i], #b,\
                             i, (b)[i]);                                                            \
                 }                                                                                  \
@@ -456,7 +456,7 @@ extern "C" {
                     }                                                                              \
                     tinytest_colorPrintf(stderr, COLOR_YELLOW, "\t%s[%i] %s %s[%i]\n", #a, i,      \
                                         #CMP, #b, i);                                              \
-                    if(msg) fprintf(stderr, "\n%s\n", msg);                                        \
+                    if(msg) fprintf(stderr, "\n%s\n", (const char*)msg);                           \
                     fprintf(stderr, "\nwith:\n  %s[%i] = %i\n  %s[%i] = %i\n\n", #a, i, (a)[i], #b,\
                             i, (b)[i]);                                                            \
                 (*tinytest_assertErrorCounter_ptr)++;                                              \
@@ -493,7 +493,7 @@ extern "C" {
                     }                                                                              \
                     tinytest_colorPrintf(stderr, COLOR_YELLOW, "\t%s[%i] %s %s[%i]\n", #a, i,      \
                                         #CMP, #b, i);                                              \
-                    if(msg) fprintf(stderr, "\n%s\n", msg);                                        \
+                    if(msg) fprintf(stderr, "\n%s\n", (const char*)msg);                           \
                     fprintf(stderr, "\nwith:\n  %s[%i] = %u\n  %s[%i] = %u\n\n", #a, i, (a)[i], #b,\
                             i, (b)[i]);                                                            \
                 }                                                                                  \
@@ -546,7 +546,7 @@ extern "C" {
                     {                                                                              \
                         tinytest_colorPrintf(stderr, COLOR_YELLOW, "\t%s[%i] != %s[%i]\n", #a,     \
                                              i, #b, i);                                            \
-                        if(msg) fprintf(stderr, "%s\n\n", msg);                                    \
+                        if(msg) fprintf(stderr, "%s\n\n", (const char*)msg);                       \
                         fputs("\nwith:\n", stderr);                                                \
                         if(aIsInf || aIsNaN)                                                       \
                             fprintf(stderr, "\t%s[%i] = %s\n", #a, i, aIsInf ? "inf" : "nan");     \
@@ -564,7 +564,7 @@ extern "C" {
                                              "\tfabs(%s[%i] - %s[%i]) <= (atol + rtol "            \
                                              "* fabs(%s[%i]))\n",                                  \
                                              #a, i, #b, i, #b, i);                                 \
-                        if(msg) fprintf(stderr, "\n%s\n", msg);                                    \
+                        if(msg) fprintf(stderr, "\n%s\n", (const char*)msg);                       \
                         fprintf(stderr, "\nwith:\n  atol = %3.1e\n  rtol = "                       \
                                         "%3.1e\n  %s[%i] = %f\n  %s[%i] = %f\n\n",                 \
                                 atol, rtol, #a, i, a[i], #b, i, b[i]);                             \
