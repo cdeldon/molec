@@ -51,7 +51,7 @@ void molec_force_test_register_functions()
     add_function(&molec_force_N2_refrence, "Naive N^2 implementation");
     add_function(&molec_force_cellList, "Cell list (while loop)");
     add_function(&molec_force_cellList_for, "Cell list (for loop)");
-    //add_function(&molec_force_cellList_for_swap, "Cell list with swap");
+    add_function(&molec_force_cellList_for_swap, "Cell list with swap");
 
     // add here functions to be registered
 }
@@ -89,9 +89,9 @@ void molec_check_forces(molec_force_calculation force_routine, molec_Simulation_
     molec_sort_qsort_forces(sim);
 
     // check wheter the computed forces are ok
-    ALLCLOSE_DOUBLE(sim->f_x, f_x_reference, N, 1e-8, 1e-8)
-    ALLCLOSE_DOUBLE(sim->f_y, f_y_reference, N, 1e-8, 1e-8)
-    ALLCLOSE_DOUBLE(sim->f_z, f_z_reference, N, 1e-8, 1e-8)
+    ALLCLOSE_DOUBLE_3(sim->f_x, f_x_reference, N)
+    ALLCLOSE_DOUBLE_3(sim->f_y, f_y_reference, N)
+    ALLCLOSE_DOUBLE_3(sim->f_z, f_z_reference, N)
 }
 
 /**

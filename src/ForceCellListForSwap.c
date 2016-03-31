@@ -171,7 +171,9 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
     memset(f_z, 0, N * sizeof(Real));
 
     // stores the (temporal) accessed position of the particles
-    molec_uint64_t particle_access_order = 0;
+    int particle_access_order = 0;
+    int *particle_order;
+    MOLEC_MALLOC(particle_order, N * sizeof(int));
 
     // Loop over the cells
     for(int idx_z = 0; idx_z < cellList_parameter.N_z; ++idx_z)
@@ -206,6 +208,8 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
                     v_x_copy[particle_access_order] = v_x[i];
                     v_y_copy[particle_access_order] = v_y[i];
                     v_z_copy[particle_access_order] = v_z[i];
+
+                    particle_order[particle_access_order] = i;
                 }
 
 
@@ -334,6 +338,27 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
     sim->v_z = v_z_copy;
     v_z_copy = t;
 
+    // reorder the forces such that the new particle ordering is consistent
+    // with the calculated forces
+
+    Real *f_x_temp, *f_y_temp, *f_z_temp;
+    MOLEC_MALLOC(f_x_temp, N * sizeof(Real));
+    MOLEC_MALLOC(f_y_temp, N * sizeof(Real));
+    MOLEC_MALLOC(f_z_temp, N * sizeof(Real));
+    for(int i = 0; i < N; ++i)
+    {
+        f_x_temp[i] = f_x[particle_order[i]];
+        f_y_temp[i] = f_y[particle_order[i]];
+        f_z_temp[i] = f_z[particle_order[i]];
+    }
+    memcpy(f_x, f_x_temp, N * sizeof(Real));
+    memcpy(f_y, f_y_temp, N * sizeof(Real));
+    memcpy(f_z, f_z_temp, N * sizeof(Real));
+
+    MOLEC_FREE(f_x_temp);
+    MOLEC_FREE(f_y_temp);
+    MOLEC_FREE(f_z_temp);
+
 
     //======== FREE MEMORY ========//
 
@@ -345,6 +370,8 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
 
     MOLEC_FREE(particles_in_cell_idx);
     MOLEC_FREE(particles_in_cell_n_idx);
+
+    MOLEC_FREE(particle_order);
 
     *Epot = Epot_;
 
