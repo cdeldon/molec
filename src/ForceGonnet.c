@@ -15,6 +15,7 @@
 
 #include <molec/Force.h>
 #include <molec/Parameter.h>
+#include <molec/CellVector.h>
 #include <string.h>
 #include <math.h>
 
