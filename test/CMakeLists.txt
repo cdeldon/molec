@@ -4,8 +4,8 @@
 #                      Michel Breyer  (mbreyer@student.ethz.ch)
 #                      Florian Frei   (flofrei@student.ethz.ch)
 #                      Fabian Thuring (thfabian@student.ethz.ch)
-# 
-#  This file is distributed under the MIT Open Source License. 
+#
+#  This file is distributed under the MIT Open Source License.
 #  See LICENSE.txt for details.
 
 cmake_minimum_required(VERSION 2.8)
@@ -19,6 +19,7 @@ set(UNITTEST_SOURCE
     UnittestCellVector.c
     UnittestSort.c
     UnittestForce.c
+    UnittestIntegrator.c
 )
 
 set(UNITTEST_HEADER

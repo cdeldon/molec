@@ -17,6 +17,33 @@
 
 int molec_NAtoms = 1000;
 
+ Real* molec_init_vector(const int N)
+ {
+     Real* vec;
+     MOLEC_MALLOC(vec, sizeof(Real) * N);
+     return vec;
+ }
+
+Real* molec_random_vector(const int N)
+{
+    Real* vec;
+    MOLEC_MALLOC(vec, sizeof(Real) * N);
+    for (int i=0; i < N; i++) vec[i] = MOLEC_RANDOM;
+    return vec;
+}
+
+Real* molec_copy_vector(const Real* vec, const int N)
+{
+    Real* vec_cpy = malloc(sizeof(Real) * N);
+    memcpy(vec_cpy, vec, sizeof(Real) * N);
+    return vec_cpy;
+}
+
+void molec_free_vector(Real* vec)
+{
+    MOLEC_FREE(vec);
+}
+
 molec_Simulation_SOA_t* molec_setup_simulation_SOA()
 {
     const int N = molec_NAtoms;
@@ -25,19 +52,7 @@ molec_Simulation_SOA_t* molec_setup_simulation_SOA()
     molec_parameter_init(N);
 
     // Allocate simulation struct and arrays
-    molec_Simulation_SOA_t* sim = malloc(sizeof(molec_Simulation_SOA_t));
-
-    MOLEC_MALLOC(sim->x, sizeof(Real) * N);
-    MOLEC_MALLOC(sim->y, sizeof(Real) * N);
-    MOLEC_MALLOC(sim->z, sizeof(Real) * N);
-
-    MOLEC_MALLOC(sim->v_x, sizeof(Real) * N);
-    MOLEC_MALLOC(sim->v_y, sizeof(Real) * N);
-    MOLEC_MALLOC(sim->v_z, sizeof(Real) * N);
-
-    MOLEC_MALLOC(sim->f_x, sizeof(Real) * N);
-    MOLEC_MALLOC(sim->f_y, sizeof(Real) * N);
-    MOLEC_MALLOC(sim->f_z, sizeof(Real) * N);
+    molec_Simulation_SOA_t* sim = molec_init_simulation_SOA();
 
     // Set initial conditions
     molec_set_initial_condition(sim);
@@ -47,19 +62,6 @@ molec_Simulation_SOA_t* molec_setup_simulation_SOA()
 
 void molec_teardown_simulation_SOA(molec_Simulation_SOA_t* sim)
 {
-    MOLEC_FREE(sim->x);
-    MOLEC_FREE(sim->y);
-    MOLEC_FREE(sim->z);
-
-    MOLEC_FREE(sim->v_x);
-    MOLEC_FREE(sim->v_y);
-    MOLEC_FREE(sim->v_z);
-
-    MOLEC_FREE(sim->f_x);
-    MOLEC_FREE(sim->f_y);
-    MOLEC_FREE(sim->f_z);
-
-    MOLEC_FREE(sim);
+    molec_free_simulation_SOA(sim);
     MOLEC_FREE(molec_parameter);
 }
-

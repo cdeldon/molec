@@ -35,9 +35,10 @@ int main(int argc, char* argv[])
     REGISTER_TEST_CASE(molec_UnittestSort);
     REGISTER_TEST_CASE(molec_UnittestCompare);
     REGISTER_TEST_CASE(molec_UnittestForce);
+    REGISTER_TEST_CASE(molec_UnittestIntegrator);
 
     int ret = tinytest_run();
     tinytest_free();
-    
+
     return ret;
 }
