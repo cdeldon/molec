@@ -34,9 +34,8 @@ void add_function(molec_force_calculation f, char *name)
 {
     if(molec_num_functions >= MOLEC_MAX_FORCE_ROUTINES)
     {
-        printf("Couldn't register %s, too many functions registered (Max: %d)",
+        molec_error("Couldn't register %s, too many functions registered (Max: %d)",
                     name, MOLEC_MAX_FORCE_ROUTINES);
-        return;
     }
 
     force_routines[molec_num_functions] = f;
@@ -78,7 +77,8 @@ void molec_compute_reference_forces(molec_Simulation_SOA_t* sim, const int N)
     memcpy(f_z_reference, sim->f_z, N * sizeof(Real));
 }
 
-void molec_check_forces(molec_force_calculation force_routine, molec_Simulation_SOA_t* sim, const int N)
+void molec_check_forces(molec_force_calculation force_routine, molec_Simulation_SOA_t* sim,
+                        const int N, const char* description)
 {
     Real Epot;
 
@@ -89,9 +89,9 @@ void molec_check_forces(molec_force_calculation force_routine, molec_Simulation_
     molec_sort_qsort_forces(sim);
 
     // check wheter the computed forces are ok
-    ALLCLOSE_DOUBLE_3(sim->f_x, f_x_reference, N)
-    ALLCLOSE_DOUBLE_3(sim->f_y, f_y_reference, N)
-    ALLCLOSE_DOUBLE_3(sim->f_z, f_z_reference, N)
+    ALLCLOSE_DOUBLE_MSG(sim->f_x, f_x_reference, N, 1e-08, 1e-05, description)
+    ALLCLOSE_DOUBLE_MSG(sim->f_y, f_y_reference, N, 1e-08, 1e-05, description)
+    ALLCLOSE_DOUBLE_MSG(sim->f_z, f_z_reference, N, 1e-08, 1e-05, description)
 }
 
 /**
@@ -129,7 +129,7 @@ TEST_CASE(molec_UnittestForce)
         //printf("Running force comparison with %s\n", force_routines_name[r]);
 
         // compute the forces using the routines specified above
-        molec_check_forces(force_routines[r], sim, N);
+        molec_check_forces(force_routines[r], sim, N, force_routines_name[r]);
     }
 
     molec_teardown_simulation_SOA(sim);
