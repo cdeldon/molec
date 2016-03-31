@@ -45,6 +45,6 @@ scaling = 0.05
 ```
 
 ## References 
- * [1) Gonnet paper](http://udel.edu/~arthij/MD.pdf)
- * [2) Cell list implementation](http://cacs.usc.edu/education/cs596/01-1LinkedListCell.pdf)
+ * [[1]](http://udel.edu/~arthij/MD.pdf) Gonnet paper
+ * [[2]](http://cacs.usc.edu/education/cs596/01-1LinkedListCell.pdf) Cell list implementation
  
