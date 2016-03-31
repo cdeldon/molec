@@ -11,8 +11,8 @@ Molecular Dynamics project for the course *How to Write Fast Numerical Code* (26
 
 ## TODO list
 - [x] sorting routine (at the end of force calculation, exploiting the already processed elements in the same order
-- [ ] dummy implementation of cell list (no scalar replacement, arrays of arrays)
-- [ ] optimie malloc and free in cell list algorithm (c_idx, ...)
+- [x] dummy implementation of cell list (no scalar replacement, arrays of arrays)
+- [ ] optimize malloc and free in cell list algorithm (c_idx, ...)
 
 ## Molecular Dynamics (MD)
 Molecular dynamics simulation consists of the numerical, step-by-step, solution of the
@@ -45,6 +45,6 @@ scaling = 0.05
 ```
 
 ## References 
- * [[1]](http://udel.edu/~arthij/MD.pdf) Gonnet paper
- * [[2]](http://cacs.usc.edu/education/cs596/01-1LinkedListCell.pdf) Cell list implementation
+ * [[1]](http://udel.edu/~arthij/MD.pdf "Gonnet paper") Gonnet paper
+ * [[2]](http://cacs.usc.edu/education/cs596/01-1LinkedListCell.pdf "Cell list implementation") Cell list implementation
  
