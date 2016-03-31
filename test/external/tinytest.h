@@ -590,6 +590,10 @@ extern "C" {
 #pragma warning(disable : 4996)
 #pragma warning(disable : 4477)
 #endif
+ 
+#ifdef TINYTEST_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wformat"
+#endif
 
 #include <math.h>
 #include <stdio.h>
