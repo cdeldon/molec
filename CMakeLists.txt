@@ -56,6 +56,11 @@ if(MOLEC_CELLLIST_COUNT)
     add_definitions(-DMOLEC_CELLLIST_COUNT_INTERACTION=1)
 endif(MOLEC_CELLLIST_COUNT)
 
+option(MOLEC_DUMP_COORDINATES "Writes the particle coordinates to a file" OFF)
+if(MOLEC_DUMP_COORDINATES)
+    add_definitions(-DMOLEC_DUMP_COORDINATES=1)
+endif(MOLEC_DUMP_COORDINATES)
+
 ### Doxygen Documentation
 find_package(Doxygen)
 option(MOLEC_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" 

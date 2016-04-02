@@ -19,6 +19,7 @@
 #include <molec/Parameter.h>
 #include <molec/Periodic.h>
 #include <molec/Simulation.h>
+#include <molec/Dump.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -65,6 +66,13 @@ void molec_free_simulation_SOA(molec_Simulation_SOA_t* simulation)
 
 void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, Real*, int))
 {
+    if(MOLEC_DUMP_COORDINATES)
+    {
+        dump_file_name = "molec_simulation_dump.xyz";
+        molec_dump_file = fopen(dump_file_name, "w");
+        if(molec_dump_file == NULL)
+            molec_error("Unable to open file %s to dump particle coordinates\n", dump_file_name);
+    }
     // Set parameters
     if(molec_parameter == NULL)
         molec_error("molec_parameter is nullptr\n");
@@ -86,6 +94,11 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
     printf("%10s\t%15s\t%15s\t%15s\n", "Step", "Ekin", "Epot", "Etot");
     for(int n = 1; n <= Nstep; ++n)
     {
+        if(MOLEC_DUMP_COORDINATES)
+        {
+            molec_dump_coordinates(sim, N);
+        }
+
         Ekin_x = Ekin_y = Ekin_z = 0.0;
         Epot = 0.0;
 
@@ -113,6 +126,11 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
     // Free memory
     molec_free_simulation_SOA(sim);
     MOLEC_FREE(molec_parameter);
+
+    if(MOLEC_DUMP_COORDINATES)
+    {
+        fclose(molec_dump_file);
+    }
 }
 
 void molec_print_simulation_SOA(const molec_Simulation_SOA_t* sim)
