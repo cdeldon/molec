@@ -86,6 +86,12 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
     // Set initial conditions
     molec_set_initial_condition(sim);
 
+    if(MOLEC_DUMP_COORDINATES)
+    {
+        // print the number of atoms
+        fprintf(molec_dump_file, "%d\n", N);
+    }
+
     // Run sim
     Real Ekin_x = 0.0, Ekin_y = 0.0, Ekin_z = 0.0;
     Real Epot = 0.0;
@@ -98,7 +104,6 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
         {
             molec_dump_coordinates(sim, N);
         }
-
         Ekin_x = Ekin_y = Ekin_z = 0.0;
         Epot = 0.0;
 

@@ -20,14 +20,11 @@ FILE *molec_dump_file;
 
 void molec_dump_coordinates(molec_Simulation_SOA_t* sim, const int N)
 {
-    // print the number of atoms
-    fprintf(molec_dump_file, "%d\n", N);
-
     // print the molecule coordinates in the form
     // 'x1, y1, z1
     //  x2, y2, z2
     //  ...
     //  xN, yN, zN'
     for(int i = 0; i < N; ++i)
-        fprintf(molec_dump_file,"%5.6f\t%5.6f\t%5.6f\n", sim->x[i], sim->y[i], sim->z[i]);
+        fprintf(molec_dump_file,"%5.6f, %5.6f, %5.6f\n", sim->x[i], sim->y[i], sim->z[i]);
 }

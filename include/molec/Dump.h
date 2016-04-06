@@ -26,7 +26,19 @@ extern FILE *molec_dump_file;
  * @brief Dumps particle coordinates to file
  *
  * Dumps particle coordinates to file specified in this
- * header file for each timestep
+ * header file for each timestep.
+ * The dumped file has the following form:
+ * <N>
+ * < x1  y1  z1>
+ * < x2  y2  z2>
+ *    .......
+ * < xN  yN  zN>
+ * < x1  y1  z1>
+ * < x2  y2  z2>
+ *    .......
+ * < xN  yN  zN>
+ *
+ * @see https://en.wikipedia.org/wiki/XYZ_file_format
  */
 void molec_dump_coordinates(molec_Simulation_SOA_t* sim, const int N);
 
