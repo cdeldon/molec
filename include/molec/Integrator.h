@@ -18,9 +18,6 @@
 
 #include <molec/Common.h>
 
-// Define function pointer for integrators
-typedef void (*molec_integrator)(Real*, Real*, const Real*, Real*, const int);
-
 /**
  * @brief Leapfrog integration scheme (refrence version)
  *
