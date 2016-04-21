@@ -249,8 +249,8 @@ void molec_force_reference_sp(molec_Simulation_SOA_t* sim, Real* Epot, const int
 
                     const Real r2 = xij * xij + yij * yij + zij * zij;
 
-                    if(r2 < Rcut2)
-                    {
+//                    if(r2 < Rcut2)
+//                    {
                         // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
                         const Real s2 = (sigLJ * sigLJ) / r2;
                         const Real s6 = s2 * s2 * s2;
@@ -267,7 +267,7 @@ void molec_force_reference_sp(molec_Simulation_SOA_t* sim, Real* Epot, const int
                         f_y[IndexOfAtomTwo] -= fr * yij;
                         f_z[IndexOfAtomTwo] -= fr * zij;
 
-                    }//end if
+//                    }//end if
 
                 }//end second list
 
