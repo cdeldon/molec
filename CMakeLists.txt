@@ -51,10 +51,27 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 option(MOLEC_UNITTEST "Build the UnitTests" ON)
 
-option(MOLEC_MEASURE_TIME "Measure time" ON)
-if(MOLEC_MEASURE_TIME)
-    add_definitions(-DMOLEC_MEASURE_TIME)
-endif(MOLEC_MEASURE_TIME)
+option(MOLEC_TIMER "Enable timing framework" OFF)
+option(MOLEC_FORCE_TIMER "Enable force timer" ${MOLEC_TIMER})
+option(MOLEC_INTEGRATOR_TIMER "Enable integrator timer" ${MOLEC_TIMER})
+option(MOLEC_PERIODIC_TIMER "Enable periodic timer" ${MOLEC_TIMER})
+
+if(MOLEC_TIMER)
+    if(MOLEC_FORCE_TIMER)
+        add_definitions(-DMOLEC_TIME)
+        add_definitions(-DMOLEC_TIME_FORCE)
+    endif()
+
+    if(MOLEC_INTEGRATOR_TIMER)
+        add_definitions(-DMOLEC_TIME)
+        add_definitions(-DMOLEC_TIME_INTEGRATOR)
+    endif()
+
+    if(MOLEC_PERIODIC_TIMER)
+        add_definitions(-DMOLEC_TIME)
+        add_definitions(-DMOLEC_TIME_PERIODIC)
+    endif()
+endif(MOLEC_TIMER)
 
 option(MOLEC_SINGLE_PRECISION "Compile for singe precision floating point (4 bytes)" ON)
 if(MOLEC_SINGLE_PRECISION)

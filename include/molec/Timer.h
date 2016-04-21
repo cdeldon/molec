@@ -41,7 +41,8 @@ typedef union {
 /**
  *
  */
-typedef struct molec_Measurement_Node {
+typedef struct molec_Measurement_Node
+{
     molec_uint64_t value;
     struct molec_Measurement_Node* next;
 } molec_Measurement_Node_t;
@@ -107,7 +108,7 @@ molec_uint64_t molec_stop_tsc(molec_uint64_t start);
  *
  *     printf("Meadian of elapsed cycles of 0: %llu\n", molec_measurement_get_median(0));
  *
- *     molec_measurement_finish(); 
+ *     molec_measurement_finish();
  *
  * @endcode
  */
@@ -147,7 +148,7 @@ void molec_measurement_start(int timer_index);
  *
  * @param timer_index   Index of the timer to stop
  */
-void molec_measurement_stop(int timer_index) ;
+void molec_measurement_stop(int timer_index);
 
 /**
  * Compute the median of all measurements (in cycles) for timer Index
@@ -161,5 +162,47 @@ molec_uint64_t molec_measurement_get_median(int timer_index);
  * @brief cleans the timing infrastructure
  */
 void molec_measurement_finish();
+
+#define MOLEC_MAX_NUM_TIMERS 3
+
+#ifdef MOLEC_TIME
+#define MOLEC_MEASUREMENT_INIT molec_measurement_init(MOLEC_MAX_NUM_TIMERS)
+#define MOLEC_MEASUREMENT_FINISH molec_measurement_finish()
+#define MOLEC_INTERNAL_START_MEASUREMENT(id) molec_measurement_start((id))
+#define MOLEC_INTERNAL_STOP_MEASUREMENT(id) molec_measurement_stop((id))
+#else // MOLEC_TIME
+#define MOLEC_MEASUREMENT_INIT (void) 0
+#define MOLEC_MEASUREMENT_FINISH (void) 0
+#define MOLEC_INTERNAL_START_MEASUREMENT(id) (void) 0
+#define MOLEC_INTERNAL_STOP_MEASUREMENT(id) (void) 0
+#endif // MOLEC_TIME
+
+#define MOLEC_INTERNAL_MAKE_TIMER(name, id)                                                        \
+    MOLEC_INLINE void MOLEC_MEASUREMENT_##name##_START() { MOLEC_INTERNAL_START_MEASUREMENT(id); } \
+    MOLEC_INLINE void MOLEC_MEASUREMENT_##name##_STOP() { MOLEC_INTERNAL_STOP_MEASUREMENT(id); }
+
+#define MOLEC_INTERNAL_IGNORE_TIMER(name, id)                                                      \
+    MOLEC_INLINE void MOLEC_MEASUREMENT_##name##_START() { (void) 0; }                             \
+    MOLEC_INLINE void MOLEC_MEASUREMENT_##name##_STOP() { (void) 0; }
+
+
+#ifndef MOLEC_TIME_FORCE
+MOLEC_INTERNAL_IGNORE_TIMER(FORCE, 0)
+#else
+MOLEC_INTERNAL_MAKE_TIMER(FORCE, 0)
+#endif
+
+#ifndef MOLEC_TIME_INTEGRATOR
+MOLEC_INTERNAL_IGNORE_TIMER(INTEGRATOR, 1)
+#else
+MOLEC_INTERNAL_MAKE_TIMER(INTEGRATOR, 1)
+#endif
+
+#ifndef MOLEC_TIME_PERIODIC
+MOLEC_INTERNAL_IGNORE_TIMER(PERIODIC, 2)
+#else
+MOLEC_INTERNAL_MAKE_TIMER(PERIODIC, 2)
+#endif
+
 
 #endif

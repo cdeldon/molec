@@ -13,7 +13,11 @@
  *  See LICENSE.txt for details.
  */
 
-#include <molec/main.h>
+#include <molec/Force.h>
+#include <molec/Integrator.h>
+#include <molec/LoadConfig.h>
+#include <molec/Simulation.h>
+#include <molec/Timer.h>
 
 int main(int argc, const char* argv[])
 {
@@ -25,25 +29,15 @@ int main(int argc, const char* argv[])
     molec_force_calculation force_calculation = &molec_force_cellList_for_swap;
     molec_force_integration force_integration = &molec_integrator_leapfrog_refrence;
 
-    MOLEC_MEASUREMENT_INIT
+    MOLEC_MEASUREMENT_INIT;
 
     molec_run_simulation(force_calculation, force_integration);
 
     molec_uint64_t force_cycles = 1;
     molec_uint64_t integrator_cycles = 1;
-    
-#if MOLEC_MEASURE_FORCE
-    force_cycles = molec_measurement_get_median(0);
-    printf("Force cycles: %llu\n", force_cycles);
-#endif
-#if MOLEC_MEASURE_INTEGRATOR
-    integrator_cycles = molec_measurement_get_median(1);
-    printf("Integrator cycles: %llu\n", integrator_cycles);
-#endif
-    
 
     printf("Ratio: %f3.2\n", 1.0 * force_cycles / integrator_cycles);
 
-    MOLEC_MEASUREMENT_FINISH
+    MOLEC_MEASUREMENT_FINISH;
 }
 ;
