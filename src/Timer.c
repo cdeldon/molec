@@ -33,17 +33,26 @@ molec_uint64_t molec_stop_tsc(molec_uint64_t start)
     return MOLEC_TSC_VAL(end) - start;
 }
 
-void molec_measurement_init(const int num_measurements)
+void molec_measurement_init(const int num_timers = 1)
 {
     if(measurement)
-        molec_error("molec_measurement_init: an existing measurement is still ongoing!");
-    
+        molec_error("Multiple measurements ongoing!");
+
+    // Allocate
     measurement = (molec_Measurement_t*) malloc(sizeof(molec_Measurement_t));
-    
-    measurement->values = (molec_uint64_t*) malloc(sizeof(molec_uint64_t) * num_measurements);
-    measurement->num_measurements = num_measurements;
-    measurement->iteration = 0;
-    measurement->start = 0;
+
+    measurement->value_list_heads = malloc(sizeof(molec_Measurement_Node_t*) * num_timers);
+    measurement->num_timers = num_timers;
+    measurement->num_measurements = malloc(sizeof(int) * num_timers);
+    measurement->start = malloc(sizeof(molec_uint64_t) * num_timers);
+
+    // Initialize
+    for(int i = 0; i < num_timers; ++i)
+    {
+        measurement->value_list_heads[i] = NULL;
+        measurement->num_measurements[i] = 0;
+        measurement->start[i] = 0;
+    }
 }
 
 void molec_measurement_start()

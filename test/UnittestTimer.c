@@ -26,7 +26,6 @@ TEST_CASE(molec_UnittestTimer)
     for(int i = 0; i < 100; ++i)
     {
         molec_measurement_start();
-
         molec_measurement_stop();
     }
 

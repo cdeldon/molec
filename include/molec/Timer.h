@@ -12,7 +12,7 @@
  *  This file is distributed under the MIT Open Source License.
  *  See LICENSE.txt for details.
  */
- 
+
 #ifndef MOLEC_TIMER_H
 #define MOLEC_TIMER_H
 
@@ -21,21 +21,30 @@
 #ifdef MOLEC_PLATFORM_WINDOWS
 #include <intrin.h>
 #else /* MOLEC_PLATFORM_POSIX */
-#include <unistd.h>
-#include <sys/types.h>
 #include <sys/syscall.h>
+#include <sys/types.h>
+#include <unistd.h>
 #endif
 
 /**
  * Time stamp counter (TSC)
  */
-typedef union
-{
+typedef union {
     molec_uint64_t int64;
-    struct { molec_uint32_t lo, hi; } int32;
+    struct
+    {
+        molec_uint32_t lo, hi;
+    } int32;
 } molec_TSC;
-
 #define MOLEC_TSC_VAL(a) ((a).int64)
+
+/**
+ *
+ */
+typedef struct molec_Measurement_Node {
+    molec_uint64_t value_;
+    molec_Measurement_Node* next;
+} molec_Measurement_Node_t;
 
 /**
  * @brief Count the number of cycles since last reset
@@ -44,24 +53,27 @@ typedef union
 #ifdef MOLEC_PLATFORM_WINDOWS
 #define MOLEC_RDTSC(cpu_c) (cpu_c).int64 = __rdtsc()
 #else /* MOLEC_PLATFORM_POSIX */
-#define MOLEC_RDTSC(cpu_c) \
-    MOLEC_ASM MOLEC_VOLATILE ("rdtsc" : "=a" ((cpu_c).int32.lo), "=d"((cpu_c).int32.hi))
+#define MOLEC_RDTSC(cpu_c)                                                                         \
+    MOLEC_ASM MOLEC_VOLATILE("rdtsc" : "=a"((cpu_c).int32.lo), "=d"((cpu_c).int32.hi))
 #endif
 
 /**
  * Query cpu-id (this is used to serialize the pipeline)
- */ 
+ */
 #ifdef MOLEC_PLATFORM_WINDOWS
-#define MOLEC_CPUID() { int __cpuInfo__[4]; __cpuid(__cpuInfo__, 0x0); }
+#define MOLEC_CPUID()                                                                              \
+    {                                                                                              \
+        int __cpuInfo__[4];                                                                        \
+        __cpuid(__cpuInfo__, 0x0);                                                                 \
+    }
 #else /* MOLEC_PLATFORM_POSIX */
-#define MOLEC_CPUID() \
-    MOLEC_ASM MOLEC_VOLATILE ("cpuid" : : "a" (0) : "bx", "cx", "dx" )  
+#define MOLEC_CPUID() MOLEC_ASM MOLEC_VOLATILE("cpuid" : : "a"(0) : "bx", "cx", "dx")
 #endif
 
 /**
  * Serialize the pipeline and query the TSC
  * @return 64-bit unsigned integer representing a tick count
- */ 
+ */
 molec_uint64_t molec_start_tsc();
 
 /**
@@ -69,7 +81,7 @@ molec_uint64_t molec_start_tsc();
  *
  * @param start     64-bit unsigned integer representing a tick count
  * @return number of elapsed cycles since start
- */ 
+ */
 molec_uint64_t molec_stop_tsc(molec_uint64_t start);
 
 /**
@@ -78,7 +90,7 @@ molec_uint64_t molec_stop_tsc(molec_uint64_t start);
  * To time an exection:
  * @code{.c}
  *     molec_measurement_init(100); // Allocate space for 100 measurements
- *     
+ *
  *     for(int i = 0; i < 100; ++i)
  *     {
  *         molec_measurement_start();
@@ -88,47 +100,52 @@ molec_uint64_t molec_stop_tsc(molec_uint64_t start);
  *         molec_measurement_stop();
  *     }
  *
- *     printf("Meadian of elapsed cycles: %llu\n, molec_measurement_finish());
+ *     printf("Meadian of elapsed cycles: %llu\n", molec_measurement_finish());
  * @endcode
  */
 typedef struct molec_Measurement
 {
     /** Measured runtimes (in cycles) */
-    molec_uint64_t* values;
-    
+    molec_Measurement_Node_t* value_list_heads[];
+
+    /** Number of concurrent timers */
+    int num_timers;
+
     /** Number of measurements */
-    int num_measurements; 
-    
-    /** Current iteration */
-    int iteration;
-    
+    int* num_measurements;
+
     /** Current tick count returned by molec_start_tsc() */
-    molec_uint64_t start;
-    
+    molec_uint64_t* start;
+
 } molec_Measurement_t;
 
 /**
  * Start the measurement by allocating the molec_Measurement_t struct
  *
- * @param num_measurements  Number of measurements    
+ * @param num_timers        Number of timers
  */
-void molec_measurement_init(const int num_measurements);
+void molec_measurement_init(const int num_timers = 1);
 
 /**
  * Start the TSC
+ *
+ * @param timer_index   Index of the timer to start
  */
-void molec_measurement_start();
+void molec_measurement_start(int timer_index = 0);
 
 /**
  * Stop the TSC and register the value
+ *
+ * @param timer_index   Index of the timer to stop
  */
-void molec_measurement_stop();
+void molec_measurement_stop(int timer_index = 0) ;
 
 /**
- * Compute the median of all measurements (in cycles)
+ * Compute the median of all measurements (in cycles) for timer Index
  *
- * @return meadian of all measurements 
+ * @param timer_index   Index of the timer
+ * @return meadian of all measurement of timer timer_index
  */
-molec_uint64_t molec_measurement_finish();
+molec_uint64_t molec_measurement_finish(int timer_index = 0);
 
 #endif
