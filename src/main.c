@@ -36,13 +36,7 @@ int main(int argc, const char* argv[])
     MOLEC_MEASUREMENT_SIMULATION_STOP();
 
 
-    molec_uint64_t force_cycles = 1;
-    molec_uint64_t integrator_cycles = 1;
-
-    force_cycles = MOLEC_MEASUREMENT_FORCE_GET_MEDIAN();
-    integrator_cycles = MOLEC_MEASUREMENT_INTEGRATOR_GET_MEDIAN();
-
-    printf("Simulation cycles: %llu\n", MOLEC_MEASUREMENT_SIMULATION_GET_MEDIAN());
+    MOLEC_MEASUREMENT_PRINT;
 
     MOLEC_MEASUREMENT_FINISH;
 }

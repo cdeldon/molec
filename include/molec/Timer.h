@@ -151,7 +151,7 @@ void molec_measurement_start(int timer_index);
 void molec_measurement_stop(int timer_index);
 
 /**
- * Compute the median of all measurements (in cycles) for timer Index
+ * @brief Compute the median of all measurements (in cycles) for timer Index
  *
  * @param timer_index   Index of the timer
  * @return meadian of all measurement of timer timer_index
@@ -159,36 +159,72 @@ void molec_measurement_stop(int timer_index);
 molec_uint64_t molec_measurement_get_median(int timer_index);
 
 /**
+ * @brief Prints the measured timers in readeable format to the command line
+ */
+void molec_measurement_print();
+
+/**
  * @brief cleans the timing infrastructure
  */
 void molec_measurement_finish();
+
+
+/**********************************************************************************/
+/*                                   R E A D M E                                  */
+/**********************************************************************************/
+/*
+ *  When adding a new timer, check the following:
+ *
+ *   = MOLEC_MAX_NUM_TIMERS has to be at least as large as the total number of timers
+ *
+ *   = add the following lines to this file (assuming name of timer to be "POTATO":
+ *
+ *      "  #ifndef MOLEC_TIME_POTATO
+ *          MOLEC_INTERNAL_IGNORE_TIMER(POTATO, <next-number-of-the-sequence>)
+ *         #else
+ *          MOLEC_INTERNAL_MAKE_TIMER(POTATO, <same-number-as-above>)
+ *         #endif
+ *      "
+ *
+ *   = add a line of code in the function "MOLEC_MEASUREMENT_GET_TIMER" corresponding
+ *     to the timer you added
+ *
+ *   = modify the CMakeLists file according to the other examples
+ */
 
 #define MOLEC_MAX_NUM_TIMERS 4
 
 #ifdef MOLEC_TIME
 #define MOLEC_MEASUREMENT_INIT molec_measurement_init(MOLEC_MAX_NUM_TIMERS)
 #define MOLEC_MEASUREMENT_FINISH molec_measurement_finish()
+#define MOLEC_MEASUREMENT_PRINT molec_measurement_print()
 #define MOLEC_INTERNAL_START_MEASUREMENT(id) molec_measurement_start((id))
 #define MOLEC_INTERNAL_STOP_MEASUREMENT(id) molec_measurement_stop((id))
 #define MOLEC_INTERNAL_GET_MEDIAN(id) molec_measurement_get_median((id))
 #else // MOLEC_TIME
 #define MOLEC_MEASUREMENT_INIT (void) 0
 #define MOLEC_MEASUREMENT_FINISH (void) 0
+#define MOLEC_MEASUREMENT_PRINT (void) 0
 #define MOLEC_INTERNAL_START_MEASUREMENT(id) (void) 0
 #define MOLEC_INTERNAL_STOP_MEASUREMENT(id) (void) 0
 #endif // MOLEC_TIME
+
+#define xstr(s) str(s)
+     #define str(s) #s
 
 #define MOLEC_INTERNAL_MAKE_TIMER(name, id)                                                        \
     MOLEC_INLINE void MOLEC_MEASUREMENT_##name##_START() { MOLEC_INTERNAL_START_MEASUREMENT(id); } \
     MOLEC_INLINE void MOLEC_MEASUREMENT_##name##_STOP() { MOLEC_INTERNAL_STOP_MEASUREMENT(id); }   \
     MOLEC_INLINE molec_uint64_t MOLEC_MEASUREMENT_##name##_GET_MEDIAN()                            \
-        { return MOLEC_INTERNAL_GET_MEDIAN(id); }
+        { return MOLEC_INTERNAL_GET_MEDIAN(id); }                                                  \
+    MOLEC_INLINE char* MOLEC_MEASUREMENT_GET_TIMER_##id##_() { return xstr(name); }
 
 #define MOLEC_INTERNAL_IGNORE_TIMER(name, id)                                                      \
     MOLEC_INLINE void MOLEC_MEASUREMENT_##name##_START() { (void) 0; }                             \
     MOLEC_INLINE void MOLEC_MEASUREMENT_##name##_STOP() { (void) 0; }                              \
     MOLEC_INLINE molec_uint64_t MOLEC_MEASUREMENT_##name##_GET_MEDIAN()                            \
-        { return 1ul; }
+        { return 1ul; }                                                                            \
+    MOLEC_INLINE char* MOLEC_MEASUREMENT_GET_TIMER_##id##_() { return ""; }
 
 
 #ifndef MOLEC_TIME_FORCE
@@ -214,6 +250,19 @@ MOLEC_INTERNAL_IGNORE_TIMER(SIMULATION, 3)
 #else
 MOLEC_INTERNAL_MAKE_TIMER(SIMULATION, 3)
 #endif
+
+MOLEC_INLINE char* MOLEC_MEASUREMENT_GET_TIMER(int id)
+{
+    switch(id){
+        case 0: return MOLEC_MEASUREMENT_GET_TIMER_0_();
+        case 1: return MOLEC_MEASUREMENT_GET_TIMER_1_();
+        case 2: return MOLEC_MEASUREMENT_GET_TIMER_2_();
+        case 3: return MOLEC_MEASUREMENT_GET_TIMER_3_();
+        default: molec_error("Index %d does not correspond to any timer\n", id);
+    }
+    molec_error("Index %d does not correspond to any timer\n", id);
+    return "ERROR";
+}
 
 
 #endif

@@ -131,6 +131,29 @@ molec_uint64_t molec_measurement_get_median(int timer_index)
     return ret;
 }
 
+void molec_measurement_print()
+{
+    printf("\n\n\n      ==================== MOLEC - Timers ====================\n\n");
+    const char* prefix[5] = {"cycles", "x 10^3 cycles", "x 10^6 cycles", "x 10^9 cycles", "x 10^12 cycles"};
+    for(int timer_index = 0; timer_index < measurement->num_timers; ++timer_index)
+    {
+        // check wheter this timer has been used
+        if(measurement->value_list_heads[timer_index]  != NULL)
+        {
+            molec_uint64_t cycles = molec_measurement_get_median(timer_index);
+            int prefix_idx = 0;
+            while(cycles > 1024 && prefix_idx < 5)
+            {
+                cycles /= 1024;
+                ++prefix_idx;
+            }
+
+            printf("\tTimer \"%s\" measured: \t%6.0llu %s\n", MOLEC_MEASUREMENT_GET_TIMER(timer_index),
+                   cycles, prefix[prefix_idx]);
+        }
+    }
+}
+
 void molec_measurement_finish()
 {
     // iterate over the timers, delete all measurements nodes
