@@ -13,7 +13,6 @@
  *  See LICENSE.txt for details.
  */
 
-#include <molec/CellVector.h>
 #include <molec/Force.h>
 #include <molec/Parameter.h>
 #include <molec/Sort.h>
@@ -51,9 +50,6 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
     molec_uint32_t num_effective_interactions = 0;
 
     molec_CellList_Parameter_t cellList_parameter = molec_parameter->cellList;
-
-    // Sort the particles in ascending order w.r.t. x coordinates
-    molec_sort_qsort(sim);
 
     // Local aliases
     const Real* x = sim->x;

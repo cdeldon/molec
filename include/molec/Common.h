@@ -85,3 +85,9 @@ void molec_print_array(const Real* array, const int N);
 #define MOLEC_CELLLIST_COUNT_INTERACTION 0
 #endif
 
+/**
+ * Dump molecule coordinates to file
+ */
+#ifndef MOLEC_DUMP_COORDINATES
+#define MOLEC_DUMP_COORDINATES 0
+#endif

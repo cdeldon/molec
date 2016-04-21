@@ -13,3 +13,4 @@ doc/html/
 
 # specific files
 CMakeLists.txt.user
+.clang_complete

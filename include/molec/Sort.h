@@ -38,7 +38,6 @@ typedef struct molec_Sort_Pair {
   * The return value is determined by:
   * -1	pair1 goes before pair2
   *  1	pair1 goes after pair2
-  *
   */
 int molec_compare(const void* pair1, const void* pair2);
 
@@ -49,5 +48,13 @@ int molec_compare(const void* pair1, const void* pair2);
  * using the standard built in 'qsort' function *
  */
 void molec_sort_qsort(molec_Simulation_SOA_t* sim);
+
+/**
+ * @brief Routine that sorts the forces in an increasing order according to the x component of the particle position
+ *
+ * Routine that sorts the forces in an increasing order according to the x component
+ * using the standard built in 'qsort' function *
+ */
+void molec_sort_qsort_forces(molec_Simulation_SOA_t* sim);
 
 #endif 

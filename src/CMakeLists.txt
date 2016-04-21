@@ -12,9 +12,12 @@ cmake_minimum_required(VERSION 2.8)
 
 set(MOLEC_CORE_SOURCE
     Common.c
+    Dump.c
     ForceRefrence.c
+    ForceCellListDoublePointer.c
     ForceCellList.c
     ForceCellListFor.c
+    ForceCellListForSwap.c
     ForceGonnet.c
     ForceReferenceDP.c
     Integrator.c
