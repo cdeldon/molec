@@ -16,18 +16,28 @@
 #include "Unittest.h"
 #include <molec/Timer.h>
 
+enum timer_t
+{
+   TIMER_FORCE = 0,
+   TIMER_INTEGRATOR
+};
+
+
 /**
  * Test the timer implementation of molec
  */
 TEST_CASE(molec_UnittestTimer)
 {
-    molec_measurement_init(100); // Allocate space for 100 measurements
+    molec_measurement_init(2);
 
     for(int i = 0; i < 100; ++i)
     {
-        molec_measurement_start();
-        molec_measurement_stop();
+        molec_measurement_start(TIMER_FORCE);
+        molec_measurement_start(TIMER_INTEGRATOR);
+        molec_measurement_stop(TIMER_FORCE);
+        molec_measurement_stop(TIMER_INTEGRATOR);
     }
 
-    printf("Meadian of elapsed cycles: %llu\n", molec_measurement_finish());
+    printf("Meadian of elapsed cycles: %llu\n", molec_measurement_finish(0));
+    printf("Meadian of elapsed cycles: %llu\n", molec_measurement_finish(1));
 }

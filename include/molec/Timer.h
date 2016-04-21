@@ -42,8 +42,8 @@ typedef union {
  *
  */
 typedef struct molec_Measurement_Node {
-    molec_uint64_t value_;
-    molec_Measurement_Node* next;
+    molec_uint64_t value;
+    struct molec_Measurement_Node* next;
 } molec_Measurement_Node_t;
 
 /**
@@ -89,24 +89,30 @@ molec_uint64_t molec_stop_tsc(molec_uint64_t start);
  *
  * To time an exection:
  * @code{.c}
- *     molec_measurement_init(100); // Allocate space for 100 measurements
+ *     molec_measurement_init(2); // Number of independent timers
+ *
+ *     molec_measurement_start(0); // Start timer 0
  *
  *     for(int i = 0; i < 100; ++i)
  *     {
- *         molec_measurement_start();
+ *         molec_measurement_start(1); // Start timer 1
  *
  *         // Do something intresting ...
  *
- *         molec_measurement_stop();
+ *         molec_measurement_stop(1); // Stop timer 1
  *     }
  *
- *     printf("Meadian of elapsed cycles: %llu\n", molec_measurement_finish());
+ *     molec_measurement_start(0); // Stop timer 0
+ *
+ *
+ *     printf("Meadian of elapsed cycles of 0: %llu\n", molec_measurement_finish(0));
  * @endcode
  */
 typedef struct molec_Measurement
 {
     /** Measured runtimes (in cycles) */
-    molec_Measurement_Node_t* value_list_heads[];
+    molec_Measurement_Node_t** value_list_heads;
+    molec_Measurement_Node_t** value_list_tails;
 
     /** Number of concurrent timers */
     int num_timers;
@@ -124,21 +130,21 @@ typedef struct molec_Measurement
  *
  * @param num_timers        Number of timers
  */
-void molec_measurement_init(const int num_timers = 1);
+void molec_measurement_init(const int num_timers);
 
 /**
  * Start the TSC
  *
  * @param timer_index   Index of the timer to start
  */
-void molec_measurement_start(int timer_index = 0);
+void molec_measurement_start(int timer_index);
 
 /**
  * Stop the TSC and register the value
  *
  * @param timer_index   Index of the timer to stop
  */
-void molec_measurement_stop(int timer_index = 0) ;
+void molec_measurement_stop(int timer_index) ;
 
 /**
  * Compute the median of all measurements (in cycles) for timer Index
@@ -146,6 +152,6 @@ void molec_measurement_stop(int timer_index = 0) ;
  * @param timer_index   Index of the timer
  * @return meadian of all measurement of timer timer_index
  */
-molec_uint64_t molec_measurement_finish(int timer_index = 0);
+molec_uint64_t molec_measurement_finish(int timer_index);
 
 #endif
