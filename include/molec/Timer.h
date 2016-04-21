@@ -163,7 +163,7 @@ molec_uint64_t molec_measurement_get_median(int timer_index);
  */
 void molec_measurement_finish();
 
-#define MOLEC_MAX_NUM_TIMERS 3
+#define MOLEC_MAX_NUM_TIMERS 4
 
 #ifdef MOLEC_TIME
 #define MOLEC_MEASUREMENT_INIT molec_measurement_init(MOLEC_MAX_NUM_TIMERS)
@@ -207,6 +207,12 @@ MOLEC_INTERNAL_MAKE_TIMER(INTEGRATOR, 1)
 MOLEC_INTERNAL_IGNORE_TIMER(PERIODIC, 2)
 #else
 MOLEC_INTERNAL_MAKE_TIMER(PERIODIC, 2)
+#endif
+
+#ifndef MOLEC_TIME_SIMULATION
+MOLEC_INTERNAL_IGNORE_TIMER(SIMULATION, 3)
+#else
+MOLEC_INTERNAL_MAKE_TIMER(SIMULATION, 3)
 #endif
 
 
