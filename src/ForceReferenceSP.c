@@ -81,14 +81,14 @@ MOLEC_INLINE Real dist(Real x, Real y, Real L)
     return r;
 }
 
-void molec_force_reference_dp(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
+void molec_force_reference_sp(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 {
     //get molec parameter
      cellList_parameter = molec_parameter->cellList;
     //proportion of number of atoms to number of cells >> 1
     const int rho=(molec_parameter->N/cellList_parameter.N);
-    int** molec_cellList;//[cellList_parameter.N][2*rho];
-    MOLEC_MALLOC(molec_cellList,cellList_parameter.N*2*rho*sizeof(int));
+    double* molec_cellList;//[cellList_parameter.N][2*rho];
+    MOLEC_MALLOC(molec_cellList,cellList_parameter.N*2*rho*3*sizeof(double));
     //heap alloc
 //    int j;
 //    for(j=0;j<cellList_parameter.N;++j)
@@ -115,10 +115,12 @@ void molec_force_reference_dp(molec_Simulation_SOA_t* sim, Real* Epot, const int
     Real Epot_ = 0;
 
     int* index_array; //number of atoms in the cell
+    int* c_idx; //array for storing corresponding cell
     MOLEC_MALLOC(index_array,sizeof(int)*cellList_parameter.N);
+    MOLEC_MALLOC(c_idx,sizeof(int)*molec_parameter->N);
     memset(index_array, 0, sizeof(int)*cellList_parameter.N); //set number to zero in each cell
 
-    for(int i = 0; i < N; ++i) //structure the celllist
+    for(int i = 0; i < N; ++i) //structure the celllist with N atoms
     {
         // linear one dimensional index of cell associated to i-th particle
         int idx_x = x[i] / cellList_parameter.c_x;
@@ -131,63 +133,61 @@ void molec_force_reference_dp(molec_Simulation_SOA_t* sim, Real* Epot, const int
         // linear index of cell
         int cellNmbr;
         molec_3to1trans(idx_x,idx_y,idx_z,cellNmbr);
+        c_idx[i]=cellNmbr;
 
-        molec_cellList[cellNmbr][index_array[cellNmbr]]=i;
+        /**
+         *the first 2*rho*3 entrys belong to cellnumber zeros so it follows automatically the hopps of stepsize 2*rho*3
+         *the index[cellNmbr] gives us how many atoms in the corresponding cell already are for the offset
+         */
+        int v=cellNmbr*2*rho*3+3*index_array[cellNmbr];
+
+        molec_cellList[v]=x[i];
+        molec_cellList[v+1]=y[i];
+        molec_cellList[v+2]=z[i];
         ++index_array[cellNmbr];
-        //possibly copy the real values?
-        //molec_cellList[idx][index_array[idx]][0]=x[i];
-        //molec_cellList[idx][index_array[idx]][1]=y[i];
-        //molec_cellList[idx][index_array[idx]][2]=z[i];
     }
 
-    int cellNumber;
+    int first_cell_number;
     //loop over all cells
-    for(cellNumber=0;cellNumber<cellList_parameter.N;++cellNumber)
+    for(first_cell_number=0;first_cell_number<cellList_parameter.N;++first_cell_number)
     {
 
         //get neighbors
-        molec_get_neighbors(cellNumber);
+        molec_get_neighbors(first_cell_number);
 
-        //get my index list
-        int* myIndexList=molec_cellList[cellNumber];
-
-        int nNumber;
+        int number_of_neighbor;
         //loop over all neighbors
-        for(nNumber=0;nNumber<27;++nNumber)
+        for(number_of_neighbor=0;number_of_neighbor<27;++number_of_neighbor)
         {
-        int mneighbor=neighbors[nNumber];
-
-        //get corresponding list
-        int* neighborIndexList=molec_cellList[mneighbor];
+        int second_cell_number=neighbors[number_of_neighbor];
 
         //case one for different cells
-        if(cellNumber<mneighbor)
+        if(first_cell_number<second_cell_number)
         {
             //calculate interaction with loop over the two lists
             int k,i;
-            for(k=0;k<index_array[cellNumber];++k)//first list
+            int first_number_of_atoms=index_array[first_cell_number];
+            int second_number_of_atoms=index_array[second_cell_number];
+            for(k=0;k<first_number_of_atoms;++k)//first list
             {
+                int start_of_first_atom=first_cell_number*2*rho*3+3*index_array[k];
 
-                //index one
-                int index1=myIndexList[k];
+                const Real xi = molec_cellList[start_of_first_atom];
+                const Real yi = molec_cellList[start_of_first_atom+1];
+                const Real zi = molec_cellList[start_of_first_atom+2];
 
-                const Real xi = x[index1];
-                const Real yi = y[index1];
-                const Real zi = z[index1];
-
-                Real f_xi = f_x[index1];
-                Real f_yi = f_y[index1];
+                Real f_xi = f_x[index1];//no longer possible
+                Real f_yi = f_y[index1];//help?
                 Real f_zi = f_z[index1];
 
-                for(i=0;i<index_array[mneighbor];++i)//second list
+                for(i=0;i<second_number_of_atoms;++i)//second list
                 {
 
-                    //index two
-                    int index2=neighborIndexList[i];
+                    int start_of_second_atom=second_cell_number*2*rho*3+3*index_array[i];
 
-                    const Real xij = dist(xi, x[index2], L);
-                    const Real yij = dist(yi, y[index2], L);
-                    const Real zij = dist(zi, z[index2], L);
+                    const Real xij = dist(xi, molec_cellList[start_of_second_atom], L);
+                    const Real yij = dist(yi, molec_cellList[start_of_second_atom+1], L);
+                    const Real zij = dist(zi, molec_cellList[start_of_second_atom+2], L);
 
                     const Real r2 = xij * xij + yij * yij + zij * zij;
 
@@ -205,7 +205,7 @@ void molec_force_reference_dp(molec_Simulation_SOA_t* sim, Real* Epot, const int
                         f_yi += fr * yij;
                         f_zi += fr * zij;
 
-                        f_x[index2] -= fr * xij;
+                        f_x[index2] -= fr * xij;//not possible
                         f_y[index2] -= fr * yij;
                         f_z[index2] -= fr * zij;
                     }
@@ -218,11 +218,11 @@ void molec_force_reference_dp(molec_Simulation_SOA_t* sim, Real* Epot, const int
              }//end first list
 
         }
-        else if(cellNumber==mneighbor) //case two for the same cell
+        else if(first_cell_number==second_cell_number) //case two for the same cell
         {
             //calculate interaction with loop over the two lists
             int k,i;
-            for(k=0;k<index_array[cellNumber];++k)//first list
+            for(k=0;k<index_array[first_cell_number];++k)//first list
             {
                 //index one
                 int index1=myIndexList[k];
@@ -235,7 +235,7 @@ void molec_force_reference_dp(molec_Simulation_SOA_t* sim, Real* Epot, const int
                 Real f_yi = f_y[index1];
                 Real f_zi = f_z[index1];
 
-                for(i=k+1;i<index_array[mneighbor];++i)//second list
+                for(i=k+1;i<index_array[second_cell_number];++i)//second list
                 {
                     //index two
                     int index2=neighborIndexList[i];
@@ -277,7 +277,7 @@ void molec_force_reference_dp(molec_Simulation_SOA_t* sim, Real* Epot, const int
             }//end else
             else
             {
-            printf("FATAL ERROR");
+            //printf("FATAL ERROR");
             }
 
         }//end neighbors

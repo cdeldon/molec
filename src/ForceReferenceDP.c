@@ -81,7 +81,7 @@ MOLEC_INLINE Real dist(Real x, Real y, Real L)
     return r;
 }
 
-void molec_force_reference_dp(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
+void molec_force_reference_sp(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 {
     //get molec parameter
      cellList_parameter = molec_parameter->cellList;
@@ -115,7 +115,9 @@ void molec_force_reference_dp(molec_Simulation_SOA_t* sim, Real* Epot, const int
     Real Epot_ = 0;
 
     int* index_array; //number of atoms in the cell
+    int* c_idx;//storing corresponding cellnumber
     MOLEC_MALLOC(index_array,sizeof(int)*cellList_parameter.N);
+    MOLEC_MALLOC(c_idx,sizeof(int)*molec_parameter->N);
     memset(index_array, 0, sizeof(int)*cellList_parameter.N); //set number to zero in each cell
 
     for(int i = 0; i < N; ++i) //structure the celllist
@@ -131,6 +133,7 @@ void molec_force_reference_dp(molec_Simulation_SOA_t* sim, Real* Epot, const int
         // linear index of cell
         int cellNmbr;
         molec_3to1trans(idx_x,idx_y,idx_z,cellNmbr);
+        c_idx[i]=cellNmbr;
 
         molec_cellList[cellNmbr][index_array[cellNmbr]]=i;
         ++index_array[cellNmbr];
