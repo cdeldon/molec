@@ -170,6 +170,7 @@ void molec_measurement_finish();
 #define MOLEC_MEASUREMENT_FINISH molec_measurement_finish()
 #define MOLEC_INTERNAL_START_MEASUREMENT(id) molec_measurement_start((id))
 #define MOLEC_INTERNAL_STOP_MEASUREMENT(id) molec_measurement_stop((id))
+#define MOLEC_INTERNAL_GET_MEDIAN(id) molec_measurement_get_median((id))
 #else // MOLEC_TIME
 #define MOLEC_MEASUREMENT_INIT (void) 0
 #define MOLEC_MEASUREMENT_FINISH (void) 0
@@ -179,11 +180,15 @@ void molec_measurement_finish();
 
 #define MOLEC_INTERNAL_MAKE_TIMER(name, id)                                                        \
     MOLEC_INLINE void MOLEC_MEASUREMENT_##name##_START() { MOLEC_INTERNAL_START_MEASUREMENT(id); } \
-    MOLEC_INLINE void MOLEC_MEASUREMENT_##name##_STOP() { MOLEC_INTERNAL_STOP_MEASUREMENT(id); }
+    MOLEC_INLINE void MOLEC_MEASUREMENT_##name##_STOP() { MOLEC_INTERNAL_STOP_MEASUREMENT(id); }   \
+    MOLEC_INLINE molec_uint64_t MOLEC_MEASUREMENT_##name##_GET_MEDIAN()                            \
+        { return MOLEC_INTERNAL_GET_MEDIAN(id); }
 
 #define MOLEC_INTERNAL_IGNORE_TIMER(name, id)                                                      \
     MOLEC_INLINE void MOLEC_MEASUREMENT_##name##_START() { (void) 0; }                             \
-    MOLEC_INLINE void MOLEC_MEASUREMENT_##name##_STOP() { (void) 0; }
+    MOLEC_INLINE void MOLEC_MEASUREMENT_##name##_STOP() { (void) 0; }                              \
+    MOLEC_INLINE molec_uint64_t MOLEC_MEASUREMENT_##name##_GET_MEDIAN()                            \
+        { return 1ul; }
 
 
 #ifndef MOLEC_TIME_FORCE

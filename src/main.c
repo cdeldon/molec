@@ -26,8 +26,8 @@ int main(int argc, const char* argv[])
     molec_load_parameters(argc, argv, 1);
 
     //molec_force_calculation force_calculation = &molec_force_N2_refrence;
-    molec_force_calculation force_calculation = &molec_force_cellList_for_swap;
-    molec_force_integration force_integration = &molec_integrator_leapfrog_refrence;
+    molec_force_calculation force_calculation = &molec_force_cellList;
+    molec_force_integration force_integration = &molec_integrator_leapfrog_unroll_2;
 
     MOLEC_MEASUREMENT_INIT;
 
@@ -36,7 +36,10 @@ int main(int argc, const char* argv[])
     molec_uint64_t force_cycles = 1;
     molec_uint64_t integrator_cycles = 1;
 
-    printf("Ratio: %f3.2\n", 1.0 * force_cycles / integrator_cycles);
+    force_cycles = MOLEC_MEASUREMENT_FORCE_GET_MEDIAN();
+    integrator_cycles = MOLEC_MEASUREMENT_INTEGRATOR_GET_MEDIAN();
+
+    printf("Ratio: %3.2f\n", 1.0 * force_cycles / integrator_cycles);
 
     MOLEC_MEASUREMENT_FINISH;
 }
