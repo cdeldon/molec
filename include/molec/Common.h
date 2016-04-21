@@ -37,12 +37,6 @@ typedef unsigned long long molec_uint64_t;
 typedef unsigned int molec_uint32_t;
 #endif
 
-/** Define function pointer for force calculation routine */
-typedef void (*molec_force_calculation)(molec_Simulation_SOA_t*, Real*, const int);
-
-/** Define function pointer for integration routine */
-typedef void (*molec_force_integration)(Real*, Real*, const Real*, Real*, const int);
-
 
 /**
  * @brief Print an error message to stderr and abort the execution

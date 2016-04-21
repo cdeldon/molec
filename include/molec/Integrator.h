@@ -18,6 +18,9 @@
 
 #include <molec/Common.h>
 
+/** Define function pointer for integration routine */
+typedef void (*molec_force_integration)(Real*, Real*, const Real*, Real*, const int);
+
 /**
  * @brief Leapfrog integration scheme (refrence version)
  *
