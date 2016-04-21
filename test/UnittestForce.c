@@ -13,6 +13,7 @@
  *  See LICENSE.txt for details.
  */
 
+#define TINYTEST_PRINT_ALL 1
 #include "Unittest.h"
 #include <molec/Force.h>
 #include <molec/Sort.h>
@@ -61,11 +62,11 @@ void add_function(molec_force_calculation f, char *name)
 void molec_force_test_register_functions()
 {
     // Registers slow_filter with the driver
-    add_function(&molec_force_N2_refrence, "Naive N^2 implementation");
-    add_function(&molec_force_cellList, "Cell list (while loop)");
-    add_function(&molec_force_cellList_for, "Cell list (for loop)");
+//    add_function(&molec_force_N2_refrence, "Naive N^2 implementation");
+//    add_function(&molec_force_cellList, "Cell list (while loop)");
+//    add_function(&molec_force_cellList_for, "Cell list (for loop)");
     add_function(&molec_force_cellList_for_swap, "Cell list with swap");
-    add_function(&molec_force_cellList_dummy, "dummy cell list implementation");
+//    add_function(&molec_force_cellList_dummy, "dummy cell list implementation");
 
     // add here functions to be registered
 }
@@ -117,8 +118,12 @@ void molec_check_forces(molec_force_calculation force_routine, molec_Simulation_
     // compute forces with routine passed as argument
     force_routine(sim, &Epot, N);
 
+
     // sort the molecules according to a common order, so that the forces are comparable
     molec_sort_qsort_forces(sim);
+
+    printf("%f\t%f\n", sim->x[3178], sim->y[3178]);
+    printf("%f\t%f\n", sim->x[3179], sim->y[3179]);
 
     // check wheter the computed forces are ok
     ALLCLOSE_DOUBLE_MSG(sim->f_x, f_x_reference, N, MOLEC_ATOL, MOLEC_RTOL, description)

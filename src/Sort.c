@@ -23,10 +23,12 @@ int molec_compare(const void* pair1, const void* pair2)
     Real pair2_key = (Real) ((molec_Sort_Pair_t*) pair2)->key;
     
     // Equalilty will never happen
-    if(pair1_key < pair2_key) 
+    if(pair1_key < pair2_key)
         return -1;
-    else
+    else if(pair1_key > pair2_key)
         return 1;
+    else
+        return 0;
 }
 
 void molec_sort_qsort(molec_Simulation_SOA_t* sim)
