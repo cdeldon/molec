@@ -81,7 +81,7 @@ MOLEC_INLINE Real dist(Real x, Real y, Real L)
     return r;
 }
 
-void molec_force_reference_sp(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
+void molec_force_reference_dp(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 {
     //get molec parameter
      cellList_parameter = molec_parameter->cellList;
