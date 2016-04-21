@@ -112,11 +112,8 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
         Epot = 0.0;
 
         // 1. Compute force
-
         MOLEC_MEASUREMENT_FORCE_START
-
         molec_compute_force(sim, &Epot, N);
-        
         MOLEC_MEASUREMENT_FORCE_STOP
 
         // 2. Integrate ODE
@@ -127,9 +124,11 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
         MOLEC_MEASUREMENT_INTEGRATOR_STOP
 
         // 3. Apply periodic boundary conditions
+        MOLEC_MEASUREMENT_PERIODIC_START
         molec_periodic_refrence(sim->x, N);
         molec_periodic_refrence(sim->y, N);
         molec_periodic_refrence(sim->z, N);
+        MOLEC_MEASUREMENT_PERIODIC_STOP
 
         // 4. Report result
         Real Ekin = Ekin_x + Ekin_y + Ekin_z;
