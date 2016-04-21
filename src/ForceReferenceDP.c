@@ -114,11 +114,11 @@ void molec_force_reference_sp(molec_Simulation_SOA_t* sim, Real* Epot, const int
 
     Real Epot_ = 0;
 
-    int* index_array; //number of atoms in the cell
-    int* c_idx;//storing corresponding cellnumber
-    MOLEC_MALLOC(index_array,sizeof(int)*cellList_parameter.N);
-    MOLEC_MALLOC(c_idx,sizeof(int)*molec_parameter->N);
-    memset(index_array, 0, sizeof(int)*cellList_parameter.N); //set number to zero in each cell
+    int* NumberOfAtomsInCell; //number of atoms in the cell[cellnumber]
+    int* CellIndexOfAtom;//storing corresponding cellnumber
+    MOLEC_MALLOC(NumberOfAtomsInCell,sizeof(int)*cellList_parameter.N);
+    MOLEC_MALLOC(CellIndexOfAtom,sizeof(int)*molec_parameter->N);
+    memset(NumberOfAtomsInCell, 0, sizeof(int)*cellList_parameter.N); //set number to zero in each cell
 
     for(int i = 0; i < N; ++i) //structure the celllist
     {
@@ -133,64 +133,64 @@ void molec_force_reference_sp(molec_Simulation_SOA_t* sim, Real* Epot, const int
         // linear index of cell
         int cellNmbr;
         molec_3to1trans(idx_x,idx_y,idx_z,cellNmbr);
-        c_idx[i]=cellNmbr;
+        CellIndexOfAtom[i]=cellNmbr;
 
-        molec_cellList[cellNmbr][index_array[cellNmbr]]=i;
-        ++index_array[cellNmbr];
+        molec_cellList[cellNmbr][NumberOfAtomsInCell[cellNmbr]]=i;
+        ++NumberOfAtomsInCell[cellNmbr];
         //possibly copy the real values?
         //molec_cellList[idx][index_array[idx]][0]=x[i];
         //molec_cellList[idx][index_array[idx]][1]=y[i];
         //molec_cellList[idx][index_array[idx]][2]=z[i];
     }
 
-    int cellNumber;
+    int CellNumberOne;
     //loop over all cells
-    for(cellNumber=0;cellNumber<cellList_parameter.N;++cellNumber)
+    for(CellNumberOne=0;CellNumberOne<cellList_parameter.N;++CellNumberOne)
     {
 
         //get neighbors
-        molec_get_neighbors(cellNumber);
+        molec_get_neighbors(CellNumberOne);
 
         //get my index list
-        int* myIndexList=molec_cellList[cellNumber];
+        int* IndexArrayOfAtomsInCellOne=molec_cellList[CellNumberOne];
 
-        int nNumber;
+        int NeighborNumber;
         //loop over all neighbors
-        for(nNumber=0;nNumber<27;++nNumber)
+        for(NeighborNumber=0;NeighborNumber<27;++NeighborNumber)
         {
-        int mneighbor=neighbors[nNumber];
+        int CellNumberTwo=neighbors[NeighborNumber];
 
         //get corresponding list
-        int* neighborIndexList=molec_cellList[mneighbor];
+        int* IndexArrayOfAtomsInCellTwo=molec_cellList[CellNumberTwo];
 
         //case one for different cells
-        if(cellNumber<mneighbor)
+        if(CellNumberOne<CellNumberTwo)
         {
             //calculate interaction with loop over the two lists
             int k,i;
-            for(k=0;k<index_array[cellNumber];++k)//first list
+            for(k=0;k<NumberOfAtomsInCell[CellNumberOne];++k)//first list
             {
 
                 //index one
-                int index1=myIndexList[k];
+                int IndexOfAtomOne=IndexArrayOfAtomsInCellOne[k];
 
-                const Real xi = x[index1];
-                const Real yi = y[index1];
-                const Real zi = z[index1];
+                const Real xi = x[IndexOfAtomOne];
+                const Real yi = y[IndexOfAtomOne];
+                const Real zi = z[IndexOfAtomOne];
 
-                Real f_xi = f_x[index1];
-                Real f_yi = f_y[index1];
-                Real f_zi = f_z[index1];
+                Real f_xi = f_x[IndexOfAtomOne];
+                Real f_yi = f_y[IndexOfAtomOne];
+                Real f_zi = f_z[IndexOfAtomOne];
 
-                for(i=0;i<index_array[mneighbor];++i)//second list
+                for(i=0;i<NumberOfAtomsInCell[CellNumberTwo];++i)//second list
                 {
 
                     //index two
-                    int index2=neighborIndexList[i];
+                    int IndexOfAtomTwo=IndexArrayOfAtomsInCellTwo[i];
 
-                    const Real xij = dist(xi, x[index2], L);
-                    const Real yij = dist(yi, y[index2], L);
-                    const Real zij = dist(zi, z[index2], L);
+                    const Real xij = dist(xi, x[IndexOfAtomTwo], L);
+                    const Real yij = dist(yi, y[IndexOfAtomTwo], L);
+                    const Real zij = dist(zi, z[IndexOfAtomTwo], L);
 
                     const Real r2 = xij * xij + yij * yij + zij * zij;
 
@@ -208,44 +208,44 @@ void molec_force_reference_sp(molec_Simulation_SOA_t* sim, Real* Epot, const int
                         f_yi += fr * yij;
                         f_zi += fr * zij;
 
-                        f_x[index2] -= fr * xij;
-                        f_y[index2] -= fr * yij;
-                        f_z[index2] -= fr * zij;
+                        f_x[IndexOfAtomTwo] -= fr * xij;
+                        f_y[IndexOfAtomTwo] -= fr * yij;
+                        f_z[IndexOfAtomTwo] -= fr * zij;
                     }
                 }//end second list
 
-                f_x[index1] = f_xi;
-                f_y[index1] = f_yi;
-                f_z[index1] = f_zi;
+                f_x[IndexOfAtomOne] = f_xi;
+                f_y[IndexOfAtomOne] = f_yi;
+                f_z[IndexOfAtomOne] = f_zi;
 
              }//end first list
 
         }
-        else if(cellNumber==mneighbor) //case two for the same cell
+        else if(CellNumberOne==CellNumberTwo) //case two for the same cell
         {
             //calculate interaction with loop over the two lists
             int k,i;
-            for(k=0;k<index_array[cellNumber];++k)//first list
+            for(k=0;k<NumberOfAtomsInCell[CellNumberOne];++k)//first list
             {
                 //index one
-                int index1=myIndexList[k];
+                int IndexOfAtomOne=IndexArrayOfAtomsInCellOne[k];
 
-                const Real xi = x[index1];
-                const Real yi = y[index1];
-                const Real zi = z[index1];
+                const Real xi = x[IndexOfAtomOne];
+                const Real yi = y[IndexOfAtomOne];
+                const Real zi = z[IndexOfAtomOne];
 
-                Real f_xi = f_x[index1];
-                Real f_yi = f_y[index1];
-                Real f_zi = f_z[index1];
+                Real f_xi = f_x[IndexOfAtomOne];
+                Real f_yi = f_y[IndexOfAtomOne];
+                Real f_zi = f_z[IndexOfAtomOne];
 
-                for(i=k+1;i<index_array[mneighbor];++i)//second list
+                for(i=k+1;i<NumberOfAtomsInCell[CellNumberTwo];++i)//second list
                 {
                     //index two
-                    int index2=neighborIndexList[i];
+                    int IndexOfAtomTwo=IndexArrayOfAtomsInCellTwo[i];
 
-                    const Real xij = dist(xi, x[index2], L);
-                    const Real yij = dist(yi, y[index2], L);
-                    const Real zij = dist(zi, z[index2], L);
+                    const Real xij = dist(xi, x[IndexOfAtomTwo], L);
+                    const Real yij = dist(yi, y[IndexOfAtomTwo], L);
+                    const Real zij = dist(zi, z[IndexOfAtomTwo], L);
 
                     const Real r2 = xij * xij + yij * yij + zij * zij;
 
@@ -263,25 +263,21 @@ void molec_force_reference_sp(molec_Simulation_SOA_t* sim, Real* Epot, const int
                         f_yi += fr * yij;
                         f_zi += fr * zij;
 
-                        f_x[index2] -= fr * xij;
-                        f_y[index2] -= fr * yij;
-                        f_z[index2] -= fr * zij;
+                        f_x[IndexOfAtomTwo] -= fr * xij;
+                        f_y[IndexOfAtomTwo] -= fr * yij;
+                        f_z[IndexOfAtomTwo] -= fr * zij;
 
                     }//end if
 
                 }//end second list
 
-                f_x[index1] = f_xi;
-                f_y[index1] = f_yi;
-                f_z[index1] = f_zi;
+                f_x[IndexOfAtomOne] = f_xi;
+                f_y[IndexOfAtomOne] = f_yi;
+                f_z[IndexOfAtomOne] = f_zi;
 
                 }//end first list
 
             }//end else
-            else
-            {
-            printf("FATAL ERROR");
-            }
 
         }//end neighbors
 
