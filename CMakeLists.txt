@@ -51,6 +51,11 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 option(MOLEC_UNITTEST "Build the UnitTests" ON)
 
+option(MOLEC_SINGLE_PRECISION "Compile for singe precision floating point (4 bytes)" ON)
+if(MOLEC_SINGLE_PRECISION)
+    add_definitions(-DMOLEC_SINGLE_PRECISION)
+endif(MOLEC_SINGLE_PRECISION)
+
 option(MOLEC_CELLLIST_COUNT "Count missrate of cell-list interactions" OFF)
 if(MOLEC_CELLLIST_COUNT)
     add_definitions(-DMOLEC_CELLLIST_COUNT_INTERACTION=1)

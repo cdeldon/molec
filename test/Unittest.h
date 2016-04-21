@@ -24,6 +24,14 @@
 #include <string.h>
 #include <stdlib.h>
 
+#ifdef MOLEC_SINGLE_PRECISION
+#define MOLEC_ATOL 1e-04f
+#define MOLEC_RTOL 1e-02f
+#else
+#define MOLEC_ATOL 1e-08
+#define MOLEC_RTOL 1e-05
+#endif
+
 /**
  * Number of atoms used during unittesting (defined in Unittest.c)
  */
