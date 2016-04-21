@@ -20,6 +20,9 @@
 #include <molec/Periodic.h>
 #include <molec/Simulation.h>
 #include <molec/Dump.h>
+#include <molec/Timer.h>
+#include <molec/main.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -64,7 +67,8 @@ void molec_free_simulation_SOA(molec_Simulation_SOA_t* simulation)
     MOLEC_FREE(simulation);
 }
 
-void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, Real*, int))
+void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, Real*, int),
+                          void (*molec_force_integration)(Real*, Real*, const Real*, Real*, const int))
 {
     if(MOLEC_DUMP_COORDINATES)
     {
@@ -108,12 +112,19 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
         Epot = 0.0;
 
         // 1. Compute force
+
+        MOLEC_MEASUREMENT_FORCE_START
+
         molec_compute_force(sim, &Epot, N);
+        
+        MOLEC_MEASUREMENT_FORCE_STOP
 
         // 2. Integrate ODE
-        molec_integrator_leapfrog_refrence(sim->x, sim->v_x, sim->f_x, &Ekin_x, N);
-        molec_integrator_leapfrog_refrence(sim->y, sim->v_y, sim->f_y, &Ekin_y, N);
-        molec_integrator_leapfrog_refrence(sim->z, sim->v_z, sim->f_z, &Ekin_z, N);
+        MOLEC_MEASUREMENT_INTEGRATOR_START
+        molec_force_integration(sim->x, sim->v_x, sim->f_x, &Ekin_x, N);
+        molec_force_integration(sim->y, sim->v_y, sim->f_y, &Ekin_y, N);
+        molec_force_integration(sim->z, sim->v_z, sim->f_z, &Ekin_z, N);
+        MOLEC_MEASUREMENT_INTEGRATOR_STOP
 
         // 3. Apply periodic boundary conditions
         molec_periodic_refrence(sim->x, N);

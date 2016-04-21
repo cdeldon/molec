@@ -38,8 +38,8 @@ TEST_CASE(molec_UnittestTimer)
         molec_measurement_stop(TIMER_INTEGRATOR);
     }
 
-    printf("Meadian of elapsed cycles: %llu\n", molec_measurement_get_median(0));
-    printf("Meadian of elapsed cycles: %llu\n", molec_measurement_get_median(1));
+    //printf("Meadian of elapsed cycles: %llu\n", molec_measurement_get_median(0));
+    //printf("Meadian of elapsed cycles: %llu\n", molec_measurement_get_median(1));
 
     molec_measurement_finish();
 }

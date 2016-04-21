@@ -106,6 +106,9 @@ molec_uint64_t molec_stop_tsc(molec_uint64_t start);
  *
  *
  *     printf("Meadian of elapsed cycles of 0: %llu\n", molec_measurement_get_median(0));
+ *
+ *     molec_measurement_finish(); 
+ *
  * @endcode
  */
 typedef struct molec_Measurement
