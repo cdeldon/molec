@@ -111,7 +111,7 @@ int compare_uint64(const void * a, const void * b)
     }
 }
 
-molec_uint64_t molec_measurement_finish(int timer_index)
+molec_uint64_t molec_measurement_get_median(int timer_index)
 {
     int len = measurement->num_measurements[timer_index];
     molec_uint64_t* values = malloc(sizeof(molec_uint64_t) * len);
@@ -128,8 +128,26 @@ molec_uint64_t molec_measurement_finish(int timer_index)
 
     molec_uint64_t ret = values[len / 2];
     
-//    free(measurement);
-//    measurement = NULL;
-    
     return ret;
+}
+
+void molec_measurement_finish()
+{
+    // iterate over the timers, delete all measurements nodes
+    for(int timer_index = 0; timer_index < measurement->num_timers; ++timer_index)
+    {
+         molec_Measurement_Node_t* current = measurement->value_list_heads[timer_index];
+         molec_Measurement_Node_t* next = current->next;
+
+         free(current);
+         current = next;
+         next = current->next;
+    }
+
+    free(measurement->value_list_heads);
+    free(measurement->value_list_tails);
+    free(measurement->num_measurements);
+    free(measurement->start);
+
+    free(measurement);
 }

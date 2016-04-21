@@ -19,7 +19,7 @@
 #include <math.h>
 
 /* Global variables to keep track of different integrators */
-molec_integrator integrators[32];
+molec_force_integration integrators[32];
 int num_integrators = 0;
 
 /**
@@ -27,7 +27,7 @@ int num_integrators = 0;
  *
  * @param integrator  pointer to an integrator
  */
-void molec_register_integrator(molec_integrator integrator);
+void molec_register_integrator(molec_force_integration integrator);
 
 /**
  * Compare the outpout of the registered integrators with the output of the
@@ -45,7 +45,7 @@ TEST_CASE(molec_UnittestIntegrator)
     molec_run_integrator_test();
 }
 
-void molec_register_integrator(molec_integrator integrator)
+void molec_register_integrator(molec_force_integration integrator)
 {
     integrators[num_integrators] = integrator;
     num_integrators++;

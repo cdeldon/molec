@@ -105,7 +105,7 @@ molec_uint64_t molec_stop_tsc(molec_uint64_t start);
  *     molec_measurement_start(0); // Stop timer 0
  *
  *
- *     printf("Meadian of elapsed cycles of 0: %llu\n", molec_measurement_finish(0));
+ *     printf("Meadian of elapsed cycles of 0: %llu\n", molec_measurement_get_median(0));
  * @endcode
  */
 typedef struct molec_Measurement
@@ -152,6 +152,11 @@ void molec_measurement_stop(int timer_index) ;
  * @param timer_index   Index of the timer
  * @return meadian of all measurement of timer timer_index
  */
-molec_uint64_t molec_measurement_finish(int timer_index);
+molec_uint64_t molec_measurement_get_median(int timer_index);
+
+/**
+ * @brief cleans the timing infrastructure
+ */
+void molec_measurement_finish();
 
 #endif
