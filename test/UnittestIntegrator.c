@@ -75,10 +75,10 @@ void molec_run_integrator_test()
         Real Ekin;
         integrators[i](x, v, f, &Ekin, N);
 
-        ALLCLOSE_DOUBLE(x, x_ref, N, 1e-08, 1e-05);
-        ALLCLOSE_DOUBLE(v, v_ref, N, 1e-08, 1e-05);
+        ALLCLOSE_DOUBLE(x, x_ref, N, MOLEC_ATOL, MOLEC_RTOL);
+        ALLCLOSE_DOUBLE(v, v_ref, N, MOLEC_ATOL, MOLEC_RTOL);
 
-        CLOSE_DOUBLE(Ekin, Ekin_ref, 1e-08);
+        CLOSE_DOUBLE(Ekin, Ekin_ref, MOLEC_ATOL);
 
         molec_free_vector(x);
         molec_free_vector(v);

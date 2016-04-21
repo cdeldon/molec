@@ -21,6 +21,14 @@
  */
 TEST_CASE(molec_UnittestTimer)
 {
-    //TODO 
-    CHECK(5 == 5);
+    molec_measurement_init(100); // Allocate space for 100 measurements
+
+    for(int i = 0; i < 100; ++i)
+    {
+        molec_measurement_start();
+
+        molec_measurement_stop();
+    }
+
+    printf("Meadian of elapsed cycles: %llu\n", molec_measurement_finish());
 }

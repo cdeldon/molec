@@ -117,13 +117,14 @@ void molec_check_forces(molec_force_calculation force_routine, molec_Simulation_
     // compute forces with routine passed as argument
     force_routine(sim, &Epot, N);
 
+
     // sort the molecules according to a common order, so that the forces are comparable
     molec_sort_qsort_forces(sim);
 
     // check wheter the computed forces are ok
-    ALLCLOSE_DOUBLE_MSG(sim->f_x, f_x_reference, N, 1e-08, 1e-05, description)
-    ALLCLOSE_DOUBLE_MSG(sim->f_y, f_y_reference, N, 1e-08, 1e-05, description)
-    ALLCLOSE_DOUBLE_MSG(sim->f_z, f_z_reference, N, 1e-08, 1e-05, description)
+    ALLCLOSE_DOUBLE_MSG(sim->f_x, f_x_reference, N, MOLEC_ATOL, MOLEC_RTOL, description)
+    ALLCLOSE_DOUBLE_MSG(sim->f_y, f_y_reference, N, MOLEC_ATOL, MOLEC_RTOL, description)
+    ALLCLOSE_DOUBLE_MSG(sim->f_z, f_z_reference, N, MOLEC_ATOL, MOLEC_RTOL, description)
 }
 
 /**
