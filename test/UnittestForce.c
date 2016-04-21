@@ -63,10 +63,9 @@ void molec_force_test_register_functions()
     // Registers slow_filter with the driver
     add_function(&molec_force_N2_refrence, "Naive N^2 implementation");
     add_function(&molec_force_cellList, "Cell list (while loop)");
+    add_function(&molec_force_cellList_double_pointer, "Cell list (double pointer)");
     add_function(&molec_force_cellList_for, "Cell list (for loop)");
     add_function(&molec_force_cellList_for_swap, "Cell list with swap");
-    add_function(&molec_force_cellList_dummy, "dummy cell list implementation");
-
     // add here functions to be registered
 }
 

@@ -59,7 +59,7 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N);
  * @param Epot  Real scalar to store the potential energy
  * @param N     Size of arrays
  */
-void molec_force_cellList_dummy(molec_Simulation_SOA_t *sim, Real *Epot, const int N);
+void molec_force_cellList_double_pointer(molec_Simulation_SOA_t *sim, Real *Epot, const int N);
 
 /**
  * @brief Calculate short-range interaction force using cell-list approach [1]

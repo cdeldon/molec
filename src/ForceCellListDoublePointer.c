@@ -39,7 +39,7 @@ MOLEC_INLINE int mod(int b, int m)
     return (b % m + m) % m;
 }
 
-void molec_force_cellList_dummy(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
+void molec_force_cellList_double_pointer(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 {
     assert(molec_parameter);
 
