@@ -23,7 +23,7 @@
  */
 TEST_CASE(molec_UnittestParser)
 {
-    const char unittestFile[] = "molec_UnittestParser.txt";
+    char unittestFile[] = "molec_UnittestParser.txt";
 
     // Create dummy file
     FILE * fp;

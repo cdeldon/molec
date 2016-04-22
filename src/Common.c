@@ -19,6 +19,8 @@
 #include <stdio.h>
 #include <string.h>
 
+int molec_verbose;
+
 void molec_print_array(const Real* array, const int N)
 {
     for(int i = 0; i < N; ++i)

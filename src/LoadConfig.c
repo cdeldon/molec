@@ -30,18 +30,12 @@ void molec_load_parameters(const char* filename, int verbose, int N)
     // to the executable
     if(strcmp(filename, "") == 0)
     {
-        if(N == -1)
-            printf("Running simulation with default parameters\n");
-        else
-        {
-            printf("Running simulation with default parameters, and N = %d\n", N);
+        if(N != -1)
             molec_parameter_init(N);
-        }
-
         goto exit;
     }
-    
-    if(verbose)
+
+    if(verbose && molec_verbose)
         printf("Running simulation with parameters specified in '%s'\n", filename);
 
     MOLEC_MALLOC(molec_loader->filename, MOLEC_FILENAME_MAX_LENGTH * sizeof(char));
@@ -111,11 +105,11 @@ void molec_load_parameters(const char* filename, int verbose, int N)
 
     // Determine bounding box size dependind of N and rho
     // such that rho = N/(L*L*L)
-    molec_parameter->L = pow(((Real) molec_parameter->N) / molec_parameter->rho,(1./3));
+    molec_parameter->L = pow(((Real) molec_parameter->N) / molec_parameter->rho, (1. / 3));
 
     molec_cell_init();
 
 exit:
-    if(verbose)
+    if(verbose && molec_verbose)
         molec_print_parameters();
 }

@@ -14,6 +14,7 @@
  */
 
 #include <molec/Timer.h>
+#include <molec/Parameter.h>
 
 static molec_Measurement_t* measurement = NULL;
 
@@ -133,26 +134,44 @@ molec_uint64_t molec_measurement_get_median(int timer_index)
 
 void molec_measurement_print()
 {
-    printf("\n      ==================== MOLEC - Timers ====================\n\n");
+    if(molec_verbose == 0)
+        printf("%i\t", molec_parameter->N);
+    else
+        printf("\n      ==================== MOLEC - Timers ====================\n\n");
     const char* prefix[5]
         = {"cycles", "x 10^3 cycles", "x 10^6 cycles", "x 10^9 cycles", "x 10^12 cycles"};
     for(int timer_index = 0; timer_index < measurement->num_timers; ++timer_index)
     {
-        // check wheter this timer has been used
-        if(measurement->value_list_heads[timer_index] != NULL)
+        if(molec_verbose)
         {
-            double cycles = (double) molec_measurement_get_median(timer_index);
-            int prefix_idx = 0;
-            while(cycles > 1024 && prefix_idx < 5)
+            // check wheter this timer has been used
+            if(measurement->value_list_heads[timer_index] != NULL)
             {
-                cycles /= 1024;
-                ++prefix_idx;
-            }
+                double cycles = (double) molec_measurement_get_median(timer_index);
+                int prefix_idx = 0;
+                while(cycles > 1024 && prefix_idx < 5)
+                {
+                    cycles /= 1024;
+                    ++prefix_idx;
+                }
 
-            printf("      Timer %-15s %9.6f %s\n",
-                   MOLEC_MEASUREMENT_GET_TIMER(timer_index), cycles, prefix[prefix_idx]);
+                printf("      Timer %-15s %9.6f %s\n", MOLEC_MEASUREMENT_GET_TIMER(timer_index),
+                       cycles, prefix[prefix_idx]);
+            }
+        }
+        else // plotting mode, molec_verbose==0
+        {
+            // check wheter this timer has been used
+            if(measurement->value_list_heads[timer_index] != NULL)
+            {
+                molec_uint64_t cycles = molec_measurement_get_median(timer_index);
+
+                printf("%i\t%llu\t", timer_index, cycles);
+            }
         }
     }
+    if(molec_verbose == 0)
+        printf("\n");
 }
 
 void molec_measurement_finish()

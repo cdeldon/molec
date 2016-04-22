@@ -15,6 +15,7 @@
 
 #include <molec/Force.h>
 #include <molec/Integrator.h>
+#include <molec/Periodic.h>
 #include <molec/LoadConfig.h>
 #include <molec/Simulation.h>
 #include <molec/Timer.h>
@@ -43,6 +44,17 @@ molec_force_integration arg_get_integration_routine(const char* key)
     return NULL;
 }
 
+/*
+molec_periodic_routine arg_get_periodic_routine(const char* key)
+{
+    if(strcmp(key, "ref") == 0)
+        return &molec_integrator_leapfrog_refrence;
+    else
+        molec_error("invalid parameter '%s' for option \"--periodic\"\n", key);
+    return NULL;
+}
+*/
+
 int main(int argc, char** argv)
 {
     // force routine can appear at most once --> arg_str0
@@ -53,6 +65,10 @@ int main(int argc, char** argv)
     struct arg_str* arg_integrator_routine
         = arg_str0("i", "integrator", "string", "integrator routine specification: "
                                                 "[ lf | lf2 ]");
+    // periodic routine
+    struct arg_str* arg_periodic_routine
+        = arg_str0("p", "periodic", "string", "periodic routine specification: "
+                                              "[ ref ]");
     // parameter can appear at most once --> arg_file0
     struct arg_file* arg_parameters
         = arg_file0("c", "config", "string", "path to configuration file");
@@ -62,15 +78,21 @@ int main(int argc, char** argv)
 
     // help
     struct arg_lit* arg_help = arg_lit0("h", "help", "prints help");
+    // verbosity
+    struct arg_int* arg_verb
+        = arg_int0("v", "verbose", "int", "verbose output: "
+                                          "[ 0: silent, 1: settings, 2: full ]");
 
     // maximal number of errors = 20
     struct arg_end* end_struct = arg_end(20);
 
     void* argtable[] = {arg_force_routine,
                         arg_integrator_routine,
+                        arg_periodic_routine,
                         arg_parameters,
                         arg_desired_particles,
                         arg_help,
+                        arg_verb,
                         end_struct};
 
     char* progname = "molec";
@@ -85,17 +107,19 @@ int main(int argc, char** argv)
     // set any command line default values prior to parsing
     arg_force_routine->sval[0] = "cell";
     arg_integrator_routine->sval[0] = "lf";
+    arg_periodic_routine->sval[0] = "ref";
     arg_parameters->filename[0] = "";
     arg_desired_particles->ival[0] = -1;
+    arg_verb->ival[0] = 1;
 
     // parse argtable
     int nerrors = arg_parse(argc, argv, argtable);
     // special case: '--help | -h' takes precedence over error reporting
-    if (arg_help->count > 0)
+    if(arg_help->count > 0)
     {
         printf("Usage: %s", progname);
-        arg_print_syntax(stdout,argtable,"\n");
-        arg_print_glossary(stdout,argtable,"  %-25s %s\n");
+        arg_print_syntax(stdout, argtable, "\n");
+        arg_print_glossary(stdout, argtable, "  %-25s %s\n");
         exit(0);
     }
     if(nerrors > 0)
@@ -112,10 +136,19 @@ int main(int argc, char** argv)
         = arg_get_integration_routine(arg_integrator_routine->sval[0]);
     const char* config_file_name = arg_parameters->filename[0];
     const int desired_N = arg_desired_particles->ival[0];
+    molec_verbose = arg_verb->ival[0];
 
     srand(42);
     molec_load_parameters(config_file_name, 1, desired_N);
 
+    // print the used routines passed as argument
+    if(molec_verbose)
+    {
+        printf("\n      ================ MOLEC - Settings ================\n\n");
+        printf("      Force routine: %10s\n", arg_force_routine->sval[0]);
+        printf("      Integrator routine: %10s\n", arg_integrator_routine->sval[0]);
+        printf("      Periodic routine: %10s\n", arg_periodic_routine->sval[0]);
+    }
 
     MOLEC_MEASUREMENT_INIT;
 
@@ -125,6 +158,8 @@ int main(int argc, char** argv)
 
 
     MOLEC_MEASUREMENT_PRINT;
+
+    MOLEC_FREE(molec_parameter);
 
     MOLEC_MEASUREMENT_FINISH;
 

@@ -37,6 +37,11 @@ typedef unsigned long long molec_uint64_t;
 typedef unsigned int molec_uint32_t;
 #endif
 
+/**
+ * @brief if enabled, verbose output
+ */
+extern int molec_verbose;
+
 
 /**
  * @brief Print an error message to stderr and abort the execution

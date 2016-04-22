@@ -99,8 +99,11 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
     Real Ekin_x = 0.0, Ekin_y = 0.0, Ekin_z = 0.0;
     Real Epot = 0.0;
 
-    printf("\n      ================ MOLEC - Simulation steps ================\n\n");
-    printf("%10s\t%15s\t%15s\t%15s\n", "Step", "Ekin", "Epot", "Etot");
+    if(molec_verbose > 1)
+    {
+        printf("\n      ================ MOLEC - Simulation steps ================\n\n");
+        printf("%10s\t%15s\t%15s\t%15s\n", "Step", "Ekin", "Epot", "Etot");
+    }
     for(int n = 1; n <= Nstep; ++n)
     {
         if(MOLEC_DUMP_COORDINATES)
@@ -132,14 +135,15 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
         // 4. Report result
         Real Ekin = Ekin_x + Ekin_y + Ekin_z;
         Real Etot = Ekin + Epot;
-        printf("%10i\t%15.6f\t%15.6f\t%15.6f\n", n, Ekin, Epot, Etot);
+
+        if(molec_verbose > 1)
+            printf("%10i\t%15.6f\t%15.6f\t%15.6f\n", n, Ekin, Epot, Etot);
 
         /* molec_print_simulation_SOA(sim); */
     }
 
     // Free memory
     molec_free_simulation_SOA(sim);
-    MOLEC_FREE(molec_parameter);
 
     if(MOLEC_DUMP_COORDINATES)
     {
