@@ -29,3 +29,61 @@ void molec_periodic_refrence(Real* x, const int N)
     }
 }
 
+void molec_periodic_v3(Real* x, const int N)
+{
+    const Real L = molec_parameter->L;
+    int rep;
+    for(rep = 0; rep < 10; ++rep)
+    {
+        for(int i = 0; i < N; ++i)
+        {
+            if(x[i] < 0)
+                x[i] += L;
+            if(x[i] > L)
+                x[i] -= L;
+        }
+    }
+}
+
+void molec_periodic_v4(Real* x, const int N)
+{
+    const Real L = molec_parameter->L;
+
+    for(int i = 0; i < N; ++i)
+    {
+        if(x[i] < 0)
+            while(x[i] < 0)
+                x[i] += L;
+        if(x[i] > L)
+            while(x[i] > L)
+                x[i] -= L;
+    }
+}
+
+void molec_periodic_v5(Real* x, const int N)
+{
+    const Real L = molec_parameter->L;
+
+    Real x1, x2;
+    for(int i = 0; i < N; i += 2)
+    {
+        x1 = x[i];
+        x2 = x[i + 1];
+
+        if(x1 < 0)
+            while(x1 < 0)
+                x1 += L;
+        if(x2 < 0)
+            while(x2 < 0)
+                x2 += L;
+
+        if(x1 > L)
+            while(x1 > L)
+                x1 -= L;
+        if(x2 > L)
+            while(x2 > L)
+                x2 -= L;
+        x[i] = x1;
+        x[i + 1] = x2;
+    }
+}
