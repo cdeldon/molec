@@ -33,7 +33,10 @@ void molec_load_parameters(const char* filename, int verbose, int N)
         if(N == -1)
             printf("Running simulation with default parameters\n");
         else
+        {
             printf("Running simulation with default parameters, and N = %d\n", N);
+            molec_parameter_init(N);
+        }
 
         goto exit;
     }
