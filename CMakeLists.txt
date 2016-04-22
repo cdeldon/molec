@@ -11,6 +11,9 @@
 cmake_minimum_required(VERSION 2.8)
 project(molec C)
 
+include(ExternalProject)
+include(CMakeParseArguments)
+
 if(NOT(CMAKE_MAJOR_VERSION LESS 3) AND NOT(CMAKE_MINOR_VERSION LESS 2))
     cmake_policy(SET CMP0054 OLD)
 endif()
@@ -35,7 +38,7 @@ elseif(${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall")
 
 elseif(${CMAKE_C_COMPILER_ID} STREQUAL "PGI")
-    message(STATUS "Using PGI C compiler -- Broken")
+    message(STATUS "Using PGI C compiler")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -c99")
 
 endif()
@@ -98,6 +101,28 @@ if(MOLEC_DUMP_COORDINATES)
     add_definitions(-DMOLEC_DUMP_COORDINATES=1)
 endif(MOLEC_DUMP_COORDINATES)
 
+
+### Build argtable
+
+set(ARGTABLE_INSTALL_DIR "${CMAKE_BINARY_DIR}/external/argtable2/install")
+set(CMAKE_EXTERNAL_ARGUMENTS  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                              -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
+                              -Wno-dev
+                              -DCMAKE_INSTALL_PREFIX=${ARGTABLE_INSTALL_DIR}
+                              -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+)
+
+ExternalProject_Add(libargtable2
+     URL             "${CMAKE_CURRENT_SOURCE_DIR}/external/argtable2"
+     PREFIX          "external/argtable2"
+     CMAKE_ARGS      ${CMAKE_EXTERNAL_ARGUMENTS}
+ )
+ message(STATUS "Building argtable2 from: ${CMAKE_CURRENT_SOURCE_DIR}/external/argtable2")
+
+# Set the link and include directories
+link_directories(${ARGTABLE_INSTALL_DIR}/lib)
+include_directories(${ARGTABLE_INSTALL_DIR}/include)
+
 ### Doxygen Documentation
 find_package(Doxygen)
 option(MOLEC_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)"
@@ -110,6 +135,7 @@ file(GLOB_RECURSE MOLEC_HEADERS
      ${CMAKE_CURRENT_SOURCE_DIR}/include/molec/*.h)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR}/external)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src)
 

@@ -16,7 +16,7 @@
 #ifndef MOLEC_UNITTEST_H
 #define MOLEC_UNITTEST_H
 
-#include "external/tinytest.h"
+#include <tinytest/tinytest.h>
 #include <molec/InitialCondition.h>
 #include <molec/Parameter.h>
 #include <molec/Simulation.h>

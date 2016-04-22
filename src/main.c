@@ -18,6 +18,7 @@
 #include <molec/LoadConfig.h>
 #include <molec/Simulation.h>
 #include <molec/Timer.h>
+#include <argtable2.h>
 
 int main(int argc, const char* argv[])
 {

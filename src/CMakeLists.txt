@@ -34,7 +34,7 @@ add_library(molecCore STATIC ${MOLEC_CORE_SOURCE} ${MOLEC_HEADERS})
 
 # Molec executable
 add_executable(molec main.c)
-target_link_libraries(molec molecCore)
+target_link_libraries(molec molecCore argtable2)
 
 # Link against math library (-lm)
 if(NOT(${CMAKE_C_COMPILER_ID} STREQUAL "MSVC"))

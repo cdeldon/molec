@@ -8,7 +8,7 @@
 
 
 # folders
-build/
+build*
 doc/html/
 
 # specific files
