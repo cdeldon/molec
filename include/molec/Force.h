@@ -115,7 +115,7 @@ void molec_force_gonnet(molec_Simulation_SOA_t* sim, Real* Epot, const int N);
  * @param Epot  Real scalar to store the potential energy
  * @param N     Size of arrays
  */
-void molec_force_reference_dp(molec_Simulation_SOA_t* sim, Real* Epot, const int N);
+void molec_force_celllist_dp(molec_Simulation_SOA_t* sim, Real* Epot, const int N);
 
 #endif
 
