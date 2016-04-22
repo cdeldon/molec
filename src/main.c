@@ -28,6 +28,14 @@ molec_force_calculation arg_get_force_routine(const char* key)
         return &molec_force_N2_refrence;
     else if(strcmp(key, "cell") == 0)
         return &molec_force_cellList;
+    else if(strcmp(key, "cellfor") == 0)
+        return &molec_force_cellList_for;
+    else if(strcmp(key, "cellswap") == 0)
+        return &molec_force_cellList_for_swap;
+    else if(strcmp(key, "celldp1") == 0)
+        return &molec_force_cellList_double_pointer;
+    else if(strcmp(key, "celldp2") == 0)
+        return &molec_force_cellList_double_pointer_v2;
     else
         molec_error("invalid parameter '%s' for option \"--force\"\n", key);
     return NULL;
