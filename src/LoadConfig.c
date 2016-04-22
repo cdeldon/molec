@@ -20,24 +20,32 @@
 
 molec_Loader_t* molec_loader = NULL;
 
-void molec_load_parameters(const int argc, const char* argv[], int verbose)
+void molec_load_parameters(const char* filename, int verbose, int N)
 {
     molec_parameter_init(1000);
+
     molec_loader = malloc(sizeof(molec_Loader_t));
 
     // Read the simulation parameters from the file passed as first argument
     // to the executable
-    if(argc < 2)
+    if(strcmp(filename, "") == 0)
     {
-        printf("Running simulation with default parameters\n");
+        if(N == -1)
+            printf("Running simulation with default parameters\n");
+        else
+        {
+            printf("Running simulation with default parameters, and N = %d\n", N);
+            molec_parameter_init(N);
+        }
+
         goto exit;
     }
     
     if(verbose)
-        printf("Running simulation with parameters specified in '%s'\n", argv[1]);
+        printf("Running simulation with parameters specified in '%s'\n", filename);
 
     MOLEC_MALLOC(molec_loader->filename, MOLEC_FILENAME_MAX_LENGTH * sizeof(char));
-    memcpy(molec_loader->filename, argv[1], MOLEC_FILENAME_MAX_LENGTH * sizeof(char));
+    memcpy(molec_loader->filename, filename, MOLEC_FILENAME_MAX_LENGTH * sizeof(char));
 
     FILE* parametersFile = fopen(molec_loader->filename, "r");
     if(parametersFile == NULL)
@@ -56,7 +64,10 @@ void molec_load_parameters(const int argc, const char* argv[], int verbose)
             // Store value in 'value' char array into molec_parameter
             if(tag[0] == 'N' && strlen(tag) == 1)
             {
-                molec_parameter->N = atoi(value);
+                if(N == -1) // if N was not passed as argument, read from config file
+                    molec_parameter->N = atoi(value);
+                else
+                    molec_parameter->N = N;
             }
             else if(strcmp(tag, "dt") == 0)
             {

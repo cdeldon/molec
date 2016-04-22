@@ -23,7 +23,7 @@
  */
 TEST_CASE(molec_UnittestParser)
 {
-    char unittestFile[] = "molec_UnittestParser.txt";
+    const char unittestFile[] = "molec_UnittestParser.txt";
 
     // Create dummy file
     FILE * fp;
@@ -52,7 +52,7 @@ TEST_CASE(molec_UnittestParser)
     memcpy((void*) argv[1], unittestFile, sizeof(unittestFile));
 
     // Parse file
-    molec_load_parameters(argc, argv, 0);
+    molec_load_parameters(unittestFile , 0, 1234);
 
     CHECK_EQ_INTEGER(molec_parameter->N, 1234);
     CHECK_EQ_DOUBLE(molec_parameter->dt, (Real) 0.123);
