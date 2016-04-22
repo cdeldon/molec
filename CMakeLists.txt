@@ -24,6 +24,7 @@ endif()
 if(${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
     message(STATUS "Using Visual C compiler")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
 elseif(${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
     message(STATUS "Using GNU C compiler")
@@ -103,7 +104,6 @@ endif(MOLEC_DUMP_COORDINATES)
 
 
 ### Build argtable
-
 set(ARGTABLE_INSTALL_DIR "${CMAKE_BINARY_DIR}/external/argtable2/install")
 set(CMAKE_EXTERNAL_ARGUMENTS  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                               -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
