@@ -13,13 +13,13 @@
  *  See LICENSE.txt for details.
  */
 
+#include <argtable2.h>
 #include <molec/Force.h>
 #include <molec/Integrator.h>
-#include <molec/Periodic.h>
 #include <molec/LoadConfig.h>
+#include <molec/Periodic.h>
 #include <molec/Simulation.h>
 #include <molec/Timer.h>
-#include <argtable2.h>
 #include <string.h>
 
 molec_force_calculation arg_get_force_routine(const char* key)
@@ -57,30 +57,44 @@ molec_periodic arg_get_periodic_routine(const char* key)
 int main(int argc, char** argv)
 {
     // force routine can appear at most once --> arg_str0
-    struct arg_str* arg_force_routine = arg_str0(
-        "f", "force", "string", "force routine specification: "
-                                "[ N2 | cell | cellfor | cellswap | celldp1 | celldp2 ]");
+    struct arg_str* arg_force_routine
+        = arg_str0("f", "force", "<string>",
+                   "Specify the force subroutine.\n"
+                   "                             - N2         N2 refrence\n"
+                   "                             - cell       Cell-list refrence\n"
+                   "                             - cellfor    Cell-list with for loops\n"
+                   "                             - cellswap   Cell-list with swaping\n"
+                   "                             - celldp1    Cell-list with double pointer (v1)\n"
+                   "                             - celldp2    Cell-list with double pointer (v2)");
+
     // integrator routine can appear at most once --> arg_str0
     struct arg_str* arg_integrator_routine
-        = arg_str0("i", "integrator", "string", "integrator routine specification: "
-                                                "[ lf | lf2 ]");
+        = arg_str0("i", "integrator", "<string>",
+                   "Specify the integrator subroutine.\n"
+                   "                             - lf         Leap-frog (refrence)\n"
+                   "                             - lf2        Leap-frog (unroll x2)");
     // periodic routine
     struct arg_str* arg_periodic_routine
-        = arg_str0("p", "periodic", "string", "periodic routine specification: "
-                                              "[ ref ]");
+        = arg_str0("p", "periodic", "<string>",
+                   "Specify the periodic subroutine.\n"
+                   "                             - ref        Refrence implementation");
     // parameter can appear at most once --> arg_file0
     struct arg_file* arg_parameters
-        = arg_file0("c", "config", "string", "path to configuration file");
+        = arg_file0("c", "config", "<file>", "Path to to the configuration file.");
 
     // contains the number of desired particles
-    struct arg_int* arg_desired_particles = arg_int0("n", "N", "int", "number of particles");
+    struct arg_int* arg_desired_particles
+        = arg_int0("n", "N", "<int>", "Set the number of particles.");
 
     // help
-    struct arg_lit* arg_help = arg_lit0("h", "help", "prints help");
+    struct arg_lit* arg_help = arg_lit0("h", "help", "Print this help statement and exit.");
     // verbosity
     struct arg_int* arg_verb
-        = arg_int0("v", "verbose", "int", "verbose output: "
-                                          "[ 0: silent, 1: settings, 2: full ]");
+        = arg_int0("v", "verbose", "<int>",
+                   "Set verbosity level.\n"
+                   "                             - 0:  Only print timers in the end\n"
+                   "                             - 1:  Print settings (default)\n"
+                   "                             - 2:  Full output (print energies every step)");
 
     // maximal number of errors = 20
     struct arg_end* end_struct = arg_end(20);
@@ -145,7 +159,7 @@ int main(int argc, char** argv)
     if(molec_verbose)
     {
         printf("\n      ================ MOLEC - Settings ================\n\n");
-        printf("      %-20s %10s\n", "Force routine:",arg_force_routine->sval[0]);
+        printf("      %-20s %10s\n", "Force routine:", arg_force_routine->sval[0]);
         printf("      %-20s %10s\n", "Integrator routine:", arg_integrator_routine->sval[0]);
         printf("      %-20s %10s\n", "Periodic routine:", arg_periodic_routine->sval[0]);
     }
@@ -156,12 +170,10 @@ int main(int argc, char** argv)
     molec_run_simulation(force_calculation, force_integration, periodic);
     MOLEC_MEASUREMENT_SIMULATION_STOP();
 
-
     MOLEC_MEASUREMENT_PRINT;
 
+    // free memory 
     MOLEC_FREE(molec_parameter);
-
     MOLEC_MEASUREMENT_FINISH;
-
     arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
 }
