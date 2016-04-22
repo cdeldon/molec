@@ -26,6 +26,9 @@ USA.
 #include <sys/types.h>
 #include <string.h>
 #include <ctype.h>
+#if defined(__linux__) || defined(__linux)
+#include <strings.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
