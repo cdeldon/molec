@@ -18,6 +18,9 @@
 
 #include <molec/Common.h>
 
+/** Define function pointer for periodic routine */
+typedef void (*molec_periodic)(Real*, const int);
+
 /**
  * @brief Apply periodic boundary conditions to the given position array
  *
@@ -28,5 +31,9 @@
  * @param N     Size of arrays
  */
 void molec_periodic_refrence(Real* x, const int N);
+void molec_periodic_v3(Real* x, const int N);
+void molec_periodic_v4(Real* x, const int N);
+void molec_periodic_v5(Real* x, const int N);
+void molec_periodic_scalar_replacement(Real* x, const int N);
 
 #endif
