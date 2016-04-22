@@ -24,7 +24,7 @@ endif()
 if(${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
     message(STATUS "Using Visual C compiler")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
 
 elseif(${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
     message(STATUS "Using GNU C compiler")

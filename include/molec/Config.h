@@ -91,8 +91,6 @@
 
 // Disable some warnings on Windows
 #ifdef MOLEC_PLATFORM_WINDOWS
-#define _CRT_SECURE_NO_WARNINGS
-
 #pragma warning(disable : 4267) // conversion from 'size_t' to 'int'
 #pragma warning(disable : 4244) // conversion from 'double' to 'int'
 #pragma warning(disable : 4305) // truncation from 'double' to 'float'
