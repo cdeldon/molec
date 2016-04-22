@@ -13,10 +13,11 @@
  *  See LICENSE.txt for details.
  */
 
-#include <molec/Simulation.h>
 #include <molec/Force.h>
+#include <molec/Integrator.h>
 #include <molec/LoadConfig.h>
-#include <stdlib.h>
+#include <molec/Simulation.h>
+#include <molec/Timer.h>
 
 int main(int argc, const char* argv[])
 {
@@ -24,9 +25,19 @@ int main(int argc, const char* argv[])
 
     molec_load_parameters(argc, argv, 1);
 
-    // Run the simulation using the routing specified in the passed argument
-    // to compute the interactions between particles
-    molec_force_calculation force_calculation = &molec_force_celllist_dp;
-    molec_run_simulation(force_calculation);
-}
+    //molec_force_calculation force_calculation = &molec_force_N2_refrence;
+    molec_force_calculation force_calculation = &molec_force_cellList_double_pointer;
+    molec_force_integration force_integration = &molec_integrator_leapfrog_unroll_2;
 
+    MOLEC_MEASUREMENT_INIT;
+
+    MOLEC_MEASUREMENT_SIMULATION_START();
+    molec_run_simulation(force_calculation, force_integration);
+    MOLEC_MEASUREMENT_SIMULATION_STOP();
+
+
+    MOLEC_MEASUREMENT_PRINT;
+
+    MOLEC_MEASUREMENT_FINISH;
+}
+;

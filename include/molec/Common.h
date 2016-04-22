@@ -37,6 +37,7 @@ typedef unsigned long long molec_uint64_t;
 typedef unsigned int molec_uint32_t;
 #endif
 
+
 /**
  * @brief Print an error message to stderr and abort the execution
  *

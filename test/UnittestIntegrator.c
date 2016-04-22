@@ -19,7 +19,7 @@
 #include <math.h>
 
 /* Global variables to keep track of different integrators */
-molec_integrator integrators[32];
+molec_force_integration integrators[32];
 int num_integrators = 0;
 
 /**
@@ -27,7 +27,7 @@ int num_integrators = 0;
  *
  * @param integrator  pointer to an integrator
  */
-void molec_register_integrator(molec_integrator integrator);
+void molec_register_integrator(molec_force_integration integrator);
 
 /**
  * Compare the outpout of the registered integrators with the output of the
@@ -45,7 +45,7 @@ TEST_CASE(molec_UnittestIntegrator)
     molec_run_integrator_test();
 }
 
-void molec_register_integrator(molec_integrator integrator)
+void molec_register_integrator(molec_force_integration integrator)
 {
     integrators[num_integrators] = integrator;
     num_integrators++;
@@ -75,10 +75,10 @@ void molec_run_integrator_test()
         Real Ekin;
         integrators[i](x, v, f, &Ekin, N);
 
-        ALLCLOSE_DOUBLE(x, x_ref, N, 1e-08, 1e-05);
-        ALLCLOSE_DOUBLE(v, v_ref, N, 1e-08, 1e-05);
+        ALLCLOSE_DOUBLE(x, x_ref, N, MOLEC_ATOL, MOLEC_RTOL);
+        ALLCLOSE_DOUBLE(v, v_ref, N, MOLEC_ATOL, MOLEC_RTOL);
 
-        CLOSE_DOUBLE(Ekin, Ekin_ref, 1e-08);
+        CLOSE_DOUBLE(Ekin, Ekin_ref, MOLEC_ATOL);
 
         molec_free_vector(x);
         molec_free_vector(v);

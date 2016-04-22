@@ -18,14 +18,11 @@
 #include <molec/CellVector.h>
 #include <string.h>
 
-//#define NofCells (molec_parameter->cellList.N)
-//#define NofAtoms (molec_parameter->rho*2)
-
 static int neighbors[27];
 molec_CellList_Parameter_t cellList_parameter;
-static int rho;
-static int MaxNumber;
-static int** molec_cellList;//[NofCells][(int)NofAtoms];
+static int average_atoms_per_cells;
+static int increased_average;
+static int** molec_cellList;
 
 /**
  * Calculate the positive modulo between two integers, used for periodic BC
@@ -87,28 +84,26 @@ MOLEC_INLINE Real dist(Real x, Real y, Real L)
     return r;
 }
 
-void molec_force_celllist_dp(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
+void molec_force_cellList_double_pointer_v2(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
 {
+    assert(molec_parameter);
     //get molec parameter
     cellList_parameter = molec_parameter->cellList;
-    //get fraction
-    rho=molec_parameter->N/cellList_parameter.N;
-    //assert(rho>0);
-    //printf("%i \n",rho);
-    MaxNumber=10*rho;
-    int index;
-    assert(molec_parameter);
+    //get average
+    average_atoms_per_cells=molec_parameter->N/cellList_parameter.N;
+    //increase expectation of atoms in cell
+    increased_average=2*average_atoms_per_cells;
 
+    int index;
+    //allocation of space for cellList
     if(molec_cellList==NULL)
     {
         MOLEC_MALLOC(molec_cellList,cellList_parameter.N*sizeof(int*));
         for(index = 0;index<cellList_parameter.N;++index)
         {
-        MOLEC_MALLOC(molec_cellList[index],MaxNumber*sizeof(int));
+        MOLEC_MALLOC(molec_cellList[index],increased_average*sizeof(int));
         }
     }
-    //int** molec_cellList;
-    //MOLEC_MALLOC(molec_cellList,cellList_parameter.N*2*rho*sizeof(int*));
 
     const Real sigLJ = molec_parameter->sigLJ;
     const Real epsLJ = molec_parameter->epsLJ;
@@ -152,11 +147,7 @@ void molec_force_celllist_dp(molec_Simulation_SOA_t* sim, Real* Epot, const int 
 
         molec_cellList[cellNmbr][NumberOfAtomsInCell[cellNmbr]]=i; //segfault?
         NumberOfAtomsInCell[cellNmbr]+=1;
-        //possibly copy the real values?
-        //molec_cellList[idx][index_array[idx]][0]=x[i];
-        //molec_cellList[idx][index_array[idx]][1]=y[i];
-        //molec_cellList[idx][index_array[idx]][2]=z[i];
-        assert(NumberOfAtomsInCell[cellNmbr]<=MaxNumber);
+        assert(NumberOfAtomsInCell[cellNmbr]<=increased_average);
     }
 
     int CellNumberOne;

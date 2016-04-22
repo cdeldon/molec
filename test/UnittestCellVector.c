@@ -66,7 +66,7 @@ MOLEC_INLINE void cross(const Real a[3], const Real b[3])
     cross[1] = a[2] * b[0] - a[0] * b[2];
     cross[2] = a[0] * b[1] - a[1] * b[0];
 
-    ALLCLOSE_DOUBLE_3(cross, zero, 3)
+    ALLCLOSE_DOUBLE(cross, zero, 3, MOLEC_ATOL, MOLEC_RTOL)
 }
 
 /**
