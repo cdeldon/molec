@@ -113,8 +113,6 @@ int main(int argc, char** argv)
     const char* config_file_name = arg_parameters->filename[0];
     const int desired_N = arg_desired_particles->ival[0];
 
-    printf("desired N: %d\n", desired_N);
-
     srand(42);
     molec_load_parameters(config_file_name, 1, desired_N);
 
