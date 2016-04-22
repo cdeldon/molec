@@ -47,6 +47,11 @@ endif()
 ### CMake options
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+option(MOLEC_PROFILING "Enable flags for proflinig (-fprofile-arcs)" OFF)
+if(MOLEC_PROFILING)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
+endif(MOLEC_PROFILING)
+
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING
     "Choose the type of build, options are: Debug Release" FORCE)
