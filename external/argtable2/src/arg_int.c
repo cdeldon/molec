@@ -32,7 +32,7 @@ USA.
 #include <limits.h>
 
 /* local error codes */
-enum {EMINCOUNT=1,EMAXCOUNT,EBADINT,EOVERFLOW};
+enum errorcode {EMINCOUNT=1,EMAXCOUNT,EBADINT,EOVERFLOW};
 
 static void resetfn(struct arg_int *parent)
     {
