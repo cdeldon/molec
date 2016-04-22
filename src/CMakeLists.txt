@@ -15,6 +15,7 @@ set(MOLEC_CORE_SOURCE
     Dump.c
     ForceRefrence.c
     ForceCellListDoublePointer.c
+    ForceCellListDoublePointerv2.c
     ForceCellList.c
     ForceCellListFor.c
     ForceCellListForSwap.c
