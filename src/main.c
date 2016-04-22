@@ -44,16 +44,15 @@ molec_force_integration arg_get_integration_routine(const char* key)
     return NULL;
 }
 
-/*
-molec_periodic_routine arg_get_periodic_routine(const char* key)
+
+molec_periodic arg_get_periodic_routine(const char* key)
 {
     if(strcmp(key, "ref") == 0)
-        return &molec_integrator_leapfrog_refrence;
+        return &molec_periodic_refrence;
     else
         molec_error("invalid parameter '%s' for option \"--periodic\"\n", key);
     return NULL;
 }
-*/
 
 int main(int argc, char** argv)
 {
@@ -134,6 +133,7 @@ int main(int argc, char** argv)
     molec_force_calculation force_calculation = arg_get_force_routine(arg_force_routine->sval[0]);
     molec_force_integration force_integration
         = arg_get_integration_routine(arg_integrator_routine->sval[0]);
+    molec_periodic periodic = arg_get_periodic_routine(arg_periodic_routine->sval[0]);
     const char* config_file_name = arg_parameters->filename[0];
     const int desired_N = arg_desired_particles->ival[0];
     molec_verbose = arg_verb->ival[0];
@@ -145,15 +145,15 @@ int main(int argc, char** argv)
     if(molec_verbose)
     {
         printf("\n      ================ MOLEC - Settings ================\n\n");
-        printf("      Force routine: %10s\n", arg_force_routine->sval[0]);
-        printf("      Integrator routine: %10s\n", arg_integrator_routine->sval[0]);
-        printf("      Periodic routine: %10s\n", arg_periodic_routine->sval[0]);
+        printf("      %-20s %10s\n", "Force routine:",arg_force_routine->sval[0]);
+        printf("      %-20s %10s\n", "Integrator routine:", arg_integrator_routine->sval[0]);
+        printf("      %-20s %10s\n", "Periodic routine:", arg_periodic_routine->sval[0]);
     }
 
     MOLEC_MEASUREMENT_INIT;
 
     MOLEC_MEASUREMENT_SIMULATION_START();
-    molec_run_simulation(force_calculation, force_integration);
+    molec_run_simulation(force_calculation, force_integration, periodic);
     MOLEC_MEASUREMENT_SIMULATION_STOP();
 
 

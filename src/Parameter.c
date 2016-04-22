@@ -68,21 +68,21 @@ void molec_cell_init()
 
 void molec_print_parameters()
 {
-    printf("\n\t========= MOLEC - Simulation paramteters =========\n\n");
-    printf("\tNumber of particles: \t\t%d\n", molec_parameter->N);
-    printf("\tNumber of steps: \t\t%d\n", molec_parameter->Nstep);
-    printf("\tTime step: \t\t\t%f\n", molec_parameter->dt);
-    printf("\tParticle density: \t\t%f\n", molec_parameter->rho);
-    printf("\tBounding box: \t\t\t%2.1f x %2.1f x %2.1f\n",
+    printf("\n      ========= MOLEC - Simulation paramteters =========\n\n");
+    printf("      Number of particles: \t\t%d\n", molec_parameter->N);
+    printf("      Number of steps: \t\t\t%d\n", molec_parameter->Nstep);
+    printf("      Time step: \t\t\t%f\n", molec_parameter->dt);
+    printf("      Particle density: \t\t%f\n", molec_parameter->rho);
+    printf("      Bounding box: \t\t\t%2.1f x %2.1f x %2.1f\n",
            molec_parameter->L, molec_parameter->L, molec_parameter->L);
-    printf("\tParticle mass: \t\t\t%f\n", molec_parameter->mass);
-    printf("\tCutoff Radius: \t\t\t%f\n", molec_parameter->Rcut);
-    printf("\tLennard Jones:\n \t\t\tepsilon:\t%f\n\t\t\tsigma:\t\t%f\n",
+    printf("      Particle mass: \t\t\t%f\n", molec_parameter->mass);
+    printf("      Cutoff Radius: \t\t\t%f\n", molec_parameter->Rcut);
+    printf("      Lennard Jones:\n \t\t\tepsilon:\t%f\n\t\t\tsigma:\t\t%f\n",
            molec_parameter->epsLJ, molec_parameter->sigLJ);
 
     if(molec_parameter->cellList.N != 0)
     {
-        printf("\n\tCell List:\n");
+        printf("\n      Cell List:\n");
         printf("\t\tNumber of cells:\t%d x %d x %d\n", molec_parameter->cellList.N_x,
                molec_parameter->cellList.N_y, molec_parameter->cellList.N_z);
         printf("\t\tNTotal number of cells:\t%d\n", molec_parameter->cellList.N);

@@ -137,7 +137,7 @@ void molec_measurement_print()
     if(molec_verbose == 0)
         printf("%i\t", molec_parameter->N);
     else
-        printf("\n      ==================== MOLEC - Timers ====================\n\n");
+        printf("\n      ================== MOLEC - Timers ================\n\n");
     const char* prefix[5]
         = {"cycles", "x 10^3 cycles", "x 10^6 cycles", "x 10^9 cycles", "x 10^12 cycles"};
     for(int timer_index = 0; timer_index < measurement->num_timers; ++timer_index)
@@ -155,7 +155,7 @@ void molec_measurement_print()
                     ++prefix_idx;
                 }
 
-                printf("      Timer %-15s %9.6f %s\n", MOLEC_MEASUREMENT_GET_TIMER(timer_index),
+                printf("      Timer %-20s %9.6f %s\n", MOLEC_MEASUREMENT_GET_TIMER(timer_index),
                        cycles, prefix[prefix_idx]);
             }
         }

@@ -15,6 +15,7 @@
 
 #include <molec/Force.h>
 #include <molec/Integrator.h>
+#include <molec/Periodic.h>
 #include <molec/InitialCondition.h>
 #include <molec/Parameter.h>
 #include <molec/Periodic.h>
@@ -67,7 +68,8 @@ void molec_free_simulation_SOA(molec_Simulation_SOA_t* simulation)
 }
 
 void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, Real*, int),
-                          void (*molec_force_integration)(Real*, Real*, const Real*, Real*, const int))
+                          void (*molec_force_integration)(Real*, Real*, const Real*, Real*, const int),
+                          void (*molec_periodic)(Real*, const int))
 {
     if(MOLEC_DUMP_COORDINATES)
     {
@@ -127,9 +129,9 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
 
         // 3. Apply periodic boundary conditions
         MOLEC_MEASUREMENT_PERIODIC_START();
-        molec_periodic_refrence(sim->x, N);
-        molec_periodic_refrence(sim->y, N);
-        molec_periodic_refrence(sim->z, N);
+        molec_periodic(sim->x, N);
+        molec_periodic(sim->y, N);
+        molec_periodic(sim->z, N);
         MOLEC_MEASUREMENT_PERIODIC_STOP();
 
         // 4. Report result
