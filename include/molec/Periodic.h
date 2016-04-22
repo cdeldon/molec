@@ -31,5 +31,6 @@ typedef void (*molec_periodic)(Real*, const int);
  * @param N     Size of arrays
  */
 void molec_periodic_refrence(Real* x, const int N);
+void molec_periodic_scalar_replacement(Real* x, const int N);
 
 #endif
