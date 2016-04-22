@@ -43,7 +43,7 @@ extern molec_Loader_t* molec_loader;
  * @param argv      Array of char* containing the passed arguments
  * @param verbose   Print parsed parameters
  */
-void molec_load_parameters(const int argc, const char *argv[], int verbose);
+void molec_load_parameters(const char* filename, int verbose, int N);
 
 #endif
 
