@@ -33,3 +33,10 @@ target_link_libraries(molecTest molecCore)
 if(NOT(${CMAKE_C_COMPILER_ID} STREQUAL "MSVC"))
     target_link_libraries(molecTest m)
 endif(NOT(${CMAKE_C_COMPILER_ID} STREQUAL "MSVC"))
+
+# Add CTest
+if(WIN32)
+    add_test(molecRunTests "${CMAKE_BINARY_DIR}/molecTest.exe")
+else()
+    add_test(molecRunTests "${CMAKE_BINARY_DIR}/molecTest")
+endif()

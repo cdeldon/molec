@@ -14,6 +14,8 @@ project(molec C)
 include(ExternalProject)
 include(CMakeParseArguments)
 
+enable_testing()
+
 if(NOT(CMAKE_MAJOR_VERSION LESS 3) AND NOT(CMAKE_MINOR_VERSION LESS 2))
     cmake_policy(SET CMP0054 OLD)
 endif()

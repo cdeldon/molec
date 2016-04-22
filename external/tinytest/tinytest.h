@@ -115,6 +115,9 @@ extern "C" {
 
 #ifndef TINYTEST_PRINT_ALL
 #define TINYTEST_PRINT_ALL 0
+#else
+#undef TINYTEST_PRINT_ALL
+#define TINYTEST_PRINT_ALL 1
 #endif
 
 #ifdef TINYTEST_COMPILER_MSVC
