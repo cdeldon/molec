@@ -26,19 +26,19 @@
 typedef struct molec_Simulation_SOA
 {
     /** Position */
-    Real* x;
-    Real* y;
-    Real* z;
+    float* x;
+    float* y;
+    float* z;
 
     /** Velocity */
-    Real* v_x;
-    Real* v_y;
-    Real* v_z;
+    float* v_x;
+    float* v_y;
+    float* v_z;
 
     /** Force */
-    Real* f_x;
-    Real* f_y;
-    Real* f_z;
+    float* f_x;
+    float* f_y;
+    float* f_z;
 
 } molec_Simulation_SOA_t;
 
@@ -63,8 +63,8 @@ void molec_print_simulation_SOA(const molec_Simulation_SOA_t* simulation);
  * Run the refrence version of the MD-Simulation using N^2 force computation
  *
  */
-void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, Real*, int),
-                          void (*molec_force_integration)(Real*, Real*, const Real*, Real*, const int),
-                          void (*molec_periodic)(Real*, const int));
+void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, float*, int),
+                          void (*molec_force_integration)(float*, float*, const float*, float*, const int),
+                          void (*molec_periodic)(float*, const int));
 
 #endif

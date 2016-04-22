@@ -21,9 +21,9 @@
 /**
  * Calculate distance between x and y taking periodic boundaries into account
  */
-MOLEC_INLINE Real dist(Real x, Real y, Real L)
+MOLEC_INLINE float dist(float x, float y, float L)
 {
-    Real r = x - y;
+    float r = x - y;
     if(r < -L / 2)
         r += L;
     else if(r > L / 2)
@@ -39,7 +39,7 @@ MOLEC_INLINE int mod(int b, int m)
     return (b % m + m) % m;
 }
 
-void molec_force_cellList_double_pointer(molec_Simulation_SOA_t* sim, Real* Epot, const int N)
+void molec_force_cellList_double_pointer(molec_Simulation_SOA_t* sim, float* Epot, const int N)
 {
     assert(molec_parameter);
 
@@ -49,14 +49,14 @@ void molec_force_cellList_double_pointer(molec_Simulation_SOA_t* sim, Real* Epot
     molec_CellList_Parameter_t cellList_parameter = molec_parameter->cellList;
 
     // Local aliases
-    const Real* x = sim->x;
-    const Real* y = sim->y;
-    const Real* z = sim->z;
-    Real* f_x = sim->f_x;
-    Real* f_y = sim->f_y;
-    Real* f_z = sim->f_z;
+    const float* x = sim->x;
+    const float* y = sim->y;
+    const float* z = sim->z;
+    float* f_x = sim->f_x;
+    float* f_y = sim->f_y;
+    float* f_z = sim->f_z;
 
-    Real Epot_ = 0;
+    float Epot_ = 0;
 
     // for each particle compute cell index
     int* c_idx = malloc(sizeof(int) * N);
@@ -153,11 +153,11 @@ void molec_force_cellList_double_pointer(molec_Simulation_SOA_t* sim, Real* Epot
                                         if(MOLEC_CELLLIST_COUNT_INTERACTION)
                                             ++num_potential_interactions;
 
-                                        const Real xij = dist(x[i], x[j], molec_parameter->L);
-                                        const Real yij = dist(y[i], y[j], molec_parameter->L);
-                                        const Real zij = dist(z[i], z[j], molec_parameter->L);
+                                        const float xij = dist(x[i], x[j], molec_parameter->L);
+                                        const float yij = dist(y[i], y[j], molec_parameter->L);
+                                        const float zij = dist(z[i], z[j], molec_parameter->L);
 
-                                        const Real r2 = xij * xij + yij * yij + zij * zij;
+                                        const float r2 = xij * xij + yij * yij + zij * zij;
 
                                         if(r2 < molec_parameter->Rcut2)
                                         {
@@ -166,12 +166,12 @@ void molec_force_cellList_double_pointer(molec_Simulation_SOA_t* sim, Real* Epot
                                                 ++num_effective_interactions;
 
                                             // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
-                                            const Real s2 = (molec_parameter->sigLJ * molec_parameter->sigLJ) / r2;
-                                            const Real s6 = s2 * s2 * s2;
+                                            const float s2 = (molec_parameter->sigLJ * molec_parameter->sigLJ) / r2;
+                                            const float s6 = s2 * s2 * s2;
 
                                             Epot_ += 4 * molec_parameter->epsLJ * (s6 * s6 - s6);
 
-                                            const Real fr = 24 * molec_parameter->epsLJ / r2 * (2 * s6 * s6 - s6);
+                                            const float fr = 24 * molec_parameter->epsLJ / r2 * (2 * s6 * s6 - s6);
 
                                             sim->f_x[i] += fr * xij;
                                             sim->f_y[i] += fr * yij;

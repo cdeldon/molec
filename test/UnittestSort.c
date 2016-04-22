@@ -47,14 +47,14 @@ TEST_CASE(molec_UnittestSort)
     molec_Simulation_SOA_t* sim = molec_setup_simulation_SOA();
 
     const int N = molec_parameter->N;
-    const Real L = molec_parameter->L;
+    const float L = molec_parameter->L;
 
     // Randomly move the atoms
     for(int i = 0; i < N; ++i)
     {
-        sim->x[i] += (rand() / (Real) RAND_MAX) * L;
-        sim->y[i] += (rand() / (Real) RAND_MAX) * L;
-        sim->z[i] += (rand() / (Real) RAND_MAX) * L;
+        sim->x[i] += (rand() / (float) RAND_MAX) * L;
+        sim->y[i] += (rand() / (float) RAND_MAX) * L;
+        sim->z[i] += (rand() / (float) RAND_MAX) * L;
     }
 
     // Apply periodic boundary conditions
@@ -65,7 +65,7 @@ TEST_CASE(molec_UnittestSort)
 
     // Check if all the particles are sorted in x direction
     for(int i = 0; i < N - 1; ++i)
-        CHECK_LE_DOUBLE(sim->x[i], sim->x[i + 1]);
+        CHECK_LE_FLOAT(sim->x[i], sim->x[i + 1]);
 
     molec_teardown_simulation_SOA(sim);
 }

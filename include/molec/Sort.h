@@ -27,7 +27,7 @@
   * @param value    integer index used to sort other arrays accordingly
   */
 typedef struct molec_Sort_Pair {
-    Real key;
+    float key;
     int value;
 } molec_Sort_Pair_t;
 

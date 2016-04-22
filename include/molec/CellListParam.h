@@ -34,7 +34,7 @@ typedef struct molec_CellList_Parameter
     int N;
 
     /** Size of one cell of the cell list */
-    Real c_x, c_y, c_z;
+    float c_x, c_y, c_z;
 
 } molec_CellList_Parameter_t;
 

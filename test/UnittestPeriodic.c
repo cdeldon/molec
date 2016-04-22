@@ -55,14 +55,14 @@ void molec_run_periodic_test()
     // Initialize simulation
     molec_Simulation_SOA_t* sim = molec_setup_simulation_SOA();
 
-    const Real L = molec_parameter->L;
+    const float L = molec_parameter->L;
     const int N = molec_parameter->N;
 
     for (int i = 0; i < num_periodic; ++i)
     {
         // Randomly move the atoms
         for(int i = 0; i < N; ++i)
-            sim->x[i] += (rand() / (Real) RAND_MAX) * L;
+            sim->x[i] += (rand() / (float) RAND_MAX) * L;
 
         // Apply periodic boundary conditions
         periodics[i](sim->x, N);
@@ -70,8 +70,8 @@ void molec_run_periodic_test()
         // Check if all the atoms are back in the bounding box
         for(int i = 0; i < N; ++i)
         {
-            CHECK_LE_DOUBLE(sim->x[i], L);
-            CHECK_GE_DOUBLE(sim->x[i], 0.0);
+            CHECK_LE_FLOAT(sim->x[i], L);
+            CHECK_GE_FLOAT(sim->x[i], 0.0);
         }
     }
 

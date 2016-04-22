@@ -24,13 +24,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-#ifdef MOLEC_SINGLE_PRECISION
 #define MOLEC_ATOL 1e-04f
 #define MOLEC_RTOL 1e-02f
-#else
-#define MOLEC_ATOL 1e-08
-#define MOLEC_RTOL 1e-05
-#endif
 
 /**
  * Number of atoms used during unittesting (defined in Unittest.c)
@@ -38,27 +33,27 @@
 extern int molec_NAtoms;
 
 /* Macro for generating random numbers */
-#define MOLEC_RANDOM (((Real)rand()) / RAND_MAX)
+#define MOLEC_RANDOM (((float)rand()) / RAND_MAX)
 
 /**
  * Allocate memory for an array of size N
  */
- Real* molec_init_vector(const int N);
+ float* molec_init_vector(const int N);
 
 /**
  * Generate a random array of size N
  */
-Real* molec_random_vector(const int N);
+float* molec_random_vector(const int N);
 
 /**
  *  Return a deep copy of the given array
  */
-Real* molec_copy_vector(const Real* vec, const int N);
+float* molec_copy_vector(const float* vec, const int N);
 
 /**
  * Free array
  */
-void molec_free_vector(Real*);
+void molec_free_vector(float*);
 
 /**
  * @brief Setup and initialize the simulation struct using molec_NAtoms atoms

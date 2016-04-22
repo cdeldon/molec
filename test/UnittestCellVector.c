@@ -16,7 +16,7 @@
 #include "Unittest.h"
 #include <molec/CellVector.h>
 
-const static Real molec_ref_CellLookupTable[27][3] =
+const static float molec_ref_CellLookupTable[27][3] =
      {
        {-1,-1,-1},
        { 0,-1,-1},
@@ -58,15 +58,15 @@ const static Real molec_ref_CellLookupTable[27][3] =
       };
 
 
-MOLEC_INLINE void cross(const Real a[3], const Real b[3])
+MOLEC_INLINE void cross(const float a[3], const float b[3])
 {
-    Real cross[3];
-    Real zero[3] = {0., 0., 0.};
+    float cross[3];
+    float zero[3] = {0., 0., 0.};
     cross[0] = a[1] * b[2] - a[2] * b[1];
     cross[1] = a[2] * b[0] - a[0] * b[2];
     cross[2] = a[0] * b[1] - a[1] * b[0];
 
-    ALLCLOSE_DOUBLE(cross, zero, 3, MOLEC_ATOL, MOLEC_RTOL)
+    ALLCLOSE_FLOAT(cross, zero, 3, MOLEC_ATOL, MOLEC_RTOL)
 }
 
 /**

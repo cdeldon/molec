@@ -19,7 +19,7 @@
 #include <molec/Common.h>
 
 /** Define function pointer for integration routine */
-typedef void (*molec_force_integration)(Real*, Real*, const Real*, Real*, const int);
+typedef void (*molec_force_integration)(float*, float*, const float*, float*, const int);
 
 /**
  * @brief Leapfrog integration scheme (refrence version)
@@ -34,7 +34,7 @@ typedef void (*molec_force_integration)(Real*, Real*, const Real*, Real*, const 
  * @param Ekin  Real scalar to store the kinetic energy
  * @param N     Size of arrays
  */
-void molec_integrator_leapfrog_refrence(Real* x, Real* v, const Real* f, Real* Ekin, const int N);
-void molec_integrator_leapfrog_unroll_2(Real* x, Real* v, const Real* f, Real* Ekin, const int N);
+void molec_integrator_leapfrog_refrence(float* x, float* v, const float* f, float* Ekin, const int N);
+void molec_integrator_leapfrog_unroll_2(float* x, float* v, const float* f, float* Ekin, const int N);
 
 #endif

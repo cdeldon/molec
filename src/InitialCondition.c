@@ -21,13 +21,13 @@
 void molec_set_initial_condition(molec_Simulation_SOA_t* sim)
 {
     const int N = molec_parameter->N;
-    const Real L = molec_parameter->L;
-    const Real scaling = molec_parameter->scaling;
+    const float L = molec_parameter->L;
+    const float scaling = molec_parameter->scaling;
 
     // Set initial positions (regular grid + random offset)
     const int num_atom_along_axis = (int) ceil(pow(N, 1.0 / 3.0));
-    const Real spread = L / num_atom_along_axis;
-    const Real dx = scaling * spread / 2.0;
+    const float spread = L / num_atom_along_axis;
+    const float dx = scaling * spread / 2.0;
 
     int atom_idx = 0;
     for(int iz = 0; iz < num_atom_along_axis; ++iz)
@@ -35,11 +35,11 @@ void molec_set_initial_condition(molec_Simulation_SOA_t* sim)
             for(int ix = 0; ix < num_atom_along_axis && atom_idx < N; ++ix, ++atom_idx)
             {
                 sim->x[atom_idx] = (0.5 + ix) * spread
-                                          + dx * (2 * (Real) rand() / RAND_MAX - 1);
+                                          + dx * (2 * (float) rand() / RAND_MAX - 1);
                 sim->y[atom_idx] = (0.5 + iy) * spread
-                                          + dx * (2 * (Real) rand() / RAND_MAX - 1);
+                                          + dx * (2 * (float) rand() / RAND_MAX - 1);
                 sim->z[atom_idx] = (0.5 + iz) * spread
-                                          + dx * (2 * (Real) rand() / RAND_MAX - 1);
+                                          + dx * (2 * (float) rand() / RAND_MAX - 1);
             }
 
     // Set initial velocities

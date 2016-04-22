@@ -55,14 +55,14 @@ TEST_CASE(molec_UnittestParser)
     molec_load_parameters(unittestFile , 0, 1234);
 
     CHECK_EQ_INTEGER(molec_parameter->N, 1234);
-    CHECK_EQ_DOUBLE(molec_parameter->dt, (Real) 0.123);
+    CHECK_EQ_DOUBLE(molec_parameter->dt, (float) 0.123);
     CHECK_EQ_INTEGER(molec_parameter->Nstep, 123);
-    CHECK_EQ_DOUBLE(molec_parameter->rho, (Real) 1.05);
-    CHECK_EQ_DOUBLE(molec_parameter->mass, (Real) 3.0);
-    CHECK_EQ_DOUBLE(molec_parameter->Rcut, (Real) 13.1);
-    CHECK_EQ_DOUBLE(molec_parameter->epsLJ, (Real) 14.5);
-    CHECK_EQ_DOUBLE(molec_parameter->sigLJ, (Real) 12.5);
-    CHECK_EQ_DOUBLE(molec_parameter->scaling, (Real) 0.25);
+    CHECK_EQ_FLOAT(molec_parameter->rho, (float) 1.05);
+    CHECK_EQ_FLOAT(molec_parameter->mass, (float) 3.0);
+    CHECK_EQ_FLOAT(molec_parameter->Rcut, (float) 13.1);
+    CHECK_EQ_FLOAT(molec_parameter->epsLJ, (float) 14.5);
+    CHECK_EQ_FLOAT(molec_parameter->sigLJ, (float) 12.5);
+    CHECK_EQ_FLOAT(molec_parameter->scaling, (float) 0.25);
 
     remove("molec_UnittestParser.txt");
 }

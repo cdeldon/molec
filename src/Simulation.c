@@ -35,17 +35,17 @@ molec_Simulation_SOA_t* molec_init_simulation_SOA()
 
     molec_Simulation_SOA_t* simulation = malloc(sizeof(molec_Simulation_SOA_t));
 
-    MOLEC_MALLOC(simulation->x, sizeof(Real) * N);
-    MOLEC_MALLOC(simulation->y, sizeof(Real) * N);
-    MOLEC_MALLOC(simulation->z, sizeof(Real) * N);
+    MOLEC_MALLOC(simulation->x, sizeof(float) * N);
+    MOLEC_MALLOC(simulation->y, sizeof(float) * N);
+    MOLEC_MALLOC(simulation->z, sizeof(float) * N);
 
-    MOLEC_MALLOC(simulation->v_x, sizeof(Real) * N);
-    MOLEC_MALLOC(simulation->v_y, sizeof(Real) * N);
-    MOLEC_MALLOC(simulation->v_z, sizeof(Real) * N);
+    MOLEC_MALLOC(simulation->v_x, sizeof(float) * N);
+    MOLEC_MALLOC(simulation->v_y, sizeof(float) * N);
+    MOLEC_MALLOC(simulation->v_z, sizeof(float) * N);
 
-    MOLEC_MALLOC(simulation->f_x, sizeof(Real) * N);
-    MOLEC_MALLOC(simulation->f_y, sizeof(Real) * N);
-    MOLEC_MALLOC(simulation->f_z, sizeof(Real) * N);
+    MOLEC_MALLOC(simulation->f_x, sizeof(float) * N);
+    MOLEC_MALLOC(simulation->f_y, sizeof(float) * N);
+    MOLEC_MALLOC(simulation->f_z, sizeof(float) * N);
 
     return simulation;
 }
@@ -67,9 +67,9 @@ void molec_free_simulation_SOA(molec_Simulation_SOA_t* simulation)
     MOLEC_FREE(simulation);
 }
 
-void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, Real*, int),
-                          void (*molec_force_integration)(Real*, Real*, const Real*, Real*, const int),
-                          void (*molec_periodic)(Real*, const int))
+void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, float*, int),
+                          void (*molec_force_integration)(float*, float*, const float*, float*, const int),
+                          void (*molec_periodic)(float*, const int))
 {
     if(MOLEC_DUMP_COORDINATES)
     {
@@ -98,8 +98,8 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
     }
 
     // Run sim
-    Real Ekin_x = 0.0, Ekin_y = 0.0, Ekin_z = 0.0;
-    Real Epot = 0.0;
+    float Ekin_x = 0.0, Ekin_y = 0.0, Ekin_z = 0.0;
+    float Epot = 0.0;
 
     if(molec_verbose > 1)
     {
@@ -135,8 +135,8 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
         MOLEC_MEASUREMENT_PERIODIC_STOP();
 
         // 4. Report result
-        Real Ekin = Ekin_x + Ekin_y + Ekin_z;
-        Real Etot = Ekin + Epot;
+        float Ekin = Ekin_x + Ekin_y + Ekin_z;
+        float Etot = Ekin + Epot;
 
         if(molec_verbose > 1)
             printf("%10i\t%15.6f\t%15.6f\t%15.6f\n", n, Ekin, Epot, Etot);

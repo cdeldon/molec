@@ -17,29 +17,29 @@
 
 int molec_NAtoms = 1000;
 
- Real* molec_init_vector(const int N)
+ float* molec_init_vector(const int N)
  {
-     Real* vec;
-     MOLEC_MALLOC(vec, sizeof(Real) * N);
+     float* vec;
+     MOLEC_MALLOC(vec, sizeof(float) * N);
      return vec;
  }
 
-Real* molec_random_vector(const int N)
+float* molec_random_vector(const int N)
 {
-    Real* vec;
-    MOLEC_MALLOC(vec, sizeof(Real) * N);
+    float* vec;
+    MOLEC_MALLOC(vec, sizeof(float) * N);
     for (int i=0; i < N; i++) vec[i] = MOLEC_RANDOM;
     return vec;
 }
 
-Real* molec_copy_vector(const Real* vec, const int N)
+float* molec_copy_vector(const float* vec, const int N)
 {
-    Real* vec_cpy = malloc(sizeof(Real) * N);
-    memcpy(vec_cpy, vec, sizeof(Real) * N);
+    float* vec_cpy = malloc(sizeof(float) * N);
+    memcpy(vec_cpy, vec, sizeof(float) * N);
     return vec_cpy;
 }
 
-void molec_free_vector(Real* vec)
+void molec_free_vector(float* vec)
 {
     MOLEC_FREE(vec);
 }

@@ -21,7 +21,7 @@
 
 int molec_verbose;
 
-void molec_print_array(const Real* array, const int N)
+void molec_print_array(const float* array, const int N)
 {
     for(int i = 0; i < N; ++i)
         printf("%12.6f\n", array[i]);

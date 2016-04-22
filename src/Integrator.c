@@ -16,14 +16,14 @@
 #include <molec/Parameter.h>
 #include <molec/Integrator.h>
 
-void molec_integrator_leapfrog_refrence(Real* x, Real* v, const Real* f, Real* Ekin, const int N)
+void molec_integrator_leapfrog_refrence(float* x, float* v, const float* f, float* Ekin, const int N)
 {
     assert(molec_parameter);
-    const Real dt = molec_parameter->dt;
-    const Real m = molec_parameter->mass;
+    const float dt = molec_parameter->dt;
+    const float m = molec_parameter->mass;
     
-    Real v_old = 0;
-    Real Ekin_ = 0;
+    float v_old = 0;
+    float Ekin_ = 0;
 
     // Integrate velocity: v_{i+1/2} = v_{i-1/2} + dt * f_i / m
     for(int i = 0; i < N; ++i)
@@ -42,13 +42,13 @@ void molec_integrator_leapfrog_refrence(Real* x, Real* v, const Real* f, Real* E
     *Ekin = Ekin_;
 }
 
-void molec_integrator_leapfrog_unroll_2(Real* x, Real* v, const Real* f, Real* Ekin, const int N)
+void molec_integrator_leapfrog_unroll_2(float* x, float* v, const float* f, float* Ekin, const int N)
 {
     assert(molec_parameter);
-    const Real dt = molec_parameter->dt;
-    const Real m = molec_parameter->mass;
-    const Real m0125 = 0.125 * m;
-    const Real minv = 1.0 / molec_parameter->mass;
+    const float dt = molec_parameter->dt;
+    const float m = molec_parameter->mass;
+    const float m0125 = 0.125 * m;
+    const float minv = 1.0 / molec_parameter->mass;
    
     // Loop logic
     int i = 0;
@@ -56,13 +56,13 @@ void molec_integrator_leapfrog_unroll_2(Real* x, Real* v, const Real* f, Real* E
     const int N2_upper = N2 * 2;
    
     // Temporaries
-    Real x_00, x_01;
-    Real v_00, v_01;    
-    Real v_2_00, v_2_01;    
-    Real v_old_00, v_old_01;   
-    Real f_minv_00, f_minv_01;
+    float x_00, x_01;
+    float v_00, v_01;    
+    float v_2_00, v_2_01;    
+    float v_old_00, v_old_01;   
+    float f_minv_00, f_minv_01;
     
-    Real Ekin_00 = 0.0, Ekin_01 = 0.0;
+    float Ekin_00 = 0.0, Ekin_01 = 0.0;
     
     for(i = 0; i < N2_upper; i += 2)
     {

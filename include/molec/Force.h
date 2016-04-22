@@ -20,7 +20,7 @@
 #include <molec/Simulation.h>
 
 /** Define function pointer for force calculation routine */
-typedef void (*molec_force_calculation)(molec_Simulation_SOA_t*, Real*, const int);
+typedef void (*molec_force_calculation)(molec_Simulation_SOA_t*, float*, const int);
 
 /**
  * @brief Calculate short-range interaction force using N^2 approach
@@ -33,7 +33,7 @@ typedef void (*molec_force_calculation)(molec_Simulation_SOA_t*, Real*, const in
  * @param Epot  Real scalar to store the potential energy
  * @param N     Size of arrays
  */
-void molec_force_N2_refrence(molec_Simulation_SOA_t* sim, Real* Epot, const int N);
+void molec_force_N2_refrence(molec_Simulation_SOA_t* sim, float* Epot, const int N);
 
 /**
  * @brief Calculate short-range interaction force using cell-list approach [1]
@@ -48,7 +48,7 @@ void molec_force_N2_refrence(molec_Simulation_SOA_t* sim, Real* Epot, const int 
  * @param Epot  Real scalar to store the potential energy
  * @param N     Size of arrays
  */
-void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N);
+void molec_force_cellList(molec_Simulation_SOA_t* sim, float* Epot, const int N);
 
 /**
  * @brief Calculate short-range interaction force using cell-list approach [1]
@@ -59,7 +59,7 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, Real* Epot, const int N);
  * @param Epot  Real scalar to store the potential energy
  * @param N     Size of arrays
  */
-void molec_force_cellList_double_pointer(molec_Simulation_SOA_t *sim, Real *Epot, const int N);
+void molec_force_cellList_double_pointer(molec_Simulation_SOA_t *sim, float *Epot, const int N);
 
 /**
  * @brief Calculate short-range interaction force using cell-list approach [1]
@@ -78,7 +78,7 @@ void molec_force_cellList_double_pointer(molec_Simulation_SOA_t *sim, Real *Epot
  * @param Epot  Real scalar to store the potential energy
  * @param N     Size of arrays
  */
-void molec_force_cellList_for(molec_Simulation_SOA_t* sim, Real* Epot, const int N);
+void molec_force_cellList_for(molec_Simulation_SOA_t* sim, float* Epot, const int N);
 
 /**
  * @brief Calculate short-range interaction force using cell-list approach [1]
@@ -97,7 +97,7 @@ void molec_force_cellList_for(molec_Simulation_SOA_t* sim, Real* Epot, const int
  * @param Epot  Real scalar to store the potential energy
  * @param N     Size of arrays
  */
-void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, const int N);
+void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, float* Epot, const int N);
 
 /**
  * @brief Calculate short-range interaction force using Gonnet
@@ -106,7 +106,7 @@ void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, Real* Epot, cons
  * @param Epot  Real scalar to store the potential energy
  * @param N     Size of arrays
  */
-void molec_force_gonnet(molec_Simulation_SOA_t* sim, Real* Epot, const int N);
+void molec_force_gonnet(molec_Simulation_SOA_t* sim, float* Epot, const int N);
 
 /**
  * @brief Calculation short-range interaction with double index arrays
@@ -114,7 +114,7 @@ void molec_force_gonnet(molec_Simulation_SOA_t* sim, Real* Epot, const int N);
  * @param Epot  Real scalar to store the potential energy
  * @param N     Size of arrays
  */
-void molec_force_cellList_double_pointer_v2(molec_Simulation_SOA_t* sim, Real* Epot, const int N);
+void molec_force_cellList_double_pointer_v2(molec_Simulation_SOA_t* sim, float* Epot, const int N);
 
 #endif
 

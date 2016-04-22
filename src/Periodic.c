@@ -17,9 +17,9 @@
 #include <molec/Periodic.h>
 #include <math.h>
 
-void molec_periodic_refrence(Real* x, const int N)
+void molec_periodic_refrence(float* x, const int N)
 {
-    const Real L = molec_parameter->L;
+    const float L = molec_parameter->L;
 
     for(int i = 0; i < N; ++i)
     {
@@ -29,9 +29,9 @@ void molec_periodic_refrence(Real* x, const int N)
     }
 }
 
-void molec_periodic_v3(Real* x, const int N)
+void molec_periodic_v3(float* x, const int N)
 {
-    const Real L = molec_parameter->L;
+    const float L = molec_parameter->L;
     int rep;
     for(rep = 0; rep < 10; ++rep)
     {
@@ -45,9 +45,9 @@ void molec_periodic_v3(Real* x, const int N)
     }
 }
 
-void molec_periodic_v4(Real* x, const int N)
+void molec_periodic_v4(float* x, const int N)
 {
-    const Real L = molec_parameter->L;
+    const float L = molec_parameter->L;
 
     for(int i = 0; i < N; ++i)
     {
@@ -60,11 +60,11 @@ void molec_periodic_v4(Real* x, const int N)
     }
 }
 
-void molec_periodic_v5(Real* x, const int N)
+void molec_periodic_v5(float* x, const int N)
 {
-    const Real L = molec_parameter->L;
+    const float L = molec_parameter->L;
 
-    Real x1, x2;
+    float x1, x2;
     for(int i = 0; i < N; i += 2)
     {
         x1 = x[i];

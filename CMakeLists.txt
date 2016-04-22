@@ -92,11 +92,6 @@ else(MOLEC_TIMER_ENABLE)
     endif()
 endif(MOLEC_TIMER_ENABLE)
 
-option(MOLEC_SINGLE_PRECISION "Compile for singe precision floating point (4 bytes)" ON)
-if(MOLEC_SINGLE_PRECISION)
-    add_definitions(-DMOLEC_SINGLE_PRECISION)
-endif(MOLEC_SINGLE_PRECISION)
-
 option(MOLEC_CELLLIST_COUNT "Count missrate of cell-list interactions" OFF)
 if(MOLEC_CELLLIST_COUNT)
     add_definitions(-DMOLEC_CELLLIST_COUNT_INTERACTION=1)

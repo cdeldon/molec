@@ -70,7 +70,7 @@
  * @endcode
  *
  */
-const static Real molec_CellLookupTable[27][3] =
+const static float molec_CellLookupTable[27][3] =
      {
        {-MOLEC_DIST_DIAG_2, -MOLEC_DIST_DIAG_2, -MOLEC_DIST_DIAG_2},
        { MOLEC_DIST_NULLL,  -MOLEC_DIST_DIAG_1, -MOLEC_DIST_DIAG_1},

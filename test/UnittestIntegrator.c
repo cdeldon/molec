@@ -56,29 +56,29 @@ void molec_run_integrator_test()
     const int N = molec_parameter->N;
 
     // generate random initial position, velocity and force vectors
-    Real* x_init = molec_random_vector(N);
-    Real* v_init = molec_random_vector(N);
-    Real* f = molec_random_vector(N);
+    float* x_init = molec_random_vector(N);
+    float* v_init = molec_random_vector(N);
+    float* f = molec_random_vector(N);
 
     // integrate using the reference implementation
-    Real* x_ref = molec_copy_vector(x_init, N);
-    Real* v_ref = molec_copy_vector(v_init, N);
-    Real Ekin_ref;
+    float* x_ref = molec_copy_vector(x_init, N);
+    float* v_ref = molec_copy_vector(v_init, N);
+    float Ekin_ref;
 
     molec_integrator_leapfrog_refrence(x_ref, v_ref, f, &Ekin_ref, N);
 
     // integrage and compare with the reference implementation
     for (int i = 0; i < num_integrators; ++i)
     {
-        Real* x = molec_copy_vector(x_init, N);
-        Real* v = molec_copy_vector(v_init, N);
-        Real Ekin;
+        float* x = molec_copy_vector(x_init, N);
+        float* v = molec_copy_vector(v_init, N);
+        float Ekin;
         integrators[i](x, v, f, &Ekin, N);
 
-        ALLCLOSE_DOUBLE(x, x_ref, N, MOLEC_ATOL, MOLEC_RTOL);
-        ALLCLOSE_DOUBLE(v, v_ref, N, MOLEC_ATOL, MOLEC_RTOL);
+        ALLCLOSE_FLOAT(x, x_ref, N, MOLEC_ATOL, MOLEC_RTOL);
+        ALLCLOSE_FLOAT(v, v_ref, N, MOLEC_ATOL, MOLEC_RTOL);
 
-        CLOSE_DOUBLE(Ekin, Ekin_ref, MOLEC_ATOL);
+        CLOSE_FLOAT(Ekin, Ekin_ref, MOLEC_ATOL);
 
         molec_free_vector(x);
         molec_free_vector(v);

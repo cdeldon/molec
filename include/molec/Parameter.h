@@ -36,31 +36,31 @@ typedef struct molec_Parameter
     int Nstep;
 
     /** Density of particles per unit volume */
-    Real rho;
+    float rho;
 
     /** Extend of the bounding box */
-    Real L;
+    float L;
 
     /** Time step */
-    Real dt;
+    float dt;
 
     /** Mass of the atoms */
-    Real mass;
+    float mass;
 
     /** Cut-off radius */
-    Real Rcut;
+    float Rcut;
 
     /** Cut-off radius squared */
-    Real Rcut2;
+    float Rcut2;
 
     /** Perturbation [0, 1) of the regular grid in the initial positions */
-    Real scaling;
+    float scaling;
     
     /** Lennard-Jones parameter: epsilon */
-    Real epsLJ;
+    float epsLJ;
 
     /** Lennard-Jones parameter: sigma */
-    Real sigLJ;
+    float sigLJ;
 
     /** Parameters of the cell list */
     molec_CellList_Parameter_t cellList;

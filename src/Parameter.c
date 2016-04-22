@@ -40,7 +40,7 @@ void molec_parameter_init(int N)
 
     // Determine bounding box size dependind of N and rho
     // such that rho = N/(L*L*L)
-    molec_parameter->L = pow(((Real) molec_parameter->N) / molec_parameter->rho,(1./3));
+    molec_parameter->L = pow(((float) molec_parameter->N) / molec_parameter->rho,(1./3));
 
     // Initialize the cell list associated with the defined bounding box,
     // and cut off radius
@@ -49,8 +49,8 @@ void molec_parameter_init(int N)
 
 void molec_cell_init()
 {
-    const Real L = molec_parameter->L;
-    const Real Rcut = molec_parameter->Rcut;
+    const float L = molec_parameter->L;
+    const float Rcut = molec_parameter->Rcut;
 
     // compute the number of cells per dimension
     molec_parameter->cellList.N_x = fmax(1, floor(L / Rcut));

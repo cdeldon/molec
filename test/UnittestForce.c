@@ -20,7 +20,7 @@
 #include <string.h>
 
 // arrays storing the reference force computed with the naice N^2 algorithm
-static Real* f_x_reference, *f_y_reference, *f_z_reference;
+static float* f_x_reference, *f_y_reference, *f_z_reference;
 
 
 #define MOLEC_MAX_FORCE_ROUTINES 10
@@ -81,24 +81,24 @@ void molec_force_test_register_functions()
  */
 void molec_compute_reference_forces(molec_Simulation_SOA_t* sim, const int N)
 {
-    Real Epot;
+    float Epot;
     // Compute the reference force that acts on the atoms
     molec_force_cellList_for(sim, &Epot, N);
 
     if(!f_x_reference)
     {
         // Store the computed forces as reference
-        MOLEC_MALLOC(f_x_reference, N * sizeof(Real));
-        MOLEC_MALLOC(f_y_reference, N * sizeof(Real));
-        MOLEC_MALLOC(f_z_reference, N * sizeof(Real));
+        MOLEC_MALLOC(f_x_reference, N * sizeof(float));
+        MOLEC_MALLOC(f_y_reference, N * sizeof(float));
+        MOLEC_MALLOC(f_z_reference, N * sizeof(float));
     }
 
     // sort the force vectors, in order to compare with other force routines
     molec_sort_qsort_forces(sim);
 
-    memcpy(f_x_reference, sim->f_x, N * sizeof(Real));
-    memcpy(f_y_reference, sim->f_y, N * sizeof(Real));
-    memcpy(f_z_reference, sim->f_z, N * sizeof(Real));
+    memcpy(f_x_reference, sim->f_x, N * sizeof(float));
+    memcpy(f_y_reference, sim->f_y, N * sizeof(float));
+    memcpy(f_z_reference, sim->f_z, N * sizeof(float));
 }
 
 /**
@@ -112,7 +112,7 @@ void molec_compute_reference_forces(molec_Simulation_SOA_t* sim, const int N)
 void molec_check_forces(molec_force_calculation force_routine, molec_Simulation_SOA_t* sim,
                         const int N, const char* description)
 {
-    Real Epot;
+    float Epot;
 
     // compute forces with routine passed as argument
     force_routine(sim, &Epot, N);
@@ -122,9 +122,9 @@ void molec_check_forces(molec_force_calculation force_routine, molec_Simulation_
     molec_sort_qsort_forces(sim);
 
     // check wheter the computed forces are ok
-    ALLCLOSE_DOUBLE_MSG(sim->f_x, f_x_reference, N, MOLEC_ATOL, MOLEC_RTOL, description)
-    ALLCLOSE_DOUBLE_MSG(sim->f_y, f_y_reference, N, MOLEC_ATOL, MOLEC_RTOL, description)
-    ALLCLOSE_DOUBLE_MSG(sim->f_z, f_z_reference, N, MOLEC_ATOL, MOLEC_RTOL, description)
+    ALLCLOSE_FLOAT_MSG(sim->f_x, f_x_reference, N, MOLEC_ATOL, MOLEC_RTOL, description)
+    ALLCLOSE_FLOAT_MSG(sim->f_y, f_y_reference, N, MOLEC_ATOL, MOLEC_RTOL, description)
+    ALLCLOSE_FLOAT_MSG(sim->f_z, f_z_reference, N, MOLEC_ATOL, MOLEC_RTOL, description)
 }
 
 /**

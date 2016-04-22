@@ -23,12 +23,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#ifdef MOLEC_SINGLE_PRECISION
-typedef float Real;
-#else
-typedef double Real;
-#endif
-
 #ifdef MOLEC_PLATFORM_WINDOWS
 typedef unsigned __int64 molec_uint64_t;
 typedef unsigned __int32 molec_uint32_t;
@@ -53,7 +47,7 @@ void molec_error(const char* format, ...);
 /**
  * Print an array of lenght N to stdout
  */
-void molec_print_array(const Real* array, const int N);
+void molec_print_array(const float* array, const int N);
 
 /**
  * @brief This macro wraps libc's malloc and checks for success

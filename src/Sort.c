@@ -19,8 +19,8 @@
 
 int molec_compare(const void* pair1, const void* pair2)
 {
-    Real pair1_key = (Real) ((molec_Sort_Pair_t*) pair1)->key;
-    Real pair2_key = (Real) ((molec_Sort_Pair_t*) pair2)->key;
+    float pair1_key = (float) ((molec_Sort_Pair_t*) pair1)->key;
+    float pair2_key = (float) ((molec_Sort_Pair_t*) pair2)->key;
 
     int pair1_value = (int)((molec_Sort_Pair_t*) pair1)->value;
     int pair2_value = (int)((molec_Sort_Pair_t*) pair2)->value;
@@ -43,13 +43,13 @@ int molec_compare(const void* pair1, const void* pair2)
 void molec_sort_qsort(molec_Simulation_SOA_t* sim)
 {
     // Local aliases
-    Real *x = sim->x;
-    Real *y = sim->y;
-    Real *z = sim->z;
+    float *x = sim->x;
+    float *y = sim->y;
+    float *z = sim->z;
 
-    Real *v_x = sim->v_x;
-    Real *v_y = sim->v_y;
-    Real *v_z = sim->v_z;
+    float *v_x = sim->v_x;
+    float *v_y = sim->v_y;
+    float *v_z = sim->v_z;
 
     const int N = molec_parameter->N;
 
@@ -64,22 +64,22 @@ void molec_sort_qsort(molec_Simulation_SOA_t* sim)
     
     qsort(key, N, sizeof(molec_Sort_Pair_t), molec_compare);
     
-    Real *x_temp, *y_temp, *z_temp;
-    Real *v_x_temp, *v_y_temp, *v_z_temp;
+    float *x_temp, *y_temp, *z_temp;
+    float *v_x_temp, *v_y_temp, *v_z_temp;
 
-    MOLEC_MALLOC(x_temp, N * sizeof(Real));
-    MOLEC_MALLOC(y_temp, N * sizeof(Real));
-    MOLEC_MALLOC(z_temp, N * sizeof(Real));
-    MOLEC_MALLOC(v_x_temp, N * sizeof(Real));
-    MOLEC_MALLOC(v_y_temp, N * sizeof(Real));
-    MOLEC_MALLOC(v_z_temp, N * sizeof(Real));
+    MOLEC_MALLOC(x_temp, N * sizeof(float));
+    MOLEC_MALLOC(y_temp, N * sizeof(float));
+    MOLEC_MALLOC(z_temp, N * sizeof(float));
+    MOLEC_MALLOC(v_x_temp, N * sizeof(float));
+    MOLEC_MALLOC(v_y_temp, N * sizeof(float));
+    MOLEC_MALLOC(v_z_temp, N * sizeof(float));
 
-    memcpy(x_temp, x, N * sizeof(Real));
-    memcpy(y_temp, y, N * sizeof(Real));
-    memcpy(z_temp, z, N * sizeof(Real));
-    memcpy(v_x_temp, v_x, N * sizeof(Real));
-    memcpy(v_y_temp, v_y, N * sizeof(Real));
-    memcpy(v_z_temp, v_z, N * sizeof(Real));
+    memcpy(x_temp, x, N * sizeof(float));
+    memcpy(y_temp, y, N * sizeof(float));
+    memcpy(z_temp, z, N * sizeof(float));
+    memcpy(v_x_temp, v_x, N * sizeof(float));
+    memcpy(v_y_temp, v_y, N * sizeof(float));
+    memcpy(v_z_temp, v_z, N * sizeof(float));
 
     for(int i=0; i < N; ++i)
     {
@@ -112,13 +112,13 @@ void molec_sort_qsort(molec_Simulation_SOA_t* sim)
 void molec_sort_qsort_forces(molec_Simulation_SOA_t* sim)
 {
     // Local aliases
-    Real *x = sim->x;
-    Real *y = sim->y;
-    Real *z = sim->z;
+    float *x = sim->x;
+    float *y = sim->y;
+    float *z = sim->z;
 
-    Real *f_x = sim->f_x;
-    Real *f_y = sim->f_y;
-    Real *f_z = sim->f_z;
+    float *f_x = sim->f_x;
+    float *f_y = sim->f_y;
+    float *f_z = sim->f_z;
 
 
     const int N = molec_parameter->N;
@@ -134,22 +134,22 @@ void molec_sort_qsort_forces(molec_Simulation_SOA_t* sim)
 
     qsort(key, N, sizeof(molec_Sort_Pair_t), molec_compare);
 
-    Real *x_temp, *y_temp, *z_temp;
-    Real *f_x_temp, *f_y_temp, *f_z_temp;
+    float *x_temp, *y_temp, *z_temp;
+    float *f_x_temp, *f_y_temp, *f_z_temp;
 
-    MOLEC_MALLOC(x_temp, N * sizeof(Real));
-    MOLEC_MALLOC(y_temp, N * sizeof(Real));
-    MOLEC_MALLOC(z_temp, N * sizeof(Real));
-    MOLEC_MALLOC(f_x_temp, N * sizeof(Real));
-    MOLEC_MALLOC(f_y_temp, N * sizeof(Real));
-    MOLEC_MALLOC(f_z_temp, N * sizeof(Real));
+    MOLEC_MALLOC(x_temp, N * sizeof(float));
+    MOLEC_MALLOC(y_temp, N * sizeof(float));
+    MOLEC_MALLOC(z_temp, N * sizeof(float));
+    MOLEC_MALLOC(f_x_temp, N * sizeof(float));
+    MOLEC_MALLOC(f_y_temp, N * sizeof(float));
+    MOLEC_MALLOC(f_z_temp, N * sizeof(float));
 
-    memcpy(x_temp, x, N * sizeof(Real));
-    memcpy(y_temp, y, N * sizeof(Real));
-    memcpy(z_temp, z, N * sizeof(Real));
-    memcpy(f_x_temp, f_x, N * sizeof(Real));
-    memcpy(f_y_temp, f_y, N * sizeof(Real));
-    memcpy(f_z_temp, f_z, N * sizeof(Real));
+    memcpy(x_temp, x, N * sizeof(float));
+    memcpy(y_temp, y, N * sizeof(float));
+    memcpy(z_temp, z, N * sizeof(float));
+    memcpy(f_x_temp, f_x, N * sizeof(float));
+    memcpy(f_y_temp, f_y, N * sizeof(float));
+    memcpy(f_z_temp, f_z, N * sizeof(float));
 
     for(int i=0; i < N; ++i)
     {
