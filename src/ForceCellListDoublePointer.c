@@ -90,16 +90,16 @@ void molec_force_cellList_double_pointer(molec_Simulation_SOA_t* sim, float* Epo
 
     // count max number of particles per cell
     int max_particles_per_cell = 0;
-    for (int idx = 0; idx < cellList_parameter.N; ++idx)
+    for(int idx = 0; idx < cellList_parameter.N; ++idx)
         max_particles_per_cell = fmax(max_particles_per_cell, particles_in_cell_idx[idx]);
 
     // generate cell list, cellList[idx][k] is the k-th particle of cell idx
-    int **cellList = malloc(sizeof(int*) * cellList_parameter.N);
+    int** cellList = malloc(sizeof(int*) * cellList_parameter.N);
     for(int idx = 0; idx < cellList_parameter.N; ++idx)
         cellList[idx] = malloc(sizeof(int) * max_particles_per_cell);
 
     // set of counters for next for loop
-    int *cellCounter = malloc(sizeof(int) * cellList_parameter.N);
+    int* cellCounter = malloc(sizeof(int) * cellList_parameter.N);
     for(int idx = 0; idx < cellList_parameter.N; ++idx)
         cellCounter[idx] = 0;
 
@@ -119,8 +119,8 @@ void molec_force_cellList_double_pointer(molec_Simulation_SOA_t* sim, float* Epo
             for(int idx_x = 0; idx_x < cellList_parameter.N_x; ++idx_x)
             {
                 // compute scalar cell index
-                const int idx
-                    = idx_x + cellList_parameter.N_x * (idx_y + cellList_parameter.N_y * idx_z);
+                const int idx = idx_x
+                                + cellList_parameter.N_x * (idx_y + cellList_parameter.N_y * idx_z);
 
                 // loop over neighbour cells
                 for(int d_z = -1; d_z <= 1; ++d_z)
@@ -143,7 +143,8 @@ void molec_force_cellList_double_pointer(molec_Simulation_SOA_t* sim, float* Epo
                                 int i = cellList[idx][k_idx];
 
                                 // scan particles in cell n_idx
-                                for(int k_n_idx = 0; k_n_idx < particles_in_cell_idx[n_idx]; ++k_n_idx)
+                                for(int k_n_idx = 0; k_n_idx < particles_in_cell_idx[n_idx];
+                                    ++k_n_idx)
                                 {
                                     int j = cellList[n_idx][k_n_idx];
                                     // avoid double counting of interactions
@@ -166,12 +167,14 @@ void molec_force_cellList_double_pointer(molec_Simulation_SOA_t* sim, float* Epo
                                                 ++num_effective_interactions;
 
                                             // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
-                                            const float s2 = (molec_parameter->sigLJ * molec_parameter->sigLJ) / r2;
+                                            const float s2 = (molec_parameter->sigLJ
+                                                              * molec_parameter->sigLJ) / r2;
                                             const float s6 = s2 * s2 * s2;
 
                                             Epot_ += 4 * molec_parameter->epsLJ * (s6 * s6 - s6);
 
-                                            const float fr = 24 * molec_parameter->epsLJ / r2 * (2 * s6 * s6 - s6);
+                                            const float fr = 24 * molec_parameter->epsLJ / r2
+                                                             * (2 * s6 * s6 - s6);
 
                                             sim->f_x[i] += fr * xij;
                                             sim->f_y[i] += fr * yij;
@@ -205,4 +208,3 @@ void molec_force_cellList_double_pointer(molec_Simulation_SOA_t* sim, float* Epo
         printf("\tPercentage of failed potential interactions: %3.2f\n",
                1. - ((double) num_effective_interactions) / ((double) num_potential_interactions));
 }
-

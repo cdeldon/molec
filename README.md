@@ -47,6 +47,11 @@ sigLJ = 1
 scaling = 0.05
 ```
 
+The program flow is shown in the following image:
+<p align="center">
+    <img src="https://github.com/thfabian/molec/blob/master/doc/readme/program-flow.png">
+</p>
+
 ## References 
  * [[1]](http://udel.edu/~arthij/MD.pdf "Gonnet paper") Gonnet paper
  * [[2]](http://cacs.usc.edu/education/cs596/01-1LinkedListCell.pdf "Cell list implementation") Cell list implementation
