@@ -60,6 +60,7 @@ void molec_force_cellList_knut(molec_Simulation_SOA_t* sim, float* Epot, const i
  * @param N     Size of arrays
  */
 void molec_force_cellList_reference(molec_Simulation_SOA_t *sim, float *Epot, const int N);
+void molec_force_cellList_preallocate(molec_Simulation_SOA_t *sim, float *Epot, const int N);
 
 #if 0
 /**
