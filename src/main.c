@@ -28,8 +28,8 @@ molec_force_calculation arg_get_force_routine(const char* key)
         return &molec_force_N2_refrence;
     else if(strcmp(key, "cell_ref") == 0)
         return &molec_force_cellList_reference;
-    else if(strcmp(key, "cell_pre") == 0)
-        return &molec_force_cellList_preallocate;
+    else if(strcmp(key, "cell_v1") == 0)
+        return &molec_force_cellList_v1;
     else if(strcmp(key, "knut") == 0)
         return &molec_force_cellList_knut;
     else
@@ -66,7 +66,7 @@ int main(int argc, char** argv)
                    "Specify the force subroutine.\n"
                    "                             - N2         N2 refrence\n"
                    "                             - cell_ref   Cell-list refrence\n"
-                   "                             - cell_pre   Cell-list with memory preallocation\n"
+                   "                             - cell_v1    Cell-list improvement 1\n"
                    "                             - knut       Cell-list (Knut)");
 
     // integrator routine can appear at most once --> arg_str0

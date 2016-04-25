@@ -213,17 +213,13 @@ void molec_force_cellList_reference(molec_Simulation_SOA_t* sim, float* Epot, co
 }
 
 
-
-
-static int* c_idx, *particles_in_cell_idx, *cell_counter;
-static int** cellList;
-
-void molec_force_cellList_preallocate(molec_Simulation_SOA_t* sim, float* Epot, const int N)
+void molec_force_cellList_v1(molec_Simulation_SOA_t* sim, float* Epot, const int N)
 {
     assert(molec_parameter);
-
-    molec_uint64_t num_potential_interactions = 0;
-    molec_uint32_t num_effective_interactions = 0;
+    const float sigLJ = molec_parameter->sigLJ;
+    const float epsLJ = molec_parameter->epsLJ;
+    const float L = molec_parameter->L;
+    const float Rcut2 = molec_parameter->Rcut2;
 
     molec_CellList_Parameter_t cellList_parameter = molec_parameter->cellList;
 
@@ -238,58 +234,60 @@ void molec_force_cellList_preallocate(molec_Simulation_SOA_t* sim, float* Epot, 
     float Epot_ = 0;
 
     MOLEC_MEASUREMENT_CELL_CONSTRUCTION_START();
-    if(c_idx == NULL)
+
+    // for each particle compute cell index
+    int* c_idx;
+    MOLEC_MALLOC(c_idx, sizeof(int) * N);
+
+    /* Note that the cell list will be traversed in the following form:
+     *    for(z=0;z<cellList_parameter.N_z;++z)
+     *      for(y=0;y<cellList_parameter.N_y;++y)
+     *          for(x=0;x<cellList_parameter.N_x;++x)
+     *
+     * the fastest running index is x, while the slowest is z
+     */
+    for(int i = 0; i < N; ++i)
     {
-        // for each particle compute cell index
-        MOLEC_MALLOC(c_idx, sizeof(int) * N);
+        // linear one dimensional index of cell associated to i-th particle
+        int idx_x = x[i] / cellList_parameter.c_x;
+        int idx_y = y[i] / cellList_parameter.c_y;
+        int idx_z = z[i] / cellList_parameter.c_z;
 
-        /* Note that the cell list will be traversed in the following form:
-         *    for(z=0;z<cellList_parameter.N_z;++z)
-         *      for(y=0;y<cellList_parameter.N_y;++y)
-         *          for(x=0;x<cellList_parameter.N_x;++x)
-         *
-         * the fastest running index is x, while the slowest is z
-         */
-        for(int i = 0; i < N; ++i)
-        {
-            // linear one dimensional index of cell associated to i-th particle
-            int idx_x = x[i] / cellList_parameter.c_x;
-            int idx_y = y[i] / cellList_parameter.c_y;
-            int idx_z = z[i] / cellList_parameter.c_z;
+        // linear index of cell
+        int idx = idx_x + cellList_parameter.N_x * (idx_y + cellList_parameter.N_y * idx_z);
+        c_idx[i] = idx;
+    }
 
-            // linear index of cell
-            int idx = idx_x + cellList_parameter.N_x * (idx_y + cellList_parameter.N_y * idx_z);
-            c_idx[i] = idx;
-        }
+    // count number of particles in each cell
+    int* particles_in_cell_idx;
+    MOLEC_MALLOC(particles_in_cell_idx, sizeof(int) * cellList_parameter.N);
+    for(int idx = 0; idx < cellList_parameter.N; ++idx)
+        particles_in_cell_idx[idx] = 0;
 
-        // count number of particles in each cell
-        MOLEC_MALLOC(particles_in_cell_idx, sizeof(int) * cellList_parameter.N);
-        for(int idx = 0; idx < cellList_parameter.N; ++idx)
-            particles_in_cell_idx[idx] = 0;
+    for(int i = 0; i < N; ++i)
+        particles_in_cell_idx[c_idx[i]] += 1;
 
-        for(int i = 0; i < N; ++i)
-            particles_in_cell_idx[c_idx[i]] += 1;
+    // count max number of particles per cell
+    int max_particles_per_cell = 0;
+    for(int idx = 0; idx < cellList_parameter.N; ++idx)
+        max_particles_per_cell = fmax(max_particles_per_cell, particles_in_cell_idx[idx]);
 
-        // count max number of particles per cell
-        int max_particles_per_cell = 0;
-        for(int idx = 0; idx < cellList_parameter.N; ++idx)
-            max_particles_per_cell = fmax(max_particles_per_cell, particles_in_cell_idx[idx]);
+    // generate cell list, cellList[idx][k] is the k-th particle of cell idx
+    int** cellList;
+    MOLEC_MALLOC(cellList, sizeof(int*) * cellList_parameter.N);
+    for(int idx = 0; idx < cellList_parameter.N; ++idx)
+        MOLEC_MALLOC(cellList[idx], sizeof(int) * max_particles_per_cell);
 
-        // generate cell list, cellList[idx][k] is the k-th particle of cell idx
-        MOLEC_MALLOC(cellList, sizeof(int*) * cellList_parameter.N);
-        for(int idx = 0; idx < cellList_parameter.N; ++idx)
-            MOLEC_MALLOC(cellList[idx], sizeof(int) * max_particles_per_cell);
+    // set of counters for next for loop
+    int* cell_counter;
+    MOLEC_MALLOC(cell_counter, sizeof(int) * cellList_parameter.N);
+    for(int idx = 0; idx < cellList_parameter.N; ++idx)
+        cell_counter[idx] = 0;
 
-        // set of counters for next for loop
-        MOLEC_MALLOC(cell_counter, sizeof(int) * cellList_parameter.N);
-        for(int idx = 0; idx < cellList_parameter.N; ++idx)
-            cell_counter[idx] = 0;
-
-        for(int i = 0; i < N; ++i)
-        {
-            int idx = c_idx[i];
-            cellList[idx][cell_counter[idx]++] = i;
-        }
+    for(int i = 0; i < N; ++i)
+    {
+        int idx = c_idx[i];
+        cellList[idx][cell_counter[idx]++] = i;
     }
     MOLEC_MEASUREMENT_CELL_CONSTRUCTION_STOP();
 
@@ -306,6 +304,8 @@ void molec_force_cellList_preallocate(molec_Simulation_SOA_t* sim, float* Epot, 
                 const int idx = idx_x
                                 + cellList_parameter.N_x * (idx_y + cellList_parameter.N_y * idx_z);
 
+                int* particles_idx = cellList[idx];
+
                 // loop over neighbour cells
                 for(int d_z = -1; d_z <= 1; ++d_z)
                     for(int d_y = -1; d_y <= 1; ++d_y)
@@ -321,66 +321,130 @@ void molec_force_cellList_preallocate(molec_Simulation_SOA_t* sim, float* Epot, 
                                         + cellList_parameter.N_x
                                               * (n_idx_y + cellList_parameter.N_y * n_idx_z);
 
-                            // iterate over particles in cell idx starting with k = 0;
-                            for(int k_idx = 0; k_idx < particles_in_cell_idx[idx]; ++k_idx)
+                            // only compute interaction if neighbor cell n_idx is smaller than
+                            // the current cell idx
+                            if(idx > n_idx)
                             {
-                                int i = cellList[idx][k_idx];
+                                int* particles_n_idx = cellList[n_idx];
 
-                                // scan particles in cell n_idx
-                                for(int k_n_idx = 0; k_n_idx < particles_in_cell_idx[n_idx];
-                                    ++k_n_idx)
+                                // all particles need to interact
+                                int num_particles_in_cell_idx = particles_in_cell_idx[idx];
+                                int num_particles_in_cell_n_idx = particles_in_cell_idx[n_idx];
+                                for(int k_idx = 0; k_idx < num_particles_in_cell_idx; ++k_idx)
                                 {
-                                    int j = cellList[n_idx][k_n_idx];
-                                    // avoid double counting of interactions
-                                    if(i < j)
-                                    {
-                                        // count number of interactions
-                                        if(MOLEC_CELLLIST_COUNT_INTERACTION)
-                                            ++num_potential_interactions;
+                                    int i = particles_idx[k_idx];
 
-                                        const float xij = dist(x[i], x[j], molec_parameter->L);
-                                        const float yij = dist(y[i], y[j], molec_parameter->L);
-                                        const float zij = dist(z[i], z[j], molec_parameter->L);
+                                    // local aliases for particle i in cell idx
+                                    const float xi = x[i];
+                                    const float yi = y[i];
+                                    const float zi = z[i];
+
+                                    float f_xi = f_x[i];
+                                    float f_yi = f_y[i];
+                                    float f_zi = f_z[i];
+
+                                    for(int k_n_idx = 0; k_n_idx < num_particles_in_cell_n_idx;
+                                        ++k_n_idx)
+                                    {
+                                        int j = particles_n_idx[k_n_idx];
+
+                                        const float xij = dist(xi, x[j], L);
+                                        const float yij = dist(yi, y[j], L);
+                                        const float zij = dist(zi, z[j], L);
 
                                         const float r2 = xij * xij + yij * yij + zij * zij;
 
-                                        if(r2 < molec_parameter->Rcut2)
+                                        if(r2 < Rcut2)
                                         {
-                                            // count effective number of interactions
-                                            if(MOLEC_CELLLIST_COUNT_INTERACTION)
-                                                ++num_effective_interactions;
-
                                             // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
-                                            const float s2 = (molec_parameter->sigLJ
-                                                              * molec_parameter->sigLJ) / r2;
+                                            const float s2 = (sigLJ * sigLJ) / r2;
                                             const float s6 = s2 * s2 * s2;
 
-                                            Epot_ += 4 * molec_parameter->epsLJ * (s6 * s6 - s6);
+                                            Epot_ += 4 * epsLJ * (s6 * s6 - s6);
 
-                                            const float fr = 24 * molec_parameter->epsLJ / r2
-                                                             * (2 * s6 * s6 - s6);
+                                            const float fr = 24 * epsLJ / r2 * (2 * s6 * s6 - s6);
 
-                                            sim->f_x[i] += fr * xij;
-                                            sim->f_y[i] += fr * yij;
-                                            sim->f_z[i] += fr * zij;
+                                            f_xi += fr * xij;
+                                            f_yi += fr * yij;
+                                            f_zi += fr * zij;
 
-                                            sim->f_x[j] -= fr * xij;
-                                            sim->f_y[j] -= fr * yij;
-                                            sim->f_z[j] -= fr * zij;
+                                            f_x[j] -= fr * xij;
+                                            f_y[j] -= fr * yij;
+                                            f_z[j] -= fr * zij;
                                         }
                                     }
+                                    f_x[i] = f_xi;
+                                    f_y[i] = f_yi;
+                                    f_z[i] = f_zi;
                                 }
+                            }
+                            // handle case of same cell
+                            else if(idx == n_idx)
+                            {
+                                int* particles_idx = cellList[idx];
 
-                            } // finished particles in cell idx
+                                // all particles need to interact
+                                int num_particles_in_cell_idx = particles_in_cell_idx[idx];
 
+                                for(int k_idx1 = 0; k_idx1 < num_particles_in_cell_idx; ++k_idx1)
+                                {
+                                    int i = particles_idx[k_idx1];
+
+                                    // local aliases for particle i in cell idx
+                                    const float xi = x[i];
+                                    const float yi = y[i];
+                                    const float zi = z[i];
+
+                                    float f_xi = f_x[i];
+                                    float f_yi = f_y[i];
+                                    float f_zi = f_z[i];
+
+                                    for(int k_idx2 = k_idx1 + 1; k_idx2 < num_particles_in_cell_idx;
+                                        ++k_idx2)
+                                    {
+                                        int j = particles_idx[k_idx2];
+
+                                        const float xij = dist(xi, x[j], molec_parameter->L);
+                                        const float yij = dist(yi, y[j], molec_parameter->L);
+                                        const float zij = dist(zi, z[j], molec_parameter->L);
+
+                                        const float r2 = xij * xij + yij * yij + zij * zij;
+
+                                        if(r2 < Rcut2)
+                                        {
+                                            // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
+                                            const float s2 = (sigLJ * sigLJ) / r2;
+                                            const float s6 = s2 * s2 * s2;
+
+                                            Epot_ += 4 * epsLJ * (s6 * s6 - s6);
+
+                                            const float fr = 24 * epsLJ / r2 * (2 * s6 * s6 - s6);
+
+                                            f_xi += fr * xij;
+                                            f_yi += fr * yij;
+                                            f_zi += fr * zij;
+
+                                            f_x[j] -= fr * xij;
+                                            f_y[j] -= fr * yij;
+                                            f_z[j] -= fr * zij;
+                                        }
+                                    }
+                                    f_x[i] = f_xi;
+                                    f_y[i] = f_yi;
+                                    f_z[i] = f_zi;
+                                }
+                            }
                         } // end loop over neighbur cells n_idx
 
             } // end loop over cells idx
 
-    *Epot = Epot_;
+    // free memory
+    MOLEC_FREE(c_idx);
+    MOLEC_FREE(particles_in_cell_idx);
+    for(int idx = 0; idx < cellList_parameter.N; ++idx)
+        free(cellList[idx]);
+    MOLEC_FREE(cellList);
+    MOLEC_FREE(cell_counter);
 
-    // print out percentage of effective interactions
-    if(MOLEC_CELLLIST_COUNT_INTERACTION)
-        printf("\tPercentage of failed potential interactions: %3.2f\n",
-               1. - ((double) num_effective_interactions) / ((double) num_potential_interactions));
+    *Epot = Epot_;
 }
