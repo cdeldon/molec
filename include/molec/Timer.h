@@ -192,7 +192,7 @@ void molec_measurement_finish();
  *   = modify the CMakeLists file according to the other examples
  */
 
-#define MOLEC_MAX_NUM_TIMERS 4
+#define MOLEC_MAX_NUM_TIMERS 5
 
 #ifdef MOLEC_TIME
 #define MOLEC_MEASUREMENT_INIT molec_measurement_init(MOLEC_MAX_NUM_TIMERS)
@@ -251,6 +251,8 @@ MOLEC_INTERNAL_IGNORE_TIMER(SIMULATION, 3)
 MOLEC_INTERNAL_MAKE_TIMER(SIMULATION, 3)
 #endif
 
+MOLEC_INTERNAL_IGNORE_TIMER(CELL_CONSTRUCTION, 4)
+
 MOLEC_INLINE char* MOLEC_MEASUREMENT_GET_TIMER(int id)
 {
     switch(id){
@@ -258,6 +260,7 @@ MOLEC_INLINE char* MOLEC_MEASUREMENT_GET_TIMER(int id)
         case 1: return MOLEC_MEASUREMENT_GET_TIMER_1_();
         case 2: return MOLEC_MEASUREMENT_GET_TIMER_2_();
         case 3: return MOLEC_MEASUREMENT_GET_TIMER_3_();
+        case 4: return MOLEC_MEASUREMENT_GET_TIMER_4_();
         default: molec_error("Index %d does not correspond to any timer\n", id);
     }
     molec_error("Index %d does not correspond to any timer\n", id);

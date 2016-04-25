@@ -50,6 +50,17 @@ void molec_error(const char* format, ...);
 void molec_print_array(const float* array, const int N);
 
 /**
+  * @brief Print progress bar
+  *
+  * @param i  steps already done
+  * @param n  total number of step
+  * @param r  bar resolution
+  * @param w  bar width
+  */
+void molec_progress_bar(int i, int n, int r, int w);
+
+
+/**
  * @brief This macro wraps libc's malloc and checks for success
  *
  * @param ptr   Pointer to the memory block allocated by malloc

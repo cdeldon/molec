@@ -33,7 +33,6 @@ TEST_CASE(molec_UnittestParser)
     // Fill file
     fputs("N = 1234\n", fp);
     fputs("dt = 0.123\n", fp);
-    fputs("Nstep = 123\n", fp);
     fputs("rho = 1.05\n", fp);
     fputs("mass = 3.0\n", fp);
     fputs("Rcut = 13.1\n", fp);
@@ -56,7 +55,6 @@ TEST_CASE(molec_UnittestParser)
 
     CHECK_EQ_INTEGER(molec_parameter->N, 1234);
     CHECK_EQ_DOUBLE(molec_parameter->dt, (float) 0.123);
-    CHECK_EQ_INTEGER(molec_parameter->Nstep, 123);
     CHECK_EQ_FLOAT(molec_parameter->rho, (float) 1.05);
     CHECK_EQ_FLOAT(molec_parameter->mass, (float) 3.0);
     CHECK_EQ_FLOAT(molec_parameter->Rcut, (float) 13.1);

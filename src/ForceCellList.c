@@ -16,6 +16,7 @@
 #include <molec/Force.h>
 #include <molec/Parameter.h>
 #include <molec/Sort.h>
+#include <molec/Timer.h>
 #include <math.h>
 
 /**
@@ -58,6 +59,7 @@ void molec_force_cellList_reference(molec_Simulation_SOA_t* sim, float* Epot, co
 
     float Epot_ = 0;
 
+    MOLEC_MEASUREMENT_CELL_CONSTRUCTION_START();
     // for each particle compute cell index
     int* c_idx = malloc(sizeof(int) * N);
 
@@ -108,6 +110,7 @@ void molec_force_cellList_reference(molec_Simulation_SOA_t* sim, float* Epot, co
         int idx = c_idx[i];
         cellList[idx][cellCounter[idx]++] = i;
     }
+    MOLEC_MEASUREMENT_CELL_CONSTRUCTION_STOP();
 
     // Reset forces
     for(int i = 0; i < N; ++i)
