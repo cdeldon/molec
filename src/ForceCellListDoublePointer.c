@@ -36,7 +36,7 @@ MOLEC_INLINE float dist(float x, float y, float L)
  */
 MOLEC_INLINE int mod(int b, int m)
 {
-    return (b % m + m) % m;
+    return (b + m) % m;
 }
 
 void molec_force_cellList_double_pointer(molec_Simulation_SOA_t* sim, float* Epot, const int N)

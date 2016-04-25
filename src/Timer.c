@@ -124,6 +124,7 @@ molec_uint64_t molec_measurement_get_median(int timer_index)
         values[i] = node->value;
         node = node->next;
     }
+    printf("\n");
 
     qsort(values, len, sizeof(molec_uint64_t), &compare_uint64);
 
@@ -180,11 +181,14 @@ void molec_measurement_finish()
     for(int timer_index = 0; timer_index < measurement->num_timers; ++timer_index)
     {
         molec_Measurement_Node_t* current = measurement->value_list_heads[timer_index];
-        molec_Measurement_Node_t* next = current->next;
+        molec_Measurement_Node_t* old;
 
-        free(current);
-        current = next;
-        next = current->next;
+        while(current != NULL)
+        {
+            old = current;
+            free(current);
+            current = old->next;
+        }
     }
 
     free(measurement->value_list_heads);
