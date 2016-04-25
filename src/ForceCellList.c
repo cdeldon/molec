@@ -16,6 +16,7 @@
 #include <molec/Force.h>
 #include <molec/Parameter.h>
 #include <molec/Sort.h>
+#include <math.h>
 
 /**
  * Calculate distance between x and y taking periodic boundaries into account
@@ -35,16 +36,12 @@ MOLEC_INLINE float dist(float x, float y, float L)
  */
 MOLEC_INLINE int mod(int b, int m)
 {
-    return (b % m + m) % m;
+    return (b + m) % m;
 }
 
-void molec_force_cellList(molec_Simulation_SOA_t* sim, float* Epot, const int N)
+void molec_force_cellList_reference(molec_Simulation_SOA_t* sim, float* Epot, const int N)
 {
     assert(molec_parameter);
-    const float sigLJ = molec_parameter->sigLJ;
-    const float epsLJ = molec_parameter->epsLJ;
-    const float L = molec_parameter->L;
-    const float Rcut2 = molec_parameter->Rcut2;
 
     molec_uint64_t num_potential_interactions = 0;
     molec_uint32_t num_effective_interactions = 0;
@@ -62,8 +59,7 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, float* Epot, const int N)
     float Epot_ = 0;
 
     // for each particle compute cell index
-    int* c_idx;
-    MOLEC_MALLOC(c_idx, sizeof(int) * N);
+    int* c_idx = malloc(sizeof(int) * N);
 
     /* Note that the cell list will be traversed in the following form:
      *    for(z=0;z<cellList_parameter.N_z;++z)
@@ -84,21 +80,33 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, float* Epot, const int N)
         c_idx[i] = idx;
     }
 
-    // cell list construction
-    int *head, *lscl;
-    MOLEC_MALLOC(head, sizeof(int) * cellList_parameter.N);
-    MOLEC_MALLOC(lscl, sizeof(int) * N);
+    // count number of particles in each cell
+    int* particles_in_cell_idx = malloc(sizeof(int) * cellList_parameter.N);
+    for(int idx = 0; idx < cellList_parameter.N; ++idx)
+        particles_in_cell_idx[idx] = 0;
 
-    // fill head with '-1', indicating that the cell is empty
-    for(int c = 0; c < cellList_parameter.N; ++c)
-        head[c] = -1;
+    for(int i = 0; i < N; ++i)
+        particles_in_cell_idx[c_idx[i]] += 1;
 
-    // generate cell list, lscl[i] contains index of next particle inside
-    // the same cell, if lscs[i] == -1, then 'i' was the last particle of the cell
+    // count max number of particles per cell
+    int max_particles_per_cell = 0;
+    for(int idx = 0; idx < cellList_parameter.N; ++idx)
+        max_particles_per_cell = fmax(max_particles_per_cell, particles_in_cell_idx[idx]);
+
+    // generate cell list, cellList[idx][k] is the k-th particle of cell idx
+    int** cellList = malloc(sizeof(int*) * cellList_parameter.N);
+    for(int idx = 0; idx < cellList_parameter.N; ++idx)
+        cellList[idx] = malloc(sizeof(int) * max_particles_per_cell);
+
+    // set of counters for next for loop
+    int* cellCounter = malloc(sizeof(int) * cellList_parameter.N);
+    for(int idx = 0; idx < cellList_parameter.N; ++idx)
+        cellCounter[idx] = 0;
+
     for(int i = 0; i < N; ++i)
     {
-        lscl[i] = head[c_idx[i]];
-        head[c_idx[i]] = i;
+        int idx = c_idx[i];
+        cellList[idx][cellCounter[idx]++] = i;
     }
 
     // Reset forces
@@ -111,8 +119,8 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, float* Epot, const int N)
             for(int idx_x = 0; idx_x < cellList_parameter.N_x; ++idx_x)
             {
                 // compute scalar cell index
-                const int idx
-                    = idx_x + cellList_parameter.N_x * (idx_y + cellList_parameter.N_y * idx_z);
+                const int idx = idx_x
+                                + cellList_parameter.N_x * (idx_y + cellList_parameter.N_y * idx_z);
 
                 // loop over neighbour cells
                 for(int d_z = -1; d_z <= 1; ++d_z)
@@ -129,23 +137,16 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, float* Epot, const int N)
                                         + cellList_parameter.N_x
                                               * (n_idx_y + cellList_parameter.N_y * n_idx_z);
 
-                            // iterate over particles in cell idx starting at the head
-                            int i = head[idx];
-                            while(i != -1)
+                            // iterate over particles in cell idx starting with k = 0;
+                            for(int k_idx = 0; k_idx < particles_in_cell_idx[idx]; ++k_idx)
                             {
-                                // local aliases for particle i in cell idx
-                                const float xi = x[i];
-                                const float yi = y[i];
-                                const float zi = z[i];
-
-                                float f_xi = f_x[i];
-                                float f_yi = f_y[i];
-                                float f_zi = f_z[i];
+                                int i = cellList[idx][k_idx];
 
                                 // scan particles in cell n_idx
-                                int j = head[n_idx];
-                                while(j != -1)
+                                for(int k_n_idx = 0; k_n_idx < particles_in_cell_idx[n_idx];
+                                    ++k_n_idx)
                                 {
+                                    int j = cellList[n_idx][k_n_idx];
                                     // avoid double counting of interactions
                                     if(i < j)
                                     {
@@ -153,46 +154,38 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, float* Epot, const int N)
                                         if(MOLEC_CELLLIST_COUNT_INTERACTION)
                                             ++num_potential_interactions;
 
-                                        const float xij = dist(xi, x[j], L);
-                                        const float yij = dist(yi, y[j], L);
-                                        const float zij = dist(zi, z[j], L);
+                                        const float xij = dist(x[i], x[j], molec_parameter->L);
+                                        const float yij = dist(y[i], y[j], molec_parameter->L);
+                                        const float zij = dist(z[i], z[j], molec_parameter->L);
 
                                         const float r2 = xij * xij + yij * yij + zij * zij;
 
-                                        if(r2 < Rcut2)
+                                        if(r2 < molec_parameter->Rcut2)
                                         {
                                             // count effective number of interactions
                                             if(MOLEC_CELLLIST_COUNT_INTERACTION)
                                                 ++num_effective_interactions;
 
                                             // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
-                                            const float s2 = (sigLJ * sigLJ) / r2;
+                                            const float s2 = (molec_parameter->sigLJ
+                                                              * molec_parameter->sigLJ) / r2;
                                             const float s6 = s2 * s2 * s2;
 
-                                            Epot_ += 4 * epsLJ * (s6 * s6 - s6);
+                                            Epot_ += 4 * molec_parameter->epsLJ * (s6 * s6 - s6);
 
-                                            const float fr = 24 * epsLJ / r2 * (2 * s6 * s6 - s6);
+                                            const float fr = 24 * molec_parameter->epsLJ / r2
+                                                             * (2 * s6 * s6 - s6);
 
-                                            f_xi += fr * xij;
-                                            f_yi += fr * yij;
-                                            f_zi += fr * zij;
+                                            sim->f_x[i] += fr * xij;
+                                            sim->f_y[i] += fr * yij;
+                                            sim->f_z[i] += fr * zij;
 
-                                            f_x[j] -= fr * xij;
-                                            f_y[j] -= fr * yij;
-                                            f_z[j] -= fr * zij;
+                                            sim->f_x[j] -= fr * xij;
+                                            sim->f_y[j] -= fr * yij;
+                                            sim->f_z[j] -= fr * zij;
                                         }
                                     }
-
-                                    // next particle inside cell n_idx
-                                    j = lscl[j];
                                 }
-
-                                f_x[i] = f_xi;
-                                f_y[i] = f_yi;
-                                f_z[i] = f_zi;
-
-                                // next particle inside cell idx
-                                i = lscl[i];
 
                             } // finished particles in cell idx
 
@@ -201,9 +194,12 @@ void molec_force_cellList(molec_Simulation_SOA_t* sim, float* Epot, const int N)
             } // end loop over cells idx
 
     // free memory
-    MOLEC_FREE(c_idx);
-    MOLEC_FREE(head);
-    MOLEC_FREE(lscl);
+    free(c_idx);
+    free(particles_in_cell_idx);
+    for(int idx = 0; idx < cellList_parameter.N; ++idx)
+        free(cellList[idx]);
+    free(cellList);
+    free(cellCounter);
 
     *Epot = Epot_;
 

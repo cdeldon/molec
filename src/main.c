@@ -26,16 +26,10 @@ molec_force_calculation arg_get_force_routine(const char* key)
 {
     if(strcmp(key, "N2") == 0)
         return &molec_force_N2_refrence;
-    else if(strcmp(key, "cell") == 0)
-        return &molec_force_cellList;
-    else if(strcmp(key, "cellfor") == 0)
-        return &molec_force_cellList_for;
-    else if(strcmp(key, "cellswap") == 0)
-        return &molec_force_cellList_for_swap;
-    else if(strcmp(key, "celldp1") == 0)
-        return &molec_force_cellList_double_pointer;
-    else if(strcmp(key, "celldp2") == 0)
-        return &molec_force_cellList_double_pointer_v2;
+    else if(strcmp(key, "cell_ref") == 0)
+        return &molec_force_cellList_reference;
+    else if(strcmp(key, "knut") == 0)
+        return &molec_force_cellList_knut;
     else
         molec_error("invalid parameter '%s' for option \"--force\"\n", key);
     return NULL;
@@ -69,11 +63,8 @@ int main(int argc, char** argv)
         = arg_str0("f", "force", "<string>",
                    "Specify the force subroutine.\n"
                    "                             - N2         N2 refrence\n"
-                   "                             - cell       Cell-list refrence\n"
-                   "                             - cellfor    Cell-list with for loops\n"
-                   "                             - cellswap   Cell-list with swaping\n"
-                   "                             - celldp1    Cell-list with double pointer (v1)\n"
-                   "                             - celldp2    Cell-list with double pointer (v2)");
+                   "                             - cell_ref   Cell-list refrence\n"
+                   "                             - knut       Cell-list (Knut)");
 
     // integrator routine can appear at most once --> arg_str0
     struct arg_str* arg_integrator_routine
@@ -126,7 +117,7 @@ int main(int argc, char** argv)
     }
 
     // set any command line default values prior to parsing
-    arg_force_routine->sval[0] = "cell";
+    arg_force_routine->sval[0] = "cell_ref";
     arg_integrator_routine->sval[0] = "lf";
     arg_periodic_routine->sval[0] = "ref";
     arg_parameters->filename[0] = "";

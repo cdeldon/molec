@@ -48,29 +48,33 @@ void molec_force_N2_refrence(molec_Simulation_SOA_t* sim, float* Epot, const int
  * @param Epot  Real scalar to store the potential energy
  * @param N     Size of arrays
  */
-void molec_force_cellList(molec_Simulation_SOA_t* sim, float* Epot, const int N);
+void molec_force_cellList_knut(molec_Simulation_SOA_t* sim, float* Epot, const int N);
 
 /**
- * @brief Calculate short-range interaction force using cell-list approach [1]
+ * @brief Calculate short-range interaction using table of particle indices per cell
  *
- * Dummy cell list implementation
+ * Cell list implementation using double pointers instead of a one dimensional array
  *
  * @param sim   Simulation holding the position, velocity and force arrays
  * @param Epot  Real scalar to store the potential energy
  * @param N     Size of arrays
  */
-void molec_force_cellList_double_pointer(molec_Simulation_SOA_t *sim, float *Epot, const int N);
+void molec_force_cellList_reference(molec_Simulation_SOA_t *sim, float *Epot, const int N);
+
+#if 0
+/**
+ * @brief Calculation short-range interaction with double index arrays
+ *
+ * @param sim   Simulation holding the position, velocity and force arrays
+ * @param Epot  Real scalar to store the potential energy
+ * @param N     Size of arrays
+ */
+void molec_force_cellList_double_pointer_v2(molec_Simulation_SOA_t* sim, float* Epot, const int N);
 
 /**
  * @brief Calculate short-range interaction force using cell-list approach [1]
  *
- * This function computes the force between all the particiles exploting the short
- * range interaction form of the Lennard-Jones potential using a cell list
- * data structure which allows neighbourhood queries in constant time.
- *
- * From the implementation point of view, this function is more prone to
- * be adapted for the Gonnet algorithm (@c molec_force_gonnet) as the
- * cell list data structure is transformed in local vectors at each cell iteration
+ * the internal while loop is replaced by a for loop
  *
  * @see [1] http://cacs.usc.edu/education/cs596/01-1LinkedListCell.pdf
  *
@@ -83,10 +87,6 @@ void molec_force_cellList_for(molec_Simulation_SOA_t* sim, float* Epot, const in
 /**
  * @brief Calculate short-range interaction force using cell-list approach [1]
  *
- * This function computes the force between all the particiles exploting the short
- * range interaction form of the Lennard-Jones potential using a cell list
- * data structure which allows neighbourhood queries in constant time.
- *
  * From the implementation point of view, this function is different from
  * @c molec_force_cellList_for as the position and velocity arrays have a local swapping copy
  * that is used in the sorting of the particles
@@ -98,15 +98,7 @@ void molec_force_cellList_for(molec_Simulation_SOA_t* sim, float* Epot, const in
  * @param N     Size of arrays
  */
 void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, float* Epot, const int N);
-
-
-/**
- * @brief Calculation short-range interaction with double index arrays
- * @param sim   Simulation holding the position, velocity and force arrays
- * @param Epot  Real scalar to store the potential energy
- * @param N     Size of arrays
- */
-void molec_force_cellList_double_pointer_v2(molec_Simulation_SOA_t* sim, float* Epot, const int N);
+#endif
 
 #endif
 

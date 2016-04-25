@@ -61,14 +61,8 @@ void add_function(molec_force_calculation f, char* name)
 void molec_force_test_register_functions()
 {
     add_function(&molec_force_N2_refrence, "Naive N^2 implementation");
-    add_function(&molec_force_cellList, "Cell list (while loop)");
-    add_function(&molec_force_cellList_for, "Cell list (for loop)");
-    add_function(&molec_force_cellList_double_pointer, "Cell list (double pointer)");
-    add_function(&molec_force_cellList_double_pointer_v2, "Cell List(for loop Flo");
-
-#ifndef MOLEC_PLATFORM_WINDOWS // Windows fails at 1 position due to a failure in the sorting
-    add_function(&molec_force_cellList_for_swap, "Cell list with swap");
-#endif
+    add_function(&molec_force_cellList_knut, "Cell list (Knut)");
+    add_function(&molec_force_cellList_reference, "Cell list reference");
 }
 
 /**
@@ -83,7 +77,7 @@ void molec_compute_reference_forces(molec_Simulation_SOA_t* sim, const int N)
 {
     float Epot;
     // Compute the reference force that acts on the atoms
-    molec_force_cellList_for(sim, &Epot, N);
+    molec_force_cellList_reference(sim, &Epot, N);
 
     if(!f_x_reference)
     {
