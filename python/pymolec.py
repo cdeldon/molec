@@ -27,8 +27,6 @@ class pymolec:
         self.force = force
         self.integrator = integrator
         self.periodic = periodic
-        
-        print("DONE")
 
     def run(self, path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'build', 'molec')):
 
@@ -37,20 +35,21 @@ class pymolec:
         for i in range(len(self.N)):
             cmd = [path]
             cmd += ["--N=" + str(self.N[i])]
+            cmd += ["--step=" + str(self.steps)]
             cmd += ["--force=" + self.force]
             cmd += ["--integrator=" + self.integrator]
             cmd += ["--periodic=" + self.periodic]
-            cmd += ["--step=" + str(self.steps)]
             cmd += ["--verbose=0"]
 
-            print(cmd[1:])
+            print(cmd[1:-1])
 
             out = subprocess.check_output(cmd).decode(encoding='utf-8').split('\t')
 
-            times[0,i] = int(out[2])
-            times[1,i] = int(out[4])
-            times[2,i] = int(out[6])
-            times[3,i] = int(out[8])
+            times[0,i] = int(out[2]) # force
+            times[1,i] = int(out[4]) # integrator
+            times[2,i] = int(out[6]) # periodic
+            times[3,i] = int(out[8]) # simulation
+
+        print("DONE")
 
         return times
-    
