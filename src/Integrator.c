@@ -21,6 +21,7 @@ void molec_integrator_leapfrog_refrence(float* x, float* v, const float* f, floa
     assert(molec_parameter);
     const float dt = molec_parameter->dt;
     const float m = molec_parameter->mass;
+    const float m0125 = 0.125 * m;
     
     float v_old = 0;
     float Ekin_ = 0;
@@ -32,7 +33,8 @@ void molec_integrator_leapfrog_refrence(float* x, float* v, const float* f, floa
         v[i] = v[i] + dt * f[i] / m;
 
         // Lineraly interpolate v_i with v_{i-1/2} and v_{i+1/2}
-        Ekin_ += 0.125 * m * (v[i] + v_old) * (v[i] + v_old);
+        float vi = (v[i] + v_old);
+        Ekin_ += m0125 * vi * vi;
     }
     
     // Integrate position: x_i = x_{i-1} + dt * v_{i-1/2}
