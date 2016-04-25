@@ -35,11 +35,11 @@ MOLEC_INLINE int mod(int b, int m)
 /**
   * Transform cellNumber to respective 1D indices
   */
-MOLEC_INLINE void molec_1to3trans(int cellNumber, int* idx_x, int* idx_y, int* idx_z)
+MOLEC_INLINE void molec_1to3trans(int cell_number, int* idx_x, int* idx_y, int* idx_z)
 {
-    *idx_z = cellNumber / (cellList_parameter.N_x * cellList_parameter.N_y);
-    *idx_y = cellNumber / cellList_parameter.N_x - cellList_parameter.N_y*(*idx_z);
-    *idx_x = cellNumber - cellList_parameter.N_x*(*idx_y + cellList_parameter.N_y * *idx_z);
+    *idx_z = cell_number / (cellList_parameter.N_x * cellList_parameter.N_y);
+    *idx_y = cell_number / cellList_parameter.N_x - cellList_parameter.N_y*(*idx_z);
+    *idx_x = cell_number - cellList_parameter.N_x*(*idx_y + cellList_parameter.N_y * *idx_z);
 }
 
 /**
