@@ -40,28 +40,27 @@ void molec_error(const char* format, ...)
     exit(EXIT_FAILURE);
 }
 
-
 void molec_progress_bar(int x, int n, int r, int w)
 {
     // Only update r times.
-    if ( x % (n/r) != 0 ) return;
+    if(x % (n/r) != 0) 
+        return;
 
     // Calculuate the ratio of complete-to-incomplete.
-    float ratio = x/(float)n;
-    int   c     = ratio * w;
+    float ratio = x / (float)n;
+    int c = ratio * w;
 
     // Show the percentage complete.
     printf("     [");
 
     // Show the load bar.
-    for (int x=0; x<c; x++)
+    for (int x = 0; x < c; x++)
        printf("=");
 
-    for (int x=c; x<w; x++)
+    for (int x = c; x < w; x++)
        printf(" ");
 
-    // ANSI Control codes to go back to the
-    // previous line and clear it.
-    printf("] %3d%%\n\033[F\033[J", (int)(ratio*100) );
+    // Set cursor back
+    printf("] %3d%%\r", (int)(ratio*100) );
 }
 

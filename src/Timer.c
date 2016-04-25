@@ -15,7 +15,6 @@
 
 #include <molec/Timer.h>
 #include <molec/Parameter.h>
-#include <locale.h>
 
 static molec_Measurement_t* measurement = NULL;
 
@@ -135,8 +134,6 @@ molec_uint64_t molec_measurement_get_median(int timer_index)
 
 void molec_measurement_print()
 {
-    setlocale(LC_NUMERIC, "");
-
     if(molec_verbose == 0)
         printf("%i\t", molec_parameter->N);
     else
@@ -150,17 +147,11 @@ void molec_measurement_print()
             if(measurement->value_list_heads[timer_index] != NULL)
             {
                 molec_uint64_t cycles =  molec_measurement_get_median(timer_index);
-//                while(cycles > 1024 && prefix_idx < 5)
-//                {
-//                    cycles /= 1024;
-//                    ++prefix_idx;
-//                }
-
-                printf("      Timer %-20s %'llu\n", MOLEC_MEASUREMENT_GET_TIMER(timer_index),
+                printf("      Timer %-20s %15llu\n", MOLEC_MEASUREMENT_GET_TIMER(timer_index),
                        cycles);
             }
         }
-        else // plotting mode, molec_verbose==0
+        else // plotting mode, molec_verbose == 0
         {
             // check wheter this timer has been used
             if(measurement->value_list_heads[timer_index] != NULL)

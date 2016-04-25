@@ -111,13 +111,11 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
     for(int n = 1; n <= Nstep; ++n)
     {
         if(MOLEC_DUMP_COORDINATES)
-        {
             molec_dump_coordinates(sim, N);
-        }
+        
         if(molec_verbose == 1)
-        {
             molec_progress_bar(n, Nstep, 100, 50);
-        }
+        
         Ekin_x = Ekin_y = Ekin_z = 0.0;
         Epot = 0.0;
 
