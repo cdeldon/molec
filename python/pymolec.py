@@ -27,6 +27,8 @@ class pymolec:
         self.force = force
         self.integrator = integrator
         self.periodic = periodic
+        
+        print("DONE")
 
     def run(self, path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'build', 'molec')):
 
@@ -38,6 +40,7 @@ class pymolec:
             cmd += ["--force=" + self.force]
             cmd += ["--integrator=" + self.integrator]
             cmd += ["--periodic=" + self.periodic]
+            cmd += ["--step=" + str(self.steps)]
             cmd += ["--verbose=0"]
 
             print(cmd[1:])
@@ -50,9 +53,4 @@ class pymolec:
             times[3,i] = int(out[8])
 
         return times
-
-
-def main():
-
-if __name__ == '__main__':
-    main()
+    

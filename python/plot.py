@@ -15,5 +15,8 @@
 
 import pymolec
 
-import numpy as numpy
+import numpy as np
 import matplotlib.pyplot as plt
+
+p = pymolec.pymolec()
+p.run()
