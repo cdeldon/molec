@@ -120,83 +120,83 @@ void molec_force_cellList_double_pointer_v2(molec_Simulation_SOA_t* sim, float* 
     float Epot_ = 0;
 
     // number of atoms in the cell[cellnumber]
-    int* NumberOfAtomsInCell;
-    MOLEC_MALLOC(NumberOfAtomsInCell, sizeof(int) * cellList_parameter.N);
+    int* number_of_atoms_in_cell;
+    MOLEC_MALLOC(number_of_atoms_in_cell, sizeof(int) * cellList_parameter.N);
     // set number to zero in each cell
-    memset(NumberOfAtomsInCell, 0, sizeof(int) * cellList_parameter.N);
+    memset(number_of_atoms_in_cell, 0, sizeof(int) * cellList_parameter.N);
 
-    int* CellIndexOfAtom; // storing corresponding cellnumber
-    MOLEC_MALLOC(CellIndexOfAtom, sizeof(int) * molec_parameter->N);
+    int* cell_index_of_atom; // storing corresponding cellnumber
+    MOLEC_MALLOC(cell_index_of_atom, sizeof(int) * molec_parameter->N);
 
 
     for(int i = 0; i < N; ++i) // structure the celllist
     {
         // linear one dimensional index of cell associated to i-th particle
-        int idx_x = x[i] / cellList_parameter.c_x;
-        int idx_y = y[i] / cellList_parameter.c_y;
-        int idx_z = z[i] / cellList_parameter.c_z;
+        int cellnumber_in_x_direction = x[i] / cellList_parameter.c_x;
+        int cellnumber_in_y_direction = y[i] / cellList_parameter.c_y;
+        int cellnumber_in_z_direction = z[i] / cellList_parameter.c_z;
 
         // set forces to zero
         f_x[i] = f_y[i] = f_z[i] = 0.0;
 
         // linear index of cell
         int cellNmbr;
-        molec_3to1trans(idx_x, idx_y, idx_z, &cellNmbr);
-        CellIndexOfAtom[i] = cellNmbr;
+        molec_3to1trans(cellnumber_in_x_direction, cellnumber_in_y_direction, cellnumber_in_z_direction, &cellNmbr);
+        cell_index_of_atom[i] = cellNmbr;
 
-        molec_cellList[cellNmbr][NumberOfAtomsInCell[cellNmbr]] = i; // segfault?
-        NumberOfAtomsInCell[cellNmbr] += 1;
-        assert(NumberOfAtomsInCell[cellNmbr] <= increased_average);
+        molec_cellList[cellNmbr][number_of_atoms_in_cell[cellNmbr]] = i; // segfault?
+        number_of_atoms_in_cell[cellNmbr] += 1;
+        assert(number_of_atoms_in_cell[cellNmbr] <= increased_average);
     }
 
-    int CellNumberOne;
+    int cell_number_one;
     // loop over all cells
-    for(CellNumberOne = 0; CellNumberOne < cellList_parameter.N; ++CellNumberOne)
+    for(cell_number_one = 0; cell_number_one < cellList_parameter.N; ++cell_number_one)
     {
 
         // get neighbors
-        molec_get_neighbors(CellNumberOne, &neighbors[0]);
+        molec_get_neighbors(cell_number_one, &neighbors[0]);
 
         // get my index list
-        int* IndexArrayOfAtomsInCellOne = molec_cellList[CellNumberOne];
+        int* index_array_of_atoms_in_cell_one = molec_cellList[cell_number_one];
 
-        int NeighborNumber;
+        int neighbor_number;
         // loop over all neighbors
-        for(NeighborNumber = 0; NeighborNumber < 27; ++NeighborNumber)
+        for(neighbor_number = 0; neighbor_number < 27; ++neighbor_number)
         {
-            int CellNumberTwo = neighbors[NeighborNumber];
+            int cell_number_two = neighbors[neighbor_number];
 
             // get corresponding list
-            int* IndexArrayOfAtomsInCellTwo = molec_cellList[CellNumberTwo];
+            int* index_array_of_atoms_in_cell_two = molec_cellList[cell_number_two];
 
             // case one for different cells
-            if(CellNumberOne < CellNumberTwo)
+            if(cell_number_one < cell_number_two)
             {
                 // calculate interaction with loop over the two lists
                 int k, i;
-                for(k = 0; k < NumberOfAtomsInCell[CellNumberOne]; ++k) // first list
+                for(k = 0; k < number_of_atoms_in_cell[cell_number_one]; ++k) // first list
                 {
 
                     // index one
-                    int IndexOfAtomOne = IndexArrayOfAtomsInCellOne[k];
+                    int index_of_atom_one = index_array_of_atoms_in_cell_one[k];
 
-                    const float xi = x[IndexOfAtomOne];
-                    const float yi = y[IndexOfAtomOne];
-                    const float zi = z[IndexOfAtomOne];
+                    const float xi = x[index_of_atom_one];
+                    const float yi = y[index_of_atom_one];
+                    const float zi = z[index_of_atom_one];
 
-                    float f_xi = f_x[IndexOfAtomOne];
-                    float f_yi = f_y[IndexOfAtomOne];
-                    float f_zi = f_z[IndexOfAtomOne];
+                    float f_xi = f_x[index_of_atom_one];
+                    float f_yi = f_y[index_of_atom_one];
+                    float f_zi = f_z[index_of_atom_one];
 
-                    for(i = 0; i < NumberOfAtomsInCell[CellNumberTwo]; ++i) // second list
+                    for(i = 0; i < number_of_atoms_in_cell[cell_number_two]; ++i) // second list
                     {
 
                         // index two
-                        int IndexOfAtomTwo = IndexArrayOfAtomsInCellTwo[i];
+                        int index_of_atom_two = index_array_of_atoms_in_cell_two[i];
 
-                        const float xij = dist(xi, x[IndexOfAtomTwo], L);
-                        const float yij = dist(yi, y[IndexOfAtomTwo], L);
-                        const float zij = dist(zi, z[IndexOfAtomTwo], L);
+                        const float xij = dist(xi, x[index_of_atom_two], L);
+                        const float yij = dist(yi, y[index_of_atom_two], L);
+                        const float zij = dist(zi, z[index_of_atom_two], L);
 
                         const float r2 = xij * xij + yij * yij + zij * zij;
 
@@ -214,43 +214,43 @@ void molec_force_cellList_double_pointer_v2(molec_Simulation_SOA_t* sim, float* 
                             f_yi += fr * yij;
                             f_zi += fr * zij;
 
-                            f_x[IndexOfAtomTwo] -= fr * xij;
-                            f_y[IndexOfAtomTwo] -= fr * yij;
-                            f_z[IndexOfAtomTwo] -= fr * zij;
+                            f_x[index_of_atom_two] -= fr * xij;
+                            f_y[index_of_atom_two] -= fr * yij;
+                            f_z[index_of_atom_two] -= fr * zij;
                         }
                     } // end second list
 
-                    f_x[IndexOfAtomOne] = f_xi;
-                    f_y[IndexOfAtomOne] = f_yi;
-                    f_z[IndexOfAtomOne] = f_zi;
+                    f_x[index_of_atom_one] = f_xi;
+                    f_y[index_of_atom_one] = f_yi;
+                    f_z[index_of_atom_one] = f_zi;
 
                 } // end first list
             }
-            else if(CellNumberOne == CellNumberTwo) // case two for the same cell
+            else if(cell_number_one == cell_number_two) // case two for the same cell
             {
                 // calculate interaction with loop over the two lists
                 int k, i;
-                for(k = 0; k < NumberOfAtomsInCell[CellNumberOne]; ++k) // first list
+                for(k = 0; k < number_of_atoms_in_cell[cell_number_one]; ++k) // first list
                 {
                     // index one
-                    int IndexOfAtomOne = IndexArrayOfAtomsInCellOne[k];
+                    int index_of_atom_one = index_array_of_atoms_in_cell_one[k];
 
-                    const float xi = x[IndexOfAtomOne];
-                    const float yi = y[IndexOfAtomOne];
-                    const float zi = z[IndexOfAtomOne];
+                    const float xi = x[index_of_atom_one];
+                    const float yi = y[index_of_atom_one];
+                    const float zi = z[index_of_atom_one];
 
-                    float f_xi = f_x[IndexOfAtomOne];
-                    float f_yi = f_y[IndexOfAtomOne];
-                    float f_zi = f_z[IndexOfAtomOne];
+                    float f_xi = f_x[index_of_atom_one];
+                    float f_yi = f_y[index_of_atom_one];
+                    float f_zi = f_z[index_of_atom_one];
 
-                    for(i = k + 1; i < NumberOfAtomsInCell[CellNumberTwo]; ++i) // second list
+                    for(i = k + 1; i < number_of_atoms_in_cell[cell_number_two]; ++i) // second list
                     {
                         // index two
-                        int IndexOfAtomTwo = IndexArrayOfAtomsInCellTwo[i];
+                        int index_of_atom_two = index_array_of_atoms_in_cell_two[i];
 
-                        const float xij = dist(xi, x[IndexOfAtomTwo], L);
-                        const float yij = dist(yi, y[IndexOfAtomTwo], L);
-                        const float zij = dist(zi, z[IndexOfAtomTwo], L);
+                        const float xij = dist(xi, x[index_of_atom_two], L);
+                        const float yij = dist(yi, y[index_of_atom_two], L);
+                        const float zij = dist(zi, z[index_of_atom_two], L);
 
                         const float r2 = xij * xij + yij * yij + zij * zij;
 
@@ -268,17 +268,17 @@ void molec_force_cellList_double_pointer_v2(molec_Simulation_SOA_t* sim, float* 
                             f_yi += fr * yij;
                             f_zi += fr * zij;
 
-                            f_x[IndexOfAtomTwo] -= fr * xij;
-                            f_y[IndexOfAtomTwo] -= fr * yij;
-                            f_z[IndexOfAtomTwo] -= fr * zij;
+                            f_x[index_of_atom_two] -= fr * xij;
+                            f_y[index_of_atom_two] -= fr * yij;
+                            f_z[index_of_atom_two] -= fr * zij;
 
                         } // end if
 
                     } // end second list
 
-                    f_x[IndexOfAtomOne] = f_xi;
-                    f_y[IndexOfAtomOne] = f_yi;
-                    f_z[IndexOfAtomOne] = f_zi;
+                    f_x[index_of_atom_one] = f_xi;
+                    f_y[index_of_atom_one] = f_yi;
+                    f_z[index_of_atom_one] = f_zi;
 
                 } // end first list
 
