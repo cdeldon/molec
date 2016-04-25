@@ -67,10 +67,6 @@ void molec_load_parameters(const char* filename, int verbose, int N)
             {
                 molec_parameter->dt = atof(value);
             }
-            else if(strcmp(tag, "Nstep") == 0)
-            {
-                molec_parameter->Nstep = atoi(value);
-            }
             else if(strcmp(tag, "rho") == 0)
             {
                 molec_parameter->rho = atof(value);

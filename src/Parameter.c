@@ -70,7 +70,6 @@ void molec_print_parameters()
 {
     printf("\n      ========= MOLEC - Simulation paramteters =========\n\n");
     printf("      Number of particles: \t\t%d\n", molec_parameter->N);
-    printf("      Number of steps: \t\t\t%d\n", molec_parameter->Nstep);
     printf("      Time step: \t\t\t%f\n", molec_parameter->dt);
     printf("      Particle density: \t\t%f\n", molec_parameter->rho);
     printf("      Bounding box: \t\t\t%2.1f x %2.1f x %2.1f\n",

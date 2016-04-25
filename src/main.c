@@ -85,6 +85,10 @@ int main(int argc, char** argv)
     struct arg_int* arg_desired_particles
         = arg_int0("n", "N", "<int>", "Set the number of particles.");
 
+    // contains the number of desired timesteps
+    struct arg_int* arg_desired_steps
+        = arg_int0("s", "step", "<int>", "Set the number of timesteps.");
+
     // help
     struct arg_lit* arg_help = arg_lit0("h", "help", "Print this help statement and exit.");
     // verbosity
@@ -103,6 +107,7 @@ int main(int argc, char** argv)
                         arg_periodic_routine,
                         arg_parameters,
                         arg_desired_particles,
+                        arg_desired_steps,
                         arg_help,
                         arg_verb,
                         end_struct};
@@ -122,6 +127,7 @@ int main(int argc, char** argv)
     arg_periodic_routine->sval[0] = "ref";
     arg_parameters->filename[0] = "";
     arg_desired_particles->ival[0] = -1;
+    arg_desired_steps->ival[0] = 100;
     arg_verb->ival[0] = 1;
 
     // parse argtable
@@ -153,6 +159,9 @@ int main(int argc, char** argv)
 
     srand(42);
     molec_load_parameters(config_file_name, 1, desired_N);
+
+    // set the number of steps
+    molec_parameter->Nstep = arg_desired_steps->ival[0];
 
     // print the used routines passed as argument
     if(molec_verbose)

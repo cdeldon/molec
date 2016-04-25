@@ -31,9 +31,7 @@ A configuration file can be passed to the executable in order to set some defaul
 # Number of particles
 N = 10000
 # time step
-dt = 0.005 
-# number of simulation steps
-Nstep = 100
+dt = 0.005
 # particle density (particles per unit volume)
 rho = 1.2
 # mass of each particle
