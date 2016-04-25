@@ -19,7 +19,7 @@ import os, subprocess
 class pymolec:
 
     def __init__(self, N=np.array([1000]), steps=100, force="N2", integrator="lf",
-             periodic="ref"):
+                 periodic="ref"):
 
         self.N = N
         self.steps = steps
@@ -28,10 +28,23 @@ class pymolec:
         self.integrator = integrator
         self.periodic = periodic
 
-    def run(self, path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'build', 'molec')):
+    def run(self, path = None):
+        
+        # Use default path
+        if not path:
+            script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+            if os.name == 'nt':
+                path = os.path.join(script_path, '..', 'build', 'molec.exe')
+            else:
+                path = os.path.join(script_path, '..', 'build', 'molec')
+                       
+        # Check if molec exists
+        if not os.path.exists(path):
+            raise IOError("no such file or directory: %s" % path)
 
         times = np.zeros((4, len(self.N)))
-
+        
+        print ("Running molec: %s" % path)
         for i in range(len(self.N)):
             cmd = [path]
             cmd += ["--N=" + str(self.N[i])]
@@ -41,15 +54,21 @@ class pymolec:
             cmd += ["--periodic=" + self.periodic]
             cmd += ["--verbose=0"]
 
-            print(cmd[1:-1])
-
+            # Print status
+            print(" - N = %i" % self.N[i])
+            
             out = subprocess.check_output(cmd).decode(encoding='utf-8').split('\t')
 
             times[0,i] = int(out[2]) # force
             times[1,i] = int(out[4]) # integrator
             times[2,i] = int(out[6]) # periodic
             times[3,i] = int(out[8]) # simulation
-
-        print("DONE")
-
+            
         return times
+        
+def main():
+    p = pymolec()
+    print(p.run())
+    
+if __name__ == '__main__':
+    main()
