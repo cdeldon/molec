@@ -137,6 +137,7 @@ void molec_integrator_leapfrog_unroll_4(
     // Temporaries
     float x_00, x_01, x_02, x_03;
     float v_00, v_01, v_02, v_03;
+    float vi_00, vi_01, vi_02, vi_03;
     float v_2_00, v_2_01, v_2_02, v_2_03;
     float v_old_00, v_old_01, v_old_02, v_old_03;
     float a_00, a_01, a_02, a_03;
@@ -167,10 +168,15 @@ void molec_integrator_leapfrog_unroll_4(
         v_02 = v_02 + dt * a_02;
         v_03 = v_03 + dt * a_03;
 
-        v_2_00 = (v_00 + v_old_00) * (v_00 + v_old_00);
-        v_2_01 = (v_01 + v_old_01) * (v_01 + v_old_01);
-        v_2_02 = (v_02 + v_old_02) * (v_02 + v_old_02);
-        v_2_03 = (v_03 + v_old_03) * (v_03 + v_old_03);
+        vi_00 = v_00 + v_old_00;
+        vi_01 = v_01 + v_old_01;
+        vi_02 = v_02 + v_old_02;
+        vi_03 = v_03 + v_old_03;
+
+        v_2_00 = vi_00 * vi_00;
+        v_2_01 = vi_01 * vi_01;
+        v_2_02 = vi_02 * vi_02;
+        v_2_03 = vi_03 * vi_03;
 
         Ekin_00 = Ekin_00 + m0125 * v_2_00;
         Ekin_01 = Ekin_01 + m0125 * v_2_01;
