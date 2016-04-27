@@ -45,6 +45,8 @@ molec_force_integration arg_get_integration_routine(const char* key)
         return &molec_integrator_leapfrog_unroll_2;
     else if(strcmp(key, "lf4") == 0)
         return &molec_integrator_leapfrog_unroll_4;
+    else if(strcmp(key, "lf8") == 0)
+        return &molec_integrator_leapfrog_unroll_8;
     else
         molec_error("invalid parameter '%s' for option \"--integrator\"\n", key);
     return NULL;

@@ -37,5 +37,6 @@ typedef void (*molec_force_integration)(float*, float*, const float*, float*, co
 void molec_integrator_leapfrog_refrence(float* x, float* v, const float* f, float* Ekin, const int N);
 void molec_integrator_leapfrog_unroll_2(float* x, float* v, const float* f, float* Ekin, const int N);
 void molec_integrator_leapfrog_unroll_4(float* x, float* v, const float* f, float* Ekin, const int N);
+void molec_integrator_leapfrog_unroll_8(float* x, float* v, const float* f, float* Ekin, const int N);
 
 #endif
