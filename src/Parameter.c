@@ -26,7 +26,7 @@ void molec_parameter_init(int N)
         // We will not deallocate the pointer on Windows as it was allocated in another
         // DLL-heap an therefore triggers an exception ...
 #ifndef MOLEC_PLATFORM_WINDOWS
-        free(molec_parameter);
+        //free(molec_parameter);
         molec_parameter = NULL;
 #endif
     }
