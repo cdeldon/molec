@@ -16,12 +16,17 @@
 #ifndef MOLEC_COMMON_H
 #define MOLEC_COMMON_H
 
-
 #include <assert.h>
 #include <molec/Config.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef MOLEC_PLATFORM_WINDOWS
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
 
 #ifdef MOLEC_PLATFORM_WINDOWS
 typedef unsigned __int64 molec_uint64_t;
@@ -104,10 +109,10 @@ void molec_progress_bar(int i, int n, int r, int w);
     (ptr) = NULL;
 
 // Allocate 16 Byte aligned memory
-#define MOLEC_INTERNAL_MALLOC_ALIGN_16(ptr, size) posix_memalign(&(ptr), 16lu, (size));
+#define MOLEC_INTERNAL_MALLOC_ALIGN_16(ptr, size) posix_memalign((void **) &(ptr), 16lu, (size));
 
 // Allocate 32 Byte aligned memory
-#define MOLEC_INTERNAL_MALLOC_ALIGN_32(ptr, size) posix_memalign(&(ptr), 32lu, (size));
+#define MOLEC_INTERNAL_MALLOC_ALIGN_32(ptr, size) posix_memalign((void **) &(ptr), 32lu, (size));
 
 #else
 
