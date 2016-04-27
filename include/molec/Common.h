@@ -16,12 +16,17 @@
 #ifndef MOLEC_COMMON_H
 #define MOLEC_COMMON_H
 
-
 #include <assert.h>
 #include <molec/Config.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef MOLEC_PLATFORM_WINDOWS
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
 
 #ifdef MOLEC_PLATFORM_WINDOWS
 typedef unsigned __int64 molec_uint64_t;
