@@ -200,7 +200,10 @@ void molec_force_cellList_reference(molec_Simulation_SOA_t* sim, float* Epot, co
     free(c_idx);
     free(particles_in_cell_idx);
     for(int idx = 0; idx < cellList_parameter.N; ++idx)
-        free(cellList[idx]);
+    {
+        int *ptr = cellList[idx];
+        free(ptr);
+    }
     free(cellList);
     free(cellCounter);
 
@@ -442,7 +445,10 @@ void molec_force_cellList_v1(molec_Simulation_SOA_t* sim, float* Epot, const int
     MOLEC_FREE(c_idx);
     MOLEC_FREE(particles_in_cell_idx);
     for(int idx = 0; idx < cellList_parameter.N; ++idx)
-        free(cellList[idx]);
+    {
+        int *ptr = cellList[idx];
+        free(ptr);
+    }
     MOLEC_FREE(cellList);
     MOLEC_FREE(cell_counter);
 
