@@ -57,6 +57,8 @@ molec_periodic arg_get_periodic_routine(const char* key)
 {
     if(strcmp(key, "ref") == 0)
         return &molec_periodic_refrence;
+    else if(strcmp(key, "c4") == 0)
+        return &molec_periodic_close4;
     else
         molec_error("invalid parameter '%s' for option \"--periodic\"\n", key);
     return NULL;
@@ -84,7 +86,8 @@ int main(int argc, char** argv)
     struct arg_str* arg_periodic_routine
         = arg_str0("p", "periodic", "<string>",
                    "Specify the periodic subroutine.\n"
-                   "                             - ref        Refrence implementation");
+                   "                             - ref        Refrence implementation\n"
+                   "                             - c4         With assumption (unroll x4)");
     // parameter can appear at most once --> arg_file0
     struct arg_file* arg_parameters
         = arg_file0("c", "config", "<file>", "Path to to the configuration file.");

@@ -36,10 +36,7 @@ void molec_run_periodic_test();
 TEST_CASE(molec_UnittestPeriodic)
 {
     molec_register_periodic(&molec_periodic_refrence);
-    molec_register_periodic(&molec_periodic_v3);
-    molec_register_periodic(&molec_periodic_v4);
-    molec_register_periodic(&molec_periodic_v5);
-    // register new tests here
+    molec_register_periodic(&molec_periodic_close4);
 
     molec_run_periodic_test();
 }

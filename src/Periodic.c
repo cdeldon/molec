@@ -29,61 +29,55 @@ void molec_periodic_refrence(float* x, const int N)
     }
 }
 
-void molec_periodic_v3(float* x, const int N)
+/** Assume that under a not too large timestep,
+ * particles can only lie in [-L, 2L]
+ */
+void molec_periodic_close4(float* x, const int N)
 {
     const float L = molec_parameter->L;
-    int rep;
-    for(rep = 0; rep < 10; ++rep)
-    {
-        for(int i = 0; i < N; ++i)
-        {
-            if(x[i] < 0)
-                x[i] += L;
-            if(x[i] > L)
-                x[i] -= L;
-        }
-    }
-}
+    float x1, x2, x3, x4;
 
-void molec_periodic_v4(float* x, const int N)
-{
-    const float L = molec_parameter->L;
-
-    for(int i = 0; i < N; ++i)
-    {
-        if(x[i] < 0)
-            while(x[i] < 0)
-                x[i] += L;
-        if(x[i] > L)
-            while(x[i] > L)
-                x[i] -= L;
-    }
-}
-
-void molec_periodic_v5(float* x, const int N)
-{
-    const float L = molec_parameter->L;
-
-    float x1, x2;
-    for(int i = 0; i < N; i += 2)
+    int i;
+    for(i = 0; i < N; i += 4)
     {
         x1 = x[i];
         x2 = x[i + 1];
+        x3 = x[i + 2];
+        x4 = x[i + 3];
 
-        if(x1 < 0)
-            while(x1 < 0)
-                x1 += L;
-        if(x2 < 0)
-            while(x2 < 0)
-                x2 += L;
+        float is_low1 = x1 < 0;
+        float is_high1 = x1 > L;
 
-        if(x1 > L)
-            while(x1 > L)
-                x1 -= L;
-        if(x2 > L)
-            while(x2 > L)
-                x2 -= L;
+        float is_low2 = x2 < 0;
+        float is_high2 = x2 > L;
+
+        float is_low3 = x3 < 0;
+        float is_high3 = x3 > L;
+
+        float is_low4 = x4 < 0;
+        float is_high4 = x4 > L;
+
+        x1 = x1 + L * (is_low1 - is_high1);
+        x2 = x2 + L * (is_low2 - is_high2);
+        x3 = x3 + L * (is_low3 - is_high3);
+        x4 = x4 + L * (is_low4 - is_high4);
+
         x[i] = x1;
         x[i + 1] = x2;
+        x[i + 2] = x3;
+        x[i + 3] = x4;
+    }
+
+    for(int j = i-4 ; j < N; ++j)
+    {
+        x1 = x[j];
+
+        float is_low = x1 < 0;
+        float is_high = x1 > L;
+
+        x1 = x1 + L * (is_low - is_high);
+
+        x[j] = x1;
     }
 }
+
