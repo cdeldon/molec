@@ -64,7 +64,7 @@ void molec_free_simulation_SOA(molec_Simulation_SOA_t* simulation)
     MOLEC_FREE(simulation->f_y);
     MOLEC_FREE(simulation->f_z);
 
-    MOLEC_FREE(simulation);
+    free(simulation);
 }
 
 void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, float*, int),

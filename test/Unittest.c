@@ -34,7 +34,8 @@ float* molec_random_vector(const int N)
 
 float* molec_copy_vector(const float* vec, const int N)
 {
-    float* vec_cpy = malloc(sizeof(float) * N);
+    float* vec_cpy;
+    MOLEC_MALLOC(vec_cpy, sizeof(float) * N);
     memcpy(vec_cpy, vec, sizeof(float) * N);
     return vec_cpy;
 }
@@ -63,5 +64,5 @@ molec_Simulation_SOA_t* molec_setup_simulation_SOA()
 void molec_teardown_simulation_SOA(molec_Simulation_SOA_t* sim)
 {
     molec_free_simulation_SOA(sim);
-    MOLEC_FREE(molec_parameter);
+    free(molec_parameter);
 }

@@ -17,11 +17,11 @@
 #define MOLEC_COMMON_H
 
 
+#include <assert.h>
 #include <molec/Config.h>
 #include <stdint.h>
-#include <assert.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #ifdef MOLEC_PLATFORM_WINDOWS
 typedef unsigned __int64 molec_uint64_t;
@@ -35,7 +35,6 @@ typedef unsigned int molec_uint32_t;
  * @brief if enabled, verbose output
  */
 extern int molec_verbose;
-
 
 /**
  * @brief Print an error message to stderr and abort the execution
@@ -59,31 +58,72 @@ void molec_print_array(const float* array, const int N);
   */
 void molec_progress_bar(int i, int n, int r, int w);
 
-
 /**
  * @brief This macro wraps libc's malloc and checks for success
  *
  * @param ptr   Pointer to the memory block allocated by malloc
  * @param size  Size of the memory block, in bytes
  */
-#define MOLEC_MALLOC(ptr, size)                                                                     \
-    MOLEC_INTERNAL_MALLOC_LIBC((ptr), (size), #ptr, __FILE__, __LINE__)
+#define MOLEC_ALIGN_32
+
+#if defined(MOLEC_ALIGN_16)
+#define MOLEC_MALLOC(ptr, size) MOLEC_INTERNAL_MALLOC_ALIGN_16((ptr), (size))
+#elif defined(MOLEC_ALIGN_32)
+#define MOLEC_MALLOC(ptr, size) MOLEC_INTERNAL_MALLOC_ALIGN_32((ptr), (size))
+#else
+#define MOLEC_MALLOC(ptr, size) MOLEC_INTERNAL_MALLOC_LIBC((ptr), (size), #ptr, __FILE__, __LINE__)
+#endif
 
 /**
  * @brief This macro wraps libc's free and NULLs out the pointer
  *
  * @param ptr   Pointer to be freed
  */
+#if defined(MOLEC_ALIGN_16) || defined(MOLEC_ALIGN_32)
+#define MOLEC_FREE(ptr) MOLEC_INTERNAL_FREE_ALIGN((ptr))
+#else
 #define MOLEC_FREE(ptr) MOLEC_INTERNAL_FREE_LIBC((ptr))
+#endif
 
 // Internal macros
 #define MOLEC_INTERNAL_FREE_LIBC(ptr)                                                              \
-    free((ptr));                                                                                   \
-    (ptr) = NULL;
+    {                                                                                              \
+        free((ptr));                                                                               \
+        (ptr) = NULL;                                                                              \
+    }
 
 #define MOLEC_INTERNAL_MALLOC_LIBC(ptr, size, ptr_name, file, line)                                \
     if(!((ptr) = malloc((size))))                                                                  \
         molec_error("%s:%i: failed to allocate memory for '%s'", (file), (line), (ptr_name));
+
+#ifndef MOLEC_PLATFORM_WINDOWS
+
+// Allocate 16 Byte aligned memory
+#define MOLEC_INTERNAL_FREE_ALIGN(ptr)                                                             \
+    free((ptr));                                                                                   \
+    (ptr) = NULL;
+
+// Allocate 16 Byte aligned memory
+#define MOLEC_INTERNAL_MALLOC_ALIGN_16(ptr, size) posix_memalign(&(ptr), 16lu, (size));
+
+// Allocate 32 Byte aligned memory
+#define MOLEC_INTERNAL_MALLOC_ALIGN_32(ptr, size) posix_memalign(&(ptr), 32lu, (size));
+
+#else
+
+#define MOLEC_INTERNAL_FREE_ALIGN(ptr) { _aligned_free((ptr)); (ptr) = NULL; }
+
+// Allocate 16 Byte aligned memory
+#define MOLEC_INTERNAL_MALLOC_ALIGN_16(ptr, size)                                                  \
+    {                                                                                              \
+        (ptr) = _aligned_malloc((size), 16lu);                                                     \
+    }
+
+// Allocate 32 Byte aligned memory
+#define MOLEC_INTERNAL_MALLOC_ALIGN_32(ptr, size)                                                  \
+    {                                                                                              \
+        (ptr) = _aligned_malloc((size), 32lu);                                                     \
+    }
 
 #endif
 
@@ -101,4 +141,6 @@ void molec_progress_bar(int i, int n, int r, int w);
  */
 #ifndef MOLEC_DUMP_COORDINATES
 #define MOLEC_DUMP_COORDINATES 0
+#endif
+
 #endif
