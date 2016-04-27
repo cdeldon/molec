@@ -36,7 +36,7 @@ class pymolec:
             if os.name == 'nt':
                 path = os.path.join(script_path, '..', 'build', 'molec.exe')
             else:
-                path = os.path.join(script_path, '..', 'build_gcc', 'molec')
+                path = os.path.join(script_path, '..', 'build', 'molec')
 
         # Check if molec exists
         if not os.path.exists(path):
