@@ -22,9 +22,16 @@ molec_Parameter_t* molec_parameter = NULL;
 void molec_parameter_init(int N)
 {
     if(molec_parameter)
-        MOLEC_FREE(molec_parameter);
+    {
+        // We will not deallocate the pointer on Windows as it was allocated in another
+        // DLL-heap an therefore triggers an exception ...
+#ifndef MOLEC_PLATFORM_WINDOWS
+        free(molec_parameter);
+        molec_parameter = NULL;
+#endif
+    }
 
-    molec_parameter = malloc(sizeof(molec_Parameter_t));
+    molec_parameter = (molec_Parameter_t*) malloc(sizeof(molec_Parameter_t));
 
     // Set some default parameters
     molec_parameter->N = N;

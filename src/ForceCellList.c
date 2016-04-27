@@ -449,6 +449,7 @@ void molec_force_cellList_v1(molec_Simulation_SOA_t* sim, float* Epot, const int
         int *ptr = cellList[idx];
         free(ptr);
     }
+
     MOLEC_FREE(cellList);
     MOLEC_FREE(cell_counter);
 

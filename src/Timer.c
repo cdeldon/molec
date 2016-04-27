@@ -168,19 +168,21 @@ void molec_measurement_print()
 
 void molec_measurement_finish()
 {
-    // iterate over the timers, delete all measurements nodes
-    for(int timer_index = 0; timer_index < measurement->num_timers; ++timer_index)
-    {
-        molec_Measurement_Node_t* current = measurement->value_list_heads[timer_index];
-        molec_Measurement_Node_t* old;
+    //TODO: THIS IS STILL BROKEN IN DEBUG MODE ;)
 
-        while(current != NULL)
-        {
-            old = current;
-            free(current);
-            current = old->next;
-        }
-    }
+    //// Iterate over the timers, delete all measurements nodes
+    //for(int timer_index = 0; timer_index < measurement->num_timers; ++timer_index)
+    //{
+    //    molec_Measurement_Node_t* current = measurement->value_list_heads[timer_index];
+    //    molec_Measurement_Node_t* old;
+
+    //    while(current != NULL)
+    //    {
+    //        old = current;
+    //        free(current);
+    //        current = old->next;
+    //    }
+    //}
 
     free(measurement->value_list_heads);
     free(measurement->value_list_tails);

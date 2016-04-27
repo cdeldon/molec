@@ -38,7 +38,7 @@ void molec_load_parameters(const char* filename, int verbose, int N)
     if(verbose && molec_verbose)
         printf("Running simulation with parameters specified in '%s'\n", filename);
 
-    MOLEC_MALLOC(molec_loader->filename, MOLEC_FILENAME_MAX_LENGTH * sizeof(char));
+    molec_loader->filename = malloc(MOLEC_FILENAME_MAX_LENGTH * sizeof(char));
     memcpy(molec_loader->filename, filename, MOLEC_FILENAME_MAX_LENGTH * sizeof(char));
 
     FILE* parametersFile = fopen(molec_loader->filename, "r");
