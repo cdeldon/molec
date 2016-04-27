@@ -20,6 +20,7 @@ set(UNITTEST_SOURCE
     UnittestSort.c
     UnittestForce.c
     UnittestIntegrator.c
+    UnittestAlign.c
 )
 
 set(UNITTEST_HEADER

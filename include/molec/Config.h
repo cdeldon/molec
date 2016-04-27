@@ -89,6 +89,13 @@
 #define MOLEC_NOINLINE
 #endif
 
+// ALIGN
+#if defined(MOLEC_PLATFORM_WINDOWS)
+#define MOLEC_ALIGNAS(A) __declspec(align(A))
+#else
+#define MOLEC_ALIGNAS(A) __attribute__((aligned(A)))
+#endif
+
 // Disable some warnings on Windows
 #ifdef MOLEC_PLATFORM_WINDOWS
 #pragma warning(disable : 4267) // conversion from 'size_t' to 'int'

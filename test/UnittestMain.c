@@ -28,6 +28,7 @@ int main(int argc, char* argv[])
     tinytest_init(argc, argv);
 
     // Register new testcases here
+    REGISTER_TEST_CASE(molec_UnittestAlign);
     REGISTER_TEST_CASE(molec_UnittestTimer);
     REGISTER_TEST_CASE(molec_UnittestParser);
     REGISTER_TEST_CASE(molec_UnittestPeriodic);
