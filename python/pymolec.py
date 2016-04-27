@@ -14,7 +14,7 @@
 #  See LICENSE.txt for details.
 
 import numpy as np
-import os, subprocess
+import time, sys, os, subprocess
 
 class pymolec:
 
@@ -29,22 +29,25 @@ class pymolec:
         self.periodic = periodic
 
     def run(self, path = None):
-        
+
         # Use default path
         if not path:
             script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
             if os.name == 'nt':
                 path = os.path.join(script_path, '..', 'build', 'molec.exe')
             else:
-                path = os.path.join(script_path, '..', 'build', 'molec')
-                       
+                path = os.path.join(script_path, '..', 'build_gcc', 'molec')
+
         # Check if molec exists
         if not os.path.exists(path):
             raise IOError("no such file or directory: %s" % path)
 
         times = np.zeros((4, len(self.N)))
-        
+
         print ("Running molec: %s" % path)
+        print ("force = {0}, integrator = {1}, periodic = {2}".format(self.force, self.integrator,
+                                                                      self.periodic))
+
         for i in range(len(self.N)):
             cmd = [path]
             cmd += ["--N=" + str(self.N[i])]
@@ -55,20 +58,24 @@ class pymolec:
             cmd += ["--verbose=0"]
 
             # Print status
-            print(" - N = %i" % self.N[i])
-            
+            start = time.time()
+            print(" - N = %6i ..." % self.N[i], end='')
+            sys.stdout.flush()
+
             out = subprocess.check_output(cmd).decode(encoding='utf-8').split('\t')
+
+            print(" %20f s" % (time.time() - start))
 
             times[0,i] = int(out[2]) # force
             times[1,i] = int(out[4]) # integrator
             times[2,i] = int(out[6]) # periodic
             times[3,i] = int(out[8]) # simulation
-            
+
         return times
-        
+
 def main():
     p = pymolec()
     print(p.run())
-    
+
 if __name__ == '__main__':
     main()

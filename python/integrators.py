@@ -25,7 +25,6 @@ sns.set_style("darkgrid")
 sns.set_palette('deep')
 deep = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD"]
 
-
 def main():
 
     integrators = ['lf', 'lf2']
@@ -54,6 +53,8 @@ def main():
 
     plt.legend(['lf', 'lf2'])
 
+    filename = 'integrators.pdf'
+    print("saving '%s'" % filename )
     plt.savefig('integrators.pdf')
 
 

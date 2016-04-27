@@ -181,6 +181,7 @@ int main(int argc, char** argv)
     molec_run_simulation(force_calculation, force_integration, periodic);
     MOLEC_MEASUREMENT_SIMULATION_STOP();
 
+    printf("\n");
     MOLEC_MEASUREMENT_PRINT;
 
     // free memory 

@@ -144,8 +144,6 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
 
         if(molec_verbose > 1)
             printf("%10i\t%15.6f\t%15.6f\t%15.6f\n", n, Ekin, Epot, Etot);
-
-        /* molec_print_simulation_SOA(sim); */
     }
 
     // Free memory
