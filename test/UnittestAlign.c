@@ -20,15 +20,23 @@
  */
 TEST_CASE(molec_UnittestAlign)
 {
-
-    for (int i = 1; i < 100; i += 1)
-    {
         // 16 byte alignment for SSE instructions
-        MOLEC_ALIGNAS(16) float x[10 * i];
-        CHECK(((unsigned long)x % 16) == 0);
+        MOLEC_ALIGNAS(16) float array16_00[4];
+        MOLEC_ALIGNAS(16) float array16_01[16];        
+        MOLEC_ALIGNAS(16) float array16_02[32];
+        MOLEC_ALIGNAS(16) float array16_03[64];
+        CHECK(((unsigned long)array16_00 % 16lu) == 0);
+        CHECK(((unsigned long)array16_01 % 16lu) == 0);
+        CHECK(((unsigned long)array16_02 % 16lu) == 0);
+        CHECK(((unsigned long)array16_03 % 16lu) == 0);
 
         // 32 byte alignment for AVX instructions
-        MOLEC_ALIGNAS(32) float y[10 * i];
-        CHECK(((unsigned long)y % 32) == 0);
-    }
+        MOLEC_ALIGNAS(32) float array32_00[4];
+        MOLEC_ALIGNAS(32) float array32_01[16];        
+        MOLEC_ALIGNAS(32) float array32_02[32];
+        MOLEC_ALIGNAS(32) float array32_03[64];
+        CHECK(((unsigned long)array32_00 % 32lu) == 0);
+        CHECK(((unsigned long)array32_01 % 32lu) == 0);
+        CHECK(((unsigned long)array32_02 % 32lu) == 0);
+        CHECK(((unsigned long)array32_03 % 32lu) == 0);
 }
