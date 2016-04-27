@@ -43,6 +43,10 @@ void molec_error(const char* format, ...)
 void molec_progress_bar(int x, int n, int r, int w)
 {
     // Only update r times.
+    if ( x % (n/r) != 0 ) return;
+
+
+    // Only update r times.
     if(x % (n/r) != 0) 
         return;
 
@@ -60,7 +64,14 @@ void molec_progress_bar(int x, int n, int r, int w)
     for (int x = c; x < w; x++)
        printf(" ");
 
+#ifdef MOLEC_PLATFORM_LINUX
+    // ANSI Control codes to go back to the
+    // previous line and clear it.
+    printf("] %3d%%\n\033[F\033[J", (int)(ratio*100) );
+#else
+
     // Set cursor back
     printf("] %3d%%\r", (int)(ratio*100) );
+#endif
 }
 
