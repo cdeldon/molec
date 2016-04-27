@@ -43,6 +43,8 @@ molec_force_integration arg_get_integration_routine(const char* key)
         return &molec_integrator_leapfrog_refrence;
     else if(strcmp(key, "lf2") == 0)
         return &molec_integrator_leapfrog_unroll_2;
+    else if(strcmp(key, "lf4") == 0)
+        return &molec_integrator_leapfrog_unroll_4;
     else
         molec_error("invalid parameter '%s' for option \"--integrator\"\n", key);
     return NULL;
@@ -74,7 +76,8 @@ int main(int argc, char** argv)
         = arg_str0("i", "integrator", "<string>",
                    "Specify the integrator subroutine.\n"
                    "                             - lf         Leap-frog (refrence)\n"
-                   "                             - lf2        Leap-frog (unroll x2)");
+                   "                             - lf2        Leap-frog (unroll x2)\n"
+                   "                             - lf4        Leap-frog (unroll x4)");
     // periodic routine
     struct arg_str* arg_periodic_routine
         = arg_str0("p", "periodic", "<string>",

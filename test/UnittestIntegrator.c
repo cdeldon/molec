@@ -38,6 +38,7 @@ void molec_run_integrator_test();
 TEST_CASE(molec_UnittestIntegrator)
 {
     molec_register_integrator(&molec_integrator_leapfrog_unroll_2);
+    molec_register_integrator(&molec_integrator_leapfrog_unroll_4);
 
     //  initialize simulation parameters and run test
     molec_NAtoms = 1000;
