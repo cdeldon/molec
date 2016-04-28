@@ -17,10 +17,8 @@
 #include <molec/Periodic.h>
 #include <math.h>
 
-void molec_periodic_refrence(float* x, const int N)
+void molec_periodic_refrence(float* x, const int N, const float L)
 {
-    const float L = molec_parameter->L;
-
     for(int i = 0; i < N; ++i)
     {
         x[i] = fmod(x[i], L);
@@ -32,9 +30,8 @@ void molec_periodic_refrence(float* x, const int N)
 /** Assume that under a not too large timestep,
  * particles can only lie in [-L, 2L]
  */
-void molec_periodic_close4(float* x, const int N)
+void molec_periodic_close4(float* x, const int N, const float L)
 {
-    const float L = molec_parameter->L;
     float x1, x2, x3, x4;
 
     int i;

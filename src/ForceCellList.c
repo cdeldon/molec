@@ -157,9 +157,9 @@ void molec_force_cellList_reference(molec_Simulation_SOA_t* sim, float* Epot, co
                                         if(MOLEC_CELLLIST_COUNT_INTERACTION)
                                             ++num_potential_interactions;
 
-                                        const float xij = dist(x[i], x[j], molec_parameter->L);
-                                        const float yij = dist(y[i], y[j], molec_parameter->L);
-                                        const float zij = dist(z[i], z[j], molec_parameter->L);
+                                        const float xij = dist(x[i], x[j], molec_parameter->L_x);
+                                        const float yij = dist(y[i], y[j], molec_parameter->L_y);
+                                        const float zij = dist(z[i], z[j], molec_parameter->L_z);
 
                                         const float r2 = xij * xij + yij * yij + zij * zij;
 
@@ -227,7 +227,9 @@ void molec_force_cellList_v1(molec_Simulation_SOA_t* sim, float* Epot, const int
     assert(molec_parameter);
     const float sigLJ = molec_parameter->sigLJ;
     const float epsLJ = molec_parameter->epsLJ;
-    const float L = molec_parameter->L;
+    const float L_x = molec_parameter->L_x;
+    const float L_y = molec_parameter->L_y;
+    const float L_z = molec_parameter->L_z;
     const float Rcut2 = molec_parameter->Rcut2;
 
     molec_CellList_Parameter_t cellList_parameter = molec_parameter->cellList;
@@ -357,9 +359,9 @@ void molec_force_cellList_v1(molec_Simulation_SOA_t* sim, float* Epot, const int
                                     {
                                         int j = particles_n_idx[k_n_idx];
 
-                                        const float xij = dist(xi, x[j], L);
-                                        const float yij = dist(yi, y[j], L);
-                                        const float zij = dist(zi, z[j], L);
+                                        const float xij = dist(xi, x[j], L_x);
+                                        const float yij = dist(yi, y[j], L_y);
+                                        const float zij = dist(zi, z[j], L_z);
 
                                         const float r2 = xij * xij + yij * yij + zij * zij;
 
@@ -413,9 +415,9 @@ void molec_force_cellList_v1(molec_Simulation_SOA_t* sim, float* Epot, const int
                                     {
                                         int j = particles_idx[k_idx2];
 
-                                        const float xij = dist(xi, x[j], molec_parameter->L);
-                                        const float yij = dist(yi, y[j], molec_parameter->L);
-                                        const float zij = dist(zi, z[j], molec_parameter->L);
+                                        const float xij = dist(xi, x[j], molec_parameter->L_x);
+                                        const float yij = dist(yi, y[j], molec_parameter->L_y);
+                                        const float zij = dist(zi, z[j], molec_parameter->L_z);
 
                                         const float r2 = xij * xij + yij * yij + zij * zij;
 

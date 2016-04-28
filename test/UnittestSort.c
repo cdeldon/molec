@@ -47,18 +47,20 @@ TEST_CASE(molec_UnittestSort)
     molec_Simulation_SOA_t* sim = molec_setup_simulation_SOA();
 
     const int N = molec_parameter->N;
-    const float L = molec_parameter->L;
+    const float L_x = molec_parameter->L_x;
+    const float L_y = molec_parameter->L_y;
+    const float L_z = molec_parameter->L_z;
 
     // Randomly move the atoms
     for(int i = 0; i < N; ++i)
     {
-        sim->x[i] += (rand() / (float) RAND_MAX) * L;
-        sim->y[i] += (rand() / (float) RAND_MAX) * L;
-        sim->z[i] += (rand() / (float) RAND_MAX) * L;
+        sim->x[i] += (rand() / (float) RAND_MAX) * L_x;
+        sim->y[i] += (rand() / (float) RAND_MAX) * L_y;
+        sim->z[i] += (rand() / (float) RAND_MAX) * L_z;
     }
 
     // Apply periodic boundary conditions
-    molec_periodic_refrence(sim->x, N);
+    molec_periodic_refrence(sim->x, N, L_x);
 
     // Sort the particles according to the x coordinate
     molec_sort_qsort(sim);

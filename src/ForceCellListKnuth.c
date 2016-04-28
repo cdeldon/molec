@@ -43,7 +43,9 @@ void molec_force_cellList_knuth(molec_Simulation_SOA_t* sim, float* Epot, const 
     assert(molec_parameter);
     const float sigLJ = molec_parameter->sigLJ;
     const float epsLJ = molec_parameter->epsLJ;
-    const float L = molec_parameter->L;
+    const float L_x = molec_parameter->L_x;
+    const float L_y = molec_parameter->L_y;
+    const float L_z = molec_parameter->L_z;
     const float Rcut2 = molec_parameter->Rcut2;
 
     molec_uint64_t num_potential_interactions = 0;
@@ -153,9 +155,9 @@ void molec_force_cellList_knuth(molec_Simulation_SOA_t* sim, float* Epot, const 
                                         if(MOLEC_CELLLIST_COUNT_INTERACTION)
                                             ++num_potential_interactions;
 
-                                        const float xij = dist(xi, x[j], L);
-                                        const float yij = dist(yi, y[j], L);
-                                        const float zij = dist(zi, z[j], L);
+                                        const float xij = dist(xi, x[j], L_x);
+                                        const float yij = dist(yi, y[j], L_y);
+                                        const float zij = dist(zi, z[j], L_z);
 
                                         const float r2 = xij * xij + yij * yij + zij * zij;
 

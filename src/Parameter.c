@@ -45,18 +45,20 @@ void molec_parameter_init(int N)
     molec_parameter->epsLJ = 1.0;
     molec_parameter->sigLJ = 1.0;
 
-    // Determine bounding box size dependind of N and rho
-    // such that rho = N/(L*L*L)
-    molec_parameter->L = pow(((float) molec_parameter->N) / molec_parameter->rho,(1./3));
 
     // Initialize the cell list associated with the defined bounding box,
     // and cut off radius
     molec_cell_init();
 }
 
+static int parameter_cell_compare (const void * a, const void * b)
+{
+   return ( *(int*)a - *(int*)b );
+}
+
 void molec_cell_init()
 {
-    const float L = molec_parameter->L;
+   /* const float L = molec_parameter->L;
     const float Rcut = molec_parameter->Rcut;
 
     // compute the number of cells per dimension
@@ -71,6 +73,64 @@ void molec_cell_init()
     molec_parameter->cellList.c_x = L / molec_parameter->cellList.N_x;
     molec_parameter->cellList.c_y = L / molec_parameter->cellList.N_y;
     molec_parameter->cellList.c_z = L / molec_parameter->cellList.N_z;
+    */
+
+    const int N = molec_parameter->N;
+    const float rho = molec_parameter->rho;
+
+    // compute volume of bounding box
+    const float BB_vol = ((float) N) / rho;
+    const float Rcut = molec_parameter->Rcut;
+
+    //printf("Total BB volume: %f\n", BB_vol);
+
+    // start proposing cell grid size, and check if resulting volume is big enough
+    int not_big_enough = 1;
+    // minimal cell-grid size
+    int cellSize[3] = {3,3,3};
+    while(not_big_enough)
+    {
+        // total number of cells
+        int num_cells = cellSize[0] * cellSize[1] * cellSize[2];
+
+        // volume achieved with current cells
+        float vol = num_cells * Rcut*Rcut*Rcut;
+
+        if(vol < BB_vol)
+            not_big_enough = 1;
+        else
+            not_big_enough = 0;
+
+        // increase size of the smallest dimension
+        if(not_big_enough)
+        {
+            qsort(cellSize, 3, sizeof(int), parameter_cell_compare);
+            cellSize[0] += 1;
+        }
+    }
+
+    //printf("\n\nResulting grid size:  %d x %d x %d\n", cellSize[0], cellSize[1], cellSize[2]);
+
+    molec_parameter->cellList.N_x = cellSize[0];
+    molec_parameter->cellList.N_y = cellSize[1];
+    molec_parameter->cellList.N_z = cellSize[2];
+    molec_parameter->cellList.N = cellSize[0] * cellSize[1] * cellSize[2];
+
+    molec_parameter->cellList.c_x = Rcut;
+    molec_parameter->cellList.c_y = Rcut;
+    molec_parameter->cellList.c_z = Rcut;
+
+    molec_parameter->L_x = Rcut * molec_parameter->cellList.N_x;
+    molec_parameter->L_y = Rcut * molec_parameter->cellList.N_y;
+    molec_parameter->L_z = Rcut * molec_parameter->cellList.N_z;
+
+    // compute resulting density
+    molec_parameter->rho = ((float) N)/(molec_parameter->cellList.N * pow(Rcut, 3));
+    //printf("Resulting cell size:  %f x %f x %f\n", CELL_size, CELL_size, CELL_size);
+    //printf("Resulting density:    %f\n", ((float) N) / (CELL_size*cellSize[0]* CELL_size*cellSize[1]* CELL_size*cellSize[2]));
+    //float resBB_vol = CELL_size*cellSize[0]* CELL_size*cellSize[1]*CELL_size*cellSize[2];
+    //printf("Resulting BB VOLUME:  %f (ref: %f)\n\n", resBB_vol, BB_vol);
+
 }
 
 void molec_print_parameters()
@@ -80,7 +140,7 @@ void molec_print_parameters()
     printf("      Time step: \t\t\t%f\n", molec_parameter->dt);
     printf("      Particle density: \t\t%f\n", molec_parameter->rho);
     printf("      Bounding box: \t\t\t%2.1f x %2.1f x %2.1f\n",
-           molec_parameter->L, molec_parameter->L, molec_parameter->L);
+           molec_parameter->L_x, molec_parameter->L_y, molec_parameter->L_z);
     printf("      Particle mass: \t\t\t%f\n", molec_parameter->mass);
     printf("      Cutoff Radius: \t\t\t%f\n", molec_parameter->Rcut);
     printf("      Lennard Jones:\n \t\t\tepsilon:\t%f\n\t\t\tsigma:\t\t%f\n",

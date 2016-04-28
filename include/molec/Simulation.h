@@ -65,6 +65,6 @@ void molec_print_simulation_SOA(const molec_Simulation_SOA_t* simulation);
  */
 void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, float*, int),
                           void (*molec_force_integration)(float*, float*, const float*, float*, const int),
-                          void (*molec_periodic)(float*, const int));
+                          void (*molec_periodic)(float*, const int, const float));
 
 #endif

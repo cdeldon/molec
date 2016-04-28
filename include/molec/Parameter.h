@@ -39,7 +39,7 @@ typedef struct molec_Parameter
     float rho;
 
     /** Extend of the bounding box */
-    float L;
+    float L_x, L_y, L_z;
 
     /** Time step */
     float dt;

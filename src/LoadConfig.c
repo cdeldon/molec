@@ -99,9 +99,6 @@ void molec_load_parameters(const char* filename, int verbose, int N)
         }
     }
 
-    // Determine bounding box size dependind of N and rho
-    // such that rho = N/(L*L*L)
-    molec_parameter->L = pow(((float) molec_parameter->N) / molec_parameter->rho, (1. / 3));
 
     molec_cell_init();
 

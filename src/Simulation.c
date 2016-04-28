@@ -69,7 +69,7 @@ void molec_free_simulation_SOA(molec_Simulation_SOA_t* simulation)
 
 void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, float*, int),
                           void (*molec_force_integration)(float*, float*, const float*, float*, const int),
-                          void (*molec_periodic)(float*, const int))
+                          void (*molec_periodic)(float*, const int, const float))
 {
     if(MOLEC_DUMP_COORDINATES)
     {
@@ -133,9 +133,9 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
 
         // 3. Apply periodic boundary conditions
         MOLEC_MEASUREMENT_PERIODIC_START();
-        molec_periodic(sim->x, N);
-        molec_periodic(sim->y, N);
-        molec_periodic(sim->z, N);
+        molec_periodic(sim->x, N, molec_parameter->L_x);
+        molec_periodic(sim->y, N, molec_parameter->L_y);
+        molec_periodic(sim->z, N, molec_parameter->L_z);
         MOLEC_MEASUREMENT_PERIODIC_STOP();
 
         // 4. Report result
