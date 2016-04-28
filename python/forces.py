@@ -27,7 +27,7 @@ deep = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD"]
 
 def main():
 
-    forces = ['cell_ref', 'cell_v1', 'knut']
+    forces = ['knuth', 'cell_ref', 'cell_v1']
     N = np.array([1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000])
 
     rho = 1.25

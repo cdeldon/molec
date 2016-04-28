@@ -38,7 +38,7 @@ MOLEC_INLINE int mod(int b, int m)
     return (b % m + m) % m;
 }
 
-void molec_force_cellList_knut(molec_Simulation_SOA_t* sim, float* Epot, const int N)
+void molec_force_cellList_knuth(molec_Simulation_SOA_t* sim, float* Epot, const int N)
 {
     assert(molec_parameter);
     const float sigLJ = molec_parameter->sigLJ;

@@ -61,7 +61,7 @@ void add_function(molec_force_calculation f, char* name)
 void molec_force_test_register_functions()
 {
     add_function(&molec_force_N2_refrence, "Naive N^2 implementation");
-    add_function(&molec_force_cellList_knut, "Cell list (Knut)");
+    add_function(&molec_force_cellList_knuth, "Cell list (Knut)");
     add_function(&molec_force_cellList_reference, "Cell list reference");
     add_function(&molec_force_cellList_v1, "Cell list (v1)");
 

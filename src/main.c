@@ -30,8 +30,8 @@ molec_force_calculation arg_get_force_routine(const char* key)
         return &molec_force_cellList_reference;
     else if(strcmp(key, "cell_v1") == 0)
         return &molec_force_cellList_v1;
-    else if(strcmp(key, "knut") == 0)
-        return &molec_force_cellList_knut;
+    else if(strcmp(key, "knuth") == 0)
+        return &molec_force_cellList_knuth;
     else
         molec_error("invalid parameter '%s' for option \"--force\"\n", key);
     return NULL;
@@ -73,7 +73,7 @@ int main(int argc, char** argv)
                    "                             - N2         N2 refrence\n"
                    "                             - cell_ref   Cell-list refrence\n"
                    "                             - cell_v1    Cell-list improvement 1\n"
-                   "                             - knut       Cell-list (Knut)");
+                   "                             - knuth      Cell-list (Knuth)");
 
     // integrator routine can appear at most once --> arg_str0
     struct arg_str* arg_integrator_routine
