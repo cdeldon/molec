@@ -62,14 +62,18 @@ class pymolec:
             print(" - N = %6i ..." % self.N[i], end='')
             sys.stdout.flush()
 
-            out = subprocess.check_output(cmd).decode(encoding='utf-8').split('\t')
+            try:
+                out = subprocess.check_output(cmd).decode(encoding='utf-8').split('\t')
 
-            print(" %20f s" % (time.time() - start))
+                print(" %20f s" % (time.time() - start))
 
-            times[0,i] = int(out[2]) # force
-            times[1,i] = int(out[4]) # integrator
-            times[2,i] = int(out[6]) # periodic
-            times[3,i] = int(out[8]) # simulation
+                times[0,i] = int(out[2]) # force
+                times[1,i] = int(out[4]) # integrator
+                times[2,i] = int(out[6]) # periodic
+                times[3,i] = int(out[8]) # simulation
+
+            except subprocess.CalledProcessError as e:
+                print(e.output)
 
         return times
 
