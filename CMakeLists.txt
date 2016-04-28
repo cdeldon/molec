@@ -23,6 +23,9 @@ endif()
 ### Compiler options
 
 # Set optimization flags (Release mode automatically adds -O3)
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+
 if(${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
     message(STATUS "Using Visual C compiler")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")

@@ -13,6 +13,8 @@
  *  See LICENSE.txt for details.
  */
 
+#include "immintrin.h"
+
 #include <molec/Parameter.h>
 #include <molec/Integrator.h>
 
@@ -376,4 +378,89 @@ void molec_integrator_leapfrog_unroll_8(
         x[i] = x[i] + dt * v[i];
 }
 
+#ifdef __AVX__
+
+void molec_integrator_leapfrog_avx(
+    float* x, float* v, const float* f, float* Ekin, const int N)
+{
+    assert(molec_parameter);
+
+    const float dt = molec_parameter->dt;
+    const float m0125 = 0.125 * molec_parameter->mass;
+    const float minv = 1.0 / molec_parameter->mass;
+
+    const __m256 p_dt = _mm256_set1_ps(dt);
+    const __m256 p_m0125 = _mm256_set1_ps(m0125);
+    const __m256 p_minv = _mm256_set1_ps(minv);
+
+    // Temporaries
+    __m256 p_x;
+    __m256 p_v;
+    __m256 p_vi;
+    __m256 p_v_2;
+    __m256 p_v_old;
+    __m256 p_a;
+    __m256 p_f;
+
+
+    __m256 p_Ekin = _mm256_set1_ps(0.0f);
+    float s_Ekin = 0.0f;
+
+    // Loop logic
+    int i = 0;
+    const int N8 = N / 8;
+    const int N8_upper = N8 * 8;
+
+    for(i = 0; i < N8_upper; i += 8)
+    {
+        // Load
+        p_v_old = _mm256_load_ps(v + i);
+        p_v = _mm256_load_ps(v + i);
+        p_f = _mm256_load_ps(f + i);
+
+        // Compute
+        p_a = _mm256_mul_ps(p_f, p_minv);
+        __m256 tmp00 = _mm256_mul_ps(p_dt, p_a);
+        p_v = _mm256_add_ps(p_v, tmp00);
+
+        p_vi = _mm256_add_ps(p_v, p_v_old);
+        p_v_2 = _mm256_mul_ps(p_vi, p_vi);
+        __m256 tmp01 = _mm256_mul_ps(p_m0125, p_v_2);
+        p_Ekin = _mm256_add_ps(p_Ekin, tmp01);
+
+        // Store
+        _mm256_store_ps(v + i, p_v);
+    }
+
+    for(i = N8_upper; i < N; ++i)
+    {
+        float v_old = v[i];
+        v[i] = v[i] + dt * f[i] * minv;
+        s_Ekin = s_Ekin + m0125 * (v[i] + v_old) * (v[i] + v_old);
+    }
+
+    MOLEC_ALIGNAS(32) float tmp[8];
+    _mm256_store_ps(tmp, p_Ekin);
+
+    *Ekin = s_Ekin + tmp[0] + tmp[1] + tmp[2] + tmp[3] + tmp[4] + tmp[5] + tmp[6] + tmp[7];
+
+    for(i = 0; i < N8_upper; i += 8)
+    {
+        // Load
+        p_x = _mm256_load_ps(x + i);
+        p_v = _mm256_load_ps(v + i);
+
+        // Compute
+        __m256 tmp = _mm256_mul_ps(p_dt, p_v);
+        p_x = _mm256_add_ps(p_x, tmp);
+
+        // Store
+        _mm256_store_ps(x + i, p_x);
+    }
+
+    for(i = N8_upper; i < N; ++i)
+        x[i] = x[i] + dt * v[i];
+}
+
+#endif
 

@@ -39,4 +39,8 @@ void molec_integrator_leapfrog_unroll_2(float* x, float* v, const float* f, floa
 void molec_integrator_leapfrog_unroll_4(float* x, float* v, const float* f, float* Ekin, const int N);
 void molec_integrator_leapfrog_unroll_8(float* x, float* v, const float* f, float* Ekin, const int N);
 
+#ifdef __AVX__
+void molec_integrator_leapfrog_avx(float* x, float* v, const float* f, float* Ekin, const int N);
+#endif
+
 #endif

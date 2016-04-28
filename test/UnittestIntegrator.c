@@ -41,6 +41,10 @@ TEST_CASE(molec_UnittestIntegrator)
     molec_register_integrator(&molec_integrator_leapfrog_unroll_4);
     molec_register_integrator(&molec_integrator_leapfrog_unroll_8);
 
+#ifdef __AVX__
+    molec_register_integrator(&molec_integrator_leapfrog_avx);
+#endif
+
     //  initialize simulation parameters and run test
     molec_NAtoms = 1000;
     molec_parameter_init(molec_NAtoms);
