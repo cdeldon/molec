@@ -34,10 +34,18 @@ if(${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
 elseif(${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
     message(STATUS "Using GNU C compiler")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall")
+    
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-implicit-function-declaration")
+    endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 elseif(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
     message(STATUS "Using Clang C compiler")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall")
+    
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-implicit-function-declaration")
+    endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 elseif(${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
     message(STATUS "Using Intel C compiler")
