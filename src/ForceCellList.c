@@ -25,7 +25,7 @@
 MOLEC_INLINE float dist(float x, float y, float L)
 {
     float r = x - y;
-    if(r < -L / 2)
+    if(r < -L / 2)       //FIXME L/2 is calculated every time!
         r += L;
     else if(r > L / 2)
         r -= L;
@@ -201,7 +201,7 @@ void molec_force_cellList_reference(molec_Simulation_SOA_t* sim, float* Epot, co
     free(particles_in_cell_idx);
     for(int idx = 0; idx < cellList_parameter.N; ++idx)
     {
-        int *ptr = cellList[idx];
+        int* ptr = cellList[idx];
         free(ptr);
     }
     free(cellList);
@@ -211,8 +211,14 @@ void molec_force_cellList_reference(molec_Simulation_SOA_t* sim, float* Epot, co
 
     // print out percentage of effective interactions
     if(MOLEC_CELLLIST_COUNT_INTERACTION)
+    {
         printf("\tPercentage of failed potential interactions: %3.2f\n",
                1. - ((double) num_effective_interactions) / ((double) num_potential_interactions));
+        printf("\tNumber of core executions:  %u\n", num_effective_interactions);
+        printf("\tPredicted interactions:     %d\n", (int) (floor((2. / 3) * N * 3.1415926535)
+                                                         * pow(molec_parameter->Rcut, 3)
+                                                         * molec_parameter->rho));
+    }
 }
 
 
@@ -446,7 +452,7 @@ void molec_force_cellList_v1(molec_Simulation_SOA_t* sim, float* Epot, const int
     MOLEC_FREE(particles_in_cell_idx);
     for(int idx = 0; idx < cellList_parameter.N; ++idx)
     {
-        int *ptr = cellList[idx];
+        int* ptr = cellList[idx];
         MOLEC_FREE(ptr);
     }
 
