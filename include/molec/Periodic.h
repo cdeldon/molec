@@ -31,9 +31,6 @@ typedef void (*molec_periodic)(float*, const int);
  * @param N     Size of arrays
  */
 void molec_periodic_refrence(float* x, const int N);
-void molec_periodic_v3(float* x, const int N);
-void molec_periodic_v4(float* x, const int N);
-void molec_periodic_v5(float* x, const int N);
-void molec_periodic_scalar_replacement(float* x, const int N);
+void molec_periodic_close4(float* x, const int N);
 
 #endif

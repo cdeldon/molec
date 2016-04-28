@@ -48,7 +48,7 @@ void molec_force_N2_refrence(molec_Simulation_SOA_t* sim, float* Epot, const int
  * @param Epot  Real scalar to store the potential energy
  * @param N     Size of arrays
  */
-void molec_force_cellList_knut(molec_Simulation_SOA_t* sim, float* Epot, const int N);
+void molec_force_cellList_knuth(molec_Simulation_SOA_t* sim, float* Epot, const int N);
 
 /**
  * @brief Calculate short-range interaction using table of particle indices per cell

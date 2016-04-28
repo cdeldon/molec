@@ -18,7 +18,7 @@ import time, sys, os, subprocess
 
 class pymolec:
 
-    def __init__(self, N=np.array([1000]), steps=100, force="N2", integrator="lf",
+    def __init__(self, N=np.array([1000]), steps=100, force="cell_ref", integrator="lf",
                  periodic="ref"):
 
         self.N = N

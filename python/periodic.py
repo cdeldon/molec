@@ -27,24 +27,24 @@ deep = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD"]
 
 def main():
 
-    integrators = ['lf', 'lf2', 'lf4', 'lf8', 'lf_avx']
-    N = np.array([1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000])
+    periodics = ['ref', 'c4']
+    N = np.array([1000, 2000, 3000, 4000, 5000, 6000, 7000, 10000])
 
-    flops = 9 * N
+    flops = 2 * N  # mod plus addition
 
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1);
 
-    for integrator in integrators:
-        p = pymolec(N=N, integrator=integrator)
+    for periodic in periodics:
+        p = pymolec(N=N, periodic=periodic )
         times = p.run()
 
-        perf = flops / times[1,:]
+        perf = flops / times[2,:]
         ax.plot(N, perf, 'o-')
 
 
     ax.set_xlim([np.min(N)-100, np.max(N)+100])
-    ax.set_ylim([0, 2])
+    ax.set_ylim([0,2])
 
     ax.set_xlabel('Number of particles')
     ax.set_ylabel('Performance [Flops/Cycle]',
@@ -52,9 +52,9 @@ def main():
                   horizontalalignment = 'left')
     ax.yaxis.set_label_coords(-0.055, 1.05)
 
-    plt.legend(integrators)
+    plt.legend(periodics)
 
-    filename = 'integrators.pdf'
+    filename = 'periodic.pdf'
     print("saving '%s'" % filename )
     plt.savefig(filename)
 
