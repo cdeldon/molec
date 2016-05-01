@@ -11,9 +11,7 @@
 Molecular Dynamics project for the course *How to Write Fast Numerical Code* (263-2300).
 
 ## TODO list
-- [x] sorting routine (at the end of force calculation, exploiting the already processed elements in the same order
-- [x] dummy implementation of cell list (no scalar replacement, arrays of arrays)
-- [ ] optimize malloc and free in cell list algorithm (c_idx, ...)
+- [ ] ...
 
 ## Molecular Dynamics (MD)
 Molecular dynamics simulation consists of the numerical, step-by-step, solution of the
@@ -22,6 +20,22 @@ classical equations of motion, which for a simple atomic system may be written:
 ![equation](https://latex.codecogs.com/png.latex?%5Clarge%20%5Cbegin%7Balign*%7D%20%26m_i%20%5Cddot%7B%5Cvec%7Bx%7D%7D_i%20%3D%20%5Cvec%7Bf%7D_i%5C%5C%26%5Cvec%7Bf%7D_i%20%3D%20-%5Cnabla_%7B%5Cvec%7Bx%7D_i%7D%5Cmathcal%7BU%7D%28%5Cvec%7Bx_1%7D%2C%5Cldots%2C%5Cvec%7Bx_N%7D%29%20%5Cend%7Balign*%7D)
 
 For this purpose we need to be able to compute the forces ![equation](https://latex.codecogs.com/png.latex?%5Clarge%20%5Cvec%7Bf%7D_i) for each particle of the system, which is derived by the negative gradient of a potential field  ![equation](https://latex.codecogs.com/png.latex?%5Clarge%20%5Cmathcal%7BU%7D%28%5Cvec%7Bx%7D_1%2C%5Cldots%2C%5Cvec%7Bx%7D_N%29).
+
+In general, this kind of problems are computationally very expensive for a large number of particles, as the naive algorithm would require the computation of ![equation](https://latex.codecogs.com/png.latex?N%28N-1%29/2) interactions.
+
+Note that the asymptotic complexity of such a problem is quadratic in the number of particles ![equation](https://latex.codecogs.com/png.latex?N).
+
+The introduction of a cut-off radius ![equation](https://latex.codecogs.com/png.latex?r_c) drastically reduces the computational complexity of the problem, as particles which lie *far* away from each other, are treated as if there was no interactions between them. A particle only interacts with the particles whose distance is at most ![equation](https://latex.codecogs.com/png.latex?r_c).
+
+### Celllist
+In order to exploit the short-range nature of the particle-particle interaction, a spatial subdivision structure is introduced, which allows performing fast neighbor queries to find out, which particles interact with each other.
+
+Here a small animation, which shows the difference between the naive algorithm and the celllist based algorithm:
+
+<p align="center">
+  <img src="https://github.com/thfabian/molec/blob/master/doc/video/no-cell-gif.gif" width="350"/>
+  <img src="https://github.com/thfabian/molec/blob/master/doc/video/cell-gif.gif" width="350"/>
+</p>
 
 [![Molec in action](http://img.youtube.com/vi/RcpJUXjaxks/hqdefault.jpg)](https://www.youtube.com/watch?v=RcpJUXjaxks)
 
