@@ -21,7 +21,7 @@ classical equations of motion, which for a simple atomic system may be written:
 
 For this purpose we need to be able to compute the forces ![equation](https://latex.codecogs.com/png.latex?%5Clarge%20%5Cvec%7Bf%7D_i) for each particle of the system, which is derived by the negative gradient of a potential field  ![equation](https://latex.codecogs.com/png.latex?%5Clarge%20%5Cmathcal%7BU%7D%28%5Cvec%7Bx%7D_1%2C%5Cldots%2C%5Cvec%7Bx%7D_N%29).
 
-In general, this kind of problems are computationally very expensive for a large number of particles, as the naive algorithm would require the computation of ![equation](https://latex.codecogs.com/png.latex?N%28N-1%29/2) interactions.
+In general, this kind of problems are computationally very expensive for a large number of particles, as the naive algorithm would require the computation of ![equation](https://latex.codecogs.com/png.latex?N%28N-1%29/2) interactions, where ![equation](https://latex.codecogs.com/png.latex?N) is the number of particles in the system.
 
 Note that the asymptotic complexity of such a problem is quadratic in the number of particles ![equation](https://latex.codecogs.com/png.latex?N).
 
@@ -37,7 +37,11 @@ Here a small animation, which shows the difference between the naive algorithm a
   <img src="https://github.com/thfabian/molec/blob/master/doc/video/cell-gif.gif" width="350"/>
 </p>
 
-[![Molec in action](http://img.youtube.com/vi/RcpJUXjaxks/hqdefault.jpg)](https://www.youtube.com/watch?v=RcpJUXjaxks)
+### Molec in action
+A **very** small demo of one simulation performed with *molec*. In the video  only ![equation](https://latex.codecogs.com/png.latex?7%5E3%20%3D%20343) particles are shown, note that with *molec* it is possible to compute the interaction for thousands of particles.
+<p align="center">
+    [![Molec in action](http://img.youtube.com/vi/RcpJUXjaxks/hqdefault.jpg)](https://www.youtube.com/watch?v=RcpJUXjaxks)
+</p>
 
 ## Running the code
 A configuration file can be passed to the executable in order to set some default simulation parameters. The configuration file has to have the following structure:
