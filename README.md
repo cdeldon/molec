@@ -40,8 +40,10 @@ Here a small animation, which shows the difference between the naive algorithm a
 ### Molec in action
 A **very** small demo of one simulation performed with *molec*. In the video  only ![equation](https://latex.codecogs.com/png.latex?7%5E3%20%3D%20343) particles are shown, note that with *molec* it is possible to compute the interaction for thousands of particles.
 
+<p align="center">
 <a href="https://www.youtube.com/watch?v=RcpJUXjaxks" target="_blank"><img src="http://img.youtube.com/vi/RcpJUXjaxks/hqdefault.jpg" 
-alt="Molec in action" width="240" height="180" border="10" /></a>
+alt="Molec in action" width="400" height="320" border="10" /></a>
+</p>
 
 ## Running the code
 A configuration file can be passed to the executable in order to set some default simulation parameters. The configuration file has to have the following structure:
