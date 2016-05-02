@@ -21,7 +21,7 @@ void molec_periodic_refrence(float* x, const int N, const float L)
 {
     for(int i = 0; i < N; ++i)
     {
-        x[i] = fmod(x[i], L);
+        x[i] = fmod(x[i] + 1e-7, L);
         if(x[i] < 0)
             x[i] += L;
     }
