@@ -13,10 +13,10 @@
  *  See LICENSE.txt for details.
  */
 
+#include <math.h>
 #include <molec/InitialCondition.h>
 #include <molec/Parameter.h>
 #include <stdlib.h>
-#include <math.h>
 
 void molec_set_initial_condition(molec_Simulation_SOA_t* sim)
 {
@@ -27,25 +27,27 @@ void molec_set_initial_condition(molec_Simulation_SOA_t* sim)
     const float scaling = molec_parameter->scaling;
 
     // Set initial positions (regular grid + random offset)
-    const int num_atom_along_axis = (int) ceil(pow(N, 1.0 / 3.0));
-    const float spread_x = L_x / num_atom_along_axis;
-    const float spread_y = L_y / num_atom_along_axis;
-    const float spread_z = L_z / num_atom_along_axis;
+    float fraction = (L_x * L_x) / (L_y * L_z);
+
+    const int num_atom_along_axis_x = (int) ceil(pow(fraction * N, 1./3));
+    const int num_atom_along_axis_y = (int) ceil(num_atom_along_axis_x * L_y / L_x);
+    const int num_atom_along_axis_z = (int) ceil(num_atom_along_axis_x * L_z / L_x);
+
+    const float spread_x = L_x / num_atom_along_axis_x;
+    const float spread_y = L_y / num_atom_along_axis_y;
+    const float spread_z = L_z / num_atom_along_axis_z;
     const float dx = scaling * spread_x / 2.0;
     const float dy = scaling * spread_y / 2.0;
     const float dz = scaling * spread_z / 2.0;
 
     int atom_idx = 0;
-    for(int iz = 0; iz < num_atom_along_axis; ++iz)
-        for(int iy = 0; iy < num_atom_along_axis; ++iy)
-            for(int ix = 0; ix < num_atom_along_axis && atom_idx < N; ++ix, ++atom_idx)
+    for(int iz = 0; iz < num_atom_along_axis_z; ++iz)
+        for(int iy = 0; iy < num_atom_along_axis_y; ++iy)
+            for(int ix = 0; ix < num_atom_along_axis_x && atom_idx < N; ++ix, ++atom_idx)
             {
-                sim->x[atom_idx] = (0.5 + ix) * spread_x
-                                          + dx * (2 * (float) rand() / RAND_MAX - 1);
-                sim->y[atom_idx] = (0.5 + iy) * spread_y
-                                          + dy * (2 * (float) rand() / RAND_MAX - 1);
-                sim->z[atom_idx] = (0.5 + iz) * spread_z
-                                          + dz * (2 * (float) rand() / RAND_MAX - 1);
+                sim->x[atom_idx] = (0.5 + ix) * spread_x + dx * (2 * (float) rand() / RAND_MAX - 1);
+                sim->y[atom_idx] = (0.5 + iy) * spread_y + dy * (2 * (float) rand() / RAND_MAX - 1);
+                sim->z[atom_idx] = (0.5 + iz) * spread_z + dz * (2 * (float) rand() / RAND_MAX - 1);
             }
 
     // Set initial velocities
@@ -56,4 +58,3 @@ void molec_set_initial_condition(molec_Simulation_SOA_t* sim)
     for(int i = 0; i < N; ++i)
         sim->f_x[i] = sim->f_y[i] = sim->f_z[i] = 0.0;
 }
-
