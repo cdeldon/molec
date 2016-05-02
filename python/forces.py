@@ -32,8 +32,8 @@ def main():
 
     rho = 1.25
     rc  = 2.5
-    
-    flops =  N * rc**3 * rho * 367
+
+    flops =  N * rc**3 * rho * (18 * np.pi + 283.5)
 
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1);
