@@ -91,6 +91,8 @@ void molec_cell_init()
         }
     }
 
+    qsort(cellSize, 3, sizeof(int), parameter_cell_compare);
+
     molec_parameter->cellList.N_x = cellSize[0];
     molec_parameter->cellList.N_y = cellSize[1];
     molec_parameter->cellList.N_z = cellSize[2];
