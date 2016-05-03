@@ -53,8 +53,6 @@ void molec_run_periodic_test()
     molec_Simulation_SOA_t* sim = molec_setup_simulation_SOA();
 
     const float L_x = molec_parameter->L_x;
-    const float L_y = molec_parameter->L_y;
-    const float L_z = molec_parameter->L_z;
 
     const int N = molec_parameter->N;
 
