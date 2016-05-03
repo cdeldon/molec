@@ -27,6 +27,17 @@ void molec_periodic_refrence(float* x, const int N, const float L)
     }
 }
 
+void molec_periodic_close(float* x, const int N, const float L)
+{
+    for (int i = 0; i < N; ++i)
+    {
+        if (x[i] < 0)
+            x[i] += L;
+        else if (x[i] > L)
+            x[i] -= L;
+    }
+}
+
 /** Assume that under a not too large timestep,
  * particles can only lie in [-L, 2L]
  */

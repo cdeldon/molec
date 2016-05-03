@@ -32,6 +32,7 @@ typedef void (*molec_periodic)(float*, const int, const float);
  * @param L     Size of bounding box in the corresponding dimension
  */
 void molec_periodic_refrence(float* x, const int N, const float L);
+void molec_periodic_close(float* x, const int N, const float L);
 void molec_periodic_close4(float* x, const int N, const float L);
 
 #endif
