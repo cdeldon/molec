@@ -18,6 +18,7 @@ from pymolec import *
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os.path
 
 # seaborn formatting
 sns.set_context("notebook", font_scale=1.1)
@@ -27,6 +28,8 @@ deep = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD"]
 
 def main():
 
+    
+    
     forces = ['cell_ref'];
     
     N = np.array([5000, 10000, 15000, 20000, 25000, 30000]).astype(np.int32)
@@ -34,21 +37,26 @@ def main():
 
     rc  = 2.5
     
-    performances = np.zeros((len(rhos), len(N)))
+    if os.path.isfile("performances-grid-forces-density.npy"):
+        performances = np.load("performances-grid-forces-density.npy")
+    else:
+        
+        performances = np.zeros((len(rhos), len(N)))
 
 
-    for force in forces:
-        for rho_idx, rho in enumerate(rhos):
-            flops =  N * rc**3 * rho * (18 * np.pi + 283.5)
-            
-            p = pymolec(N=N, rho=rho, force=force, steps=20)
-            times = p.run()
+        for force in forces:
+            for rho_idx, rho in enumerate(rhos):
+                flops =  N * rc**3 * rho * (18 * np.pi + 283.5)
+                
+                p = pymolec(N=N, rho=rho, force=force, steps=20)
+                times = p.run()
 
-            perf = flops / times[0,:]
-            performances[len(rhos)-1-rho_idx, :] = perf
+                perf = flops / times[0,:]
+                performances[len(rhos)-1-rho_idx, :] = perf
+        
+        
+        np.save("performances-grid-forces-density", performances)
     
-    
-    np.save("performances-grid-forces-density", performances)
     
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1);
@@ -58,7 +66,7 @@ def main():
     
     ax = sns.heatmap(performances, linewidths=.5,
                       yticklabels=rhos[::-1], xticklabels=N,
-                      vmax=2., vmin=0., cmap=cmap)
+                      vmax=1.4, vmin=0.8, cmap=cmap)
     
 
     rho_labels_short = ['%.2f' % a for a in rhos]
