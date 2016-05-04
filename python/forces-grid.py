@@ -32,8 +32,9 @@ def main():
     
     forces = ['cell_ref'];
     
-    N = np.array([5000, 10000, 15000, 20000, 25000, 30000]).astype(np.int32)
-    rhos = np.linspace(0.5, 5, 10)
+    N     = np.array([10000, 20000, 50000, 100000, 200000, 500000, 1000000]).astype(np.int32)
+    steps = np.array([  100,    50,    30,     20,     15,     10,      10])
+    rhos  = np.linspace(0.5, 5, 10)
 
     rc  = 2.5
     
@@ -48,7 +49,7 @@ def main():
             for rho_idx, rho in enumerate(rhos):
                 flops =  N * rc**3 * rho * (18 * np.pi + 283.5)
                 
-                p = pymolec(N=N, rho=rho, force=force, steps=20)
+                p = pymolec(N=N, rho=rho, force=force, steps=steps)
                 times = p.run()
 
                 perf = flops / times[0,:]
@@ -66,7 +67,7 @@ def main():
     
     ax = sns.heatmap(performances, linewidths=.5,
                       yticklabels=rhos[::-1], xticklabels=N,
-                      vmax=1.4, vmin=0.8, cmap=cmap)
+                      vmax=2, vmin=0, cmap=cmap)
     
 
     rho_labels_short = ['%.2f' % a for a in rhos]
