@@ -39,11 +39,11 @@ extern molec_Loader_t* molec_loader;
  * If a valid external file is passed as argument to the executable, the program
  * will run the simulation using the parameters specified in that file
  *
- * @param argc      Number of arguments given to the executable
- * @param argv      Array of char* containing the passed arguments
- * @param verbose   Print parsed parameters
+ * @param filename  Path to configuration parameter
+ * @param N         Desired number of particles
+ * @param rho       Desired particle density
  */
-void molec_load_parameters(const char* filename, int verbose, int N);
+void molec_load_parameters(const char* filename, int verbose, int N, float rho);
 
 #endif
 

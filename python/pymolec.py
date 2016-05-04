@@ -18,10 +18,11 @@ import time, sys, os, subprocess
 
 class pymolec:
 
-    def __init__(self, N=np.array([1000]), steps=100, force="cell_ref", integrator="lf",
-                 periodic="ref"):
+    def __init__(self, N=np.array([1000]), rho=1.25, steps=100,
+                 force="cell_ref", integrator="lf", periodic="ref"):
 
         self.N = N
+        self.rho = rho
         self.steps = steps
 
         self.force = force
@@ -45,12 +46,13 @@ class pymolec:
         times = np.zeros((4, len(self.N)))
 
         print ("Running molec: %s" % path)
-        print ("force = {0}, integrator = {1}, periodic = {2}".format(self.force, self.integrator,
-                                                                      self.periodic))
+        print ("rho = {0}, force = {1}, integrator = {2}, periodic = {3}".format(
+            self.rho, self.force, self.integrator, self.periodic))
 
         for i in range(len(self.N)):
             cmd = [path]
             cmd += ["--N=" + str(self.N[i])]
+            cmd += ["--rho=" + str(self.rho)]
             cmd += ["--step=" + str(self.steps)]
             cmd += ["--force=" + self.force]
             cmd += ["--integrator=" + self.integrator]

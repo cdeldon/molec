@@ -28,22 +28,26 @@ deep = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD"]
 def main():
 
     forces = ['knuth', 'cell_ref']#, 'cell_v1']
+    
+    forces = ['cell_ref'];
+    
     N = np.array([1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000])
+    rhos = np.linspace(1,10, 10)
 
-    rho = 1.25
     rc  = 2.5
-
-    flops =  N * rc**3 * rho * (18 * np.pi + 283.5)
 
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1);
 
     for force in forces:
-        p = pymolec(N=N, force=force)
-        times = p.run()
+        for rho in rhos:
+            flops =  N * rc**3 * rho * (18 * np.pi + 283.5)
+            
+            p = pymolec(N=N, rho=rho, force=force, steps=100)
+            times = p.run()
 
-        perf = flops / times[0,:]
-        ax.plot(N, perf, 'o-')
+            perf = flops / times[0,:]
+            ax.plot(N, perf, 'o-')
 
 
     ax.set_xlim([np.min(N)-100, np.max(N)+100])
@@ -55,7 +59,8 @@ def main():
                   horizontalalignment = 'left')
     ax.yaxis.set_label_coords(-0.055, 1.05)
 
-    plt.legend(forces)
+    legend =  ["%.2f" % rho for rho in rhos]
+    plt.legend(legend)
 
     filename = 'forces.pdf'
     print("saving '%s'" % filename )
