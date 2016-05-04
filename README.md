@@ -48,12 +48,8 @@ alt="Molec in action" width="400" height="320" border="10" /></a>
 ## Running the code
 A configuration file can be passed to the executable in order to set some default simulation parameters. The configuration file has to have the following structure:
 ```{sh}
-# Number of particles
-N = 10000
 # time step
 dt = 0.005
-# particle density (particles per unit volume)
-rho = 1.2
 # mass of each particle
 mass = 1
 # cutoff radius
