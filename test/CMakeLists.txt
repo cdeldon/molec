@@ -31,9 +31,9 @@ add_executable(molecTest ${UNITTEST_SOURCE} ${UNITTEST_HEADER} ${MOLEC_HEADERS})
 target_link_libraries(molecTest molecCore)
 
 # Link against math library (-lm)
-if(NOT(${CMAKE_C_COMPILER_ID} STREQUAL "MSVC"))
+if(NOT("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC"))
     target_link_libraries(molecTest m)
-endif(NOT(${CMAKE_C_COMPILER_ID} STREQUAL "MSVC"))
+endif(NOT("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC"))
 
 # Add CTest
 if(WIN32)

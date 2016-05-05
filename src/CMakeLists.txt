@@ -34,6 +34,6 @@ add_executable(molec main.c)
 target_link_libraries(molec molecCore argtable2)
 
 # Link against math library (-lm)
-if(NOT(${CMAKE_C_COMPILER_ID} STREQUAL "MSVC"))
+if(NOT("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC"))
     target_link_libraries(molec m)
-endif(NOT(${CMAKE_C_COMPILER_ID} STREQUAL "MSVC"))
+endif(NOT("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC"))
