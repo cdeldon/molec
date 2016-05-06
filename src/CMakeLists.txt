@@ -16,6 +16,7 @@ set(MOLEC_CORE_SOURCE
     ForceN2Refrence.c
     ForceCellList.c
     ForceCellListKnuth.c
+    ForceQuadrant.c
     Integrator.c
     InitialCondition.c
     LoadConfig.c

@@ -61,6 +61,7 @@ void molec_force_cellList_knuth(molec_Simulation_SOA_t* sim, float* Epot, const 
  */
 void molec_force_cellList_reference(molec_Simulation_SOA_t *sim, float *Epot, const int N);
 void molec_force_cellList_v1(molec_Simulation_SOA_t *sim, float *Epot, const int N);
+void molec_force_quadrant(molec_Simulation_SOA_t *sim, float *Epot, const int N);
 
 #if 0
 /**
