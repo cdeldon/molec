@@ -27,8 +27,9 @@ deep = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD"]
 
 def main():
 
-    forces = ['knuth', 'cell_ref']#, 'cell_v1']
+    forces = ['knuth', 'cell_ref', 'cell_v1', 'cell_v2']
     N = np.array([1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000])
+    steps = np.array([100, 100, 100, 60,    60,   40,   40,   30,   20,    15])
 
     rho = 1.25
     rc  = 2.5
@@ -39,7 +40,7 @@ def main():
     ax = fig.add_subplot(1,1,1);
 
     for force in forces:
-        p = pymolec(N=N, force=force)
+        p = pymolec(N=N, force=force, steps=steps, rho=rho)
         times = p.run()
 
         perf = flops / times[0,:]
