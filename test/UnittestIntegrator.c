@@ -88,11 +88,8 @@ void molec_run_integrator_test()
         ALLCLOSE_FLOAT_MSG(x, x_ref, N, MOLEC_ATOL, MOLEC_RTOL, integrator_name[i]);
         ALLCLOSE_FLOAT_MSG(v, v_ref, N, MOLEC_ATOL, MOLEC_RTOL, integrator_name[i]);
 
-#ifdef MOLEC_PLATFORM_APPLE
-        CLOSE_FLOAT_MSG(Ekin, Ekin_ref, 1e-02f, integrator_name[i]);
-#else // MAC seems to be very strict about FP arithmetic
-        CLOSE_FLOAT_MSG(Ekin, Ekin_ref, MOLEC_ATOL, integrator_name[i]);
-#endif
+        CLOSE_FLOAT_MSG(Ekin, Ekin_ref, 1e-2f, integrator_name[i]);
+
         molec_free_vector(x);
         molec_free_vector(v);
     }
