@@ -18,6 +18,7 @@ Base implementation of celllist algorithm.
     * only if *i*<*j* compute the following
         * compute distances and forces
         * update force for particle *i* and *j*
+
 ### Optimizations
 No explicit optimizations
 
