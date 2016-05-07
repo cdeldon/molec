@@ -73,11 +73,11 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 option(MOLEC_UNITTEST "Build the UnitTests" ON)
 
-option(MOLEC_TIMER_ENABLE "Enable timing framework" OFF)
-option(MOLEC_TIMER_FORCE "Enable force timer" ${MOLEC_TIMER})
-option(MOLEC_TIMER_INTEGRATOR "Enable integrator timer" ${MOLEC_TIMER})
-option(MOLEC_TIMER_PERIODIC "Enable periodic timer" ${MOLEC_TIMER})
-option(MOLEC_TIMER_SIMULATION "Enable simulation timer" ${MOLEC_TIMER})
+option(MOLEC_TIMER_ENABLE "Enable timing framework" ON)
+option(MOLEC_TIMER_FORCE "Enable force timer" ${MOLEC_TIMER_ENABLE})
+option(MOLEC_TIMER_INTEGRATOR "Enable integrator timer" ${MOLEC_TIMER_ENABLE})
+option(MOLEC_TIMER_PERIODIC "Enable periodic timer" ${MOLEC_TIMER_ENABLE})
+option(MOLEC_TIMER_SIMULATION "Enable simulation timer" ${MOLEC_TIMER_ENABLE})
 
 if(MOLEC_TIMER_ENABLE)
     if(MOLEC_TIMER_FORCE)
