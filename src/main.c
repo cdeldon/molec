@@ -30,6 +30,8 @@ molec_force_calculation arg_get_force_routine(const char* key)
         return &molec_force_cellList_reference;
     else if(strcmp(key, "cell_v1") == 0)
         return &molec_force_cellList_v1;
+    else if(strcmp(key, "cell_v2") == 0)
+        return &molec_force_cellList_v2;
     else if(strcmp(key, "knuth") == 0)
         return &molec_force_cellList_knuth;
     else if(strcmp(key, "q") == 0)
@@ -81,6 +83,7 @@ int main(int argc, char** argv)
                    "                             - N2         N2 refrence\n"
                    "                             - cell_ref   Cell-list refrence\n"
                    "                             - cell_v1    Cell-list improvement 1\n"
+                   "                             - cell_v2    Cell-list improvement 2\n"
                    "                             - knuth      Cell-list (Knuth)\n"
                    "                             - q          Quadrant");
 
