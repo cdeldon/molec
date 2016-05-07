@@ -67,9 +67,10 @@ void molec_free_simulation_SOA(molec_Simulation_SOA_t* simulation)
     free(simulation);
 }
 
-void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, float*, int),
-                          void (*molec_force_integration)(float*, float*, const float*, float*, const int),
-                          void (*molec_periodic)(float*, const int, const float))
+void molec_run_simulation(
+    void (*molec_compute_force)(molec_Simulation_SOA_t*, float*, int),
+    void (*molec_force_integration)(float*, float*, const float*, float*, const int),
+    void (*molec_periodic)(float*, const int, const float))
 {
     if(MOLEC_DUMP_COORDINATES)
     {
@@ -86,7 +87,8 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
     const int N = molec_parameter->N;
     const int Nstep = molec_parameter->Nstep;
 
-    molec_Simulation_SOA_t* sim = molec_init_simulation_SOA();;
+    molec_Simulation_SOA_t* sim = molec_init_simulation_SOA();
+    ;
 
     // Set initial conditions
     molec_set_initial_condition(sim);
@@ -106,16 +108,17 @@ void molec_run_simulation(void (*molec_compute_force)( molec_Simulation_SOA_t*, 
         printf("\n      ================ MOLEC - Simulation steps ================\n\n");
         printf("%10s\t%15s\t%15s\t%15s\n", "Step", "Ekin", "Epot", "Etot");
     }
-    else if (molec_verbose == 1)
+    else if(molec_verbose == 1)
         printf("\n");
     for(int n = 1; n <= Nstep; ++n)
     {
         if(MOLEC_DUMP_COORDINATES)
             molec_dump_coordinates(sim, N);
-        
+
         if(molec_verbose == 1)
-            molec_progress_bar(n, Nstep, (100 < Nstep ? 100:Nstep), (50< Nstep*0.5 ? 50 : Nstep*0.5));
-        
+            molec_progress_bar(n, Nstep, (100 < Nstep ? 100 : Nstep),
+                               (50 < Nstep * 0.5 ? 50 : Nstep * 0.5));
+
         Ekin_x = Ekin_y = Ekin_z = 0.0;
         Epot = 0.0;
 
@@ -159,6 +162,6 @@ void molec_print_simulation_SOA(const molec_Simulation_SOA_t* sim)
 {
     const int N = molec_parameter->N;
     for(int i = 0; i < N; ++i)
-        printf(" (%f, %f, %f)\t(%f, %f, %f)\n", sim->x[i], sim->y[i],
-               sim->z[i], sim->v_x[i], sim->v_y[i], sim->v_z[i]);
+        printf(" (%f, %f, %f)\t(%f, %f, %f)\n", sim->x[i], sim->y[i], sim->z[i], sim->v_x[i],
+               sim->v_y[i], sim->v_z[i]);
 }
