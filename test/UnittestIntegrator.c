@@ -20,6 +20,7 @@
 
 /* Global variables to keep track of different integrators */
 molec_force_integration integrators[32];
+char* integrator_name[32];
 int num_integrators = 0;
 
 /**
@@ -27,7 +28,7 @@ int num_integrators = 0;
  *
  * @param integrator  pointer to an integrator
  */
-void molec_register_integrator(molec_force_integration integrator);
+void molec_register_integrator(molec_force_integration integrator, char * name);
 
 /**
  * Compare the outpout of the registered integrators with the output of the
@@ -37,12 +38,12 @@ void molec_run_integrator_test();
 
 TEST_CASE(molec_UnittestIntegrator)
 {
-    molec_register_integrator(&molec_integrator_leapfrog_unroll_2);
-    molec_register_integrator(&molec_integrator_leapfrog_unroll_4);
-    molec_register_integrator(&molec_integrator_leapfrog_unroll_8);
+    molec_register_integrator(&molec_integrator_leapfrog_unroll_2, "lf2");
+    molec_register_integrator(&molec_integrator_leapfrog_unroll_4, "lf4");
+    molec_register_integrator(&molec_integrator_leapfrog_unroll_8, "lf8");
 
 #ifdef __AVX__
-    molec_register_integrator(&molec_integrator_leapfrog_avx);
+    molec_register_integrator(&molec_integrator_leapfrog_avx, "lfAVX");
 #endif
 
     //  initialize simulation parameters and run test
@@ -52,9 +53,11 @@ TEST_CASE(molec_UnittestIntegrator)
     molec_run_integrator_test();
 }
 
-void molec_register_integrator(molec_force_integration integrator)
+void molec_register_integrator(molec_force_integration integrator, char* name)
 {
     integrators[num_integrators] = integrator;
+    integrator_name[num_integrators] = name;
+
     num_integrators++;
 }
 
@@ -82,13 +85,13 @@ void molec_run_integrator_test()
         float Ekin;
         integrators[i](x, v, f, &Ekin, N);
 
-        ALLCLOSE_FLOAT(x, x_ref, N, MOLEC_ATOL, MOLEC_RTOL);
-        ALLCLOSE_FLOAT(v, v_ref, N, MOLEC_ATOL, MOLEC_RTOL);
+        ALLCLOSE_FLOAT_MSG(x, x_ref, N, MOLEC_ATOL, MOLEC_RTOL, integrator_name[i]);
+        ALLCLOSE_FLOAT_MSG(v, v_ref, N, MOLEC_ATOL, MOLEC_RTOL, integrator_name[i]);
 
 #ifdef MOLEC_PLATFORM_APPLE
-        CLOSE_FLOAT(Ekin, Ekin_ref, 1e-02f);
+        CLOSE_FLOAT_MSG(Ekin, Ekin_ref, 1e-02f, integrator_name[i]);
 #else // MAC seems to be very strict about FP arithmetic
-        CLOSE_FLOAT(Ekin, Ekin_ref, MOLEC_ATOL);
+        CLOSE_FLOAT_MSG(Ekin, Ekin_ref, MOLEC_ATOL, integrator_name[i]);
 #endif
         molec_free_vector(x);
         molec_free_vector(v);
