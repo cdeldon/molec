@@ -26,12 +26,12 @@ endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 
-if(${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
+if("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC")
     message(STATUS "Using Visual C compiler")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
     add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
 
-elseif(${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
     message(STATUS "Using GNU C compiler")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall -march=native -fno-tree-vectorize")
 
@@ -39,7 +39,7 @@ elseif(${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-implicit-function-declaration")
     endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
-elseif(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
     message(STATUS "Using Clang C compiler")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall -march=native -fno-tree-vectorize")
 
@@ -47,11 +47,11 @@ elseif(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-implicit-function-declaration")
     endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
-elseif(${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
+elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "Intel")
     message(STATUS "Using Intel C compiler")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall -march=native -no-simd -no-vec -no-fma")
 
-elseif(${CMAKE_C_COMPILER_ID} STREQUAL "PGI")
+elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "PGI")
     message(STATUS "Using PGI C compiler")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -c99")
 
