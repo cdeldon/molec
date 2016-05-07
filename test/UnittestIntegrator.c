@@ -47,8 +47,8 @@ TEST_CASE(molec_UnittestIntegrator)
 #endif
 
     //  initialize simulation parameters and run test
-    molec_NAtoms = 1000;
-    molec_Rho = 1.25;
+    molec_NAtoms = 10000;
+    molec_Rho = 1.15;
     molec_parameter_init(molec_NAtoms, molec_Rho);
     molec_run_integrator_test();
 }
