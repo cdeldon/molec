@@ -20,9 +20,9 @@
 
 molec_Loader_t* molec_loader = NULL;
 
-void molec_load_parameters(const char* filename, int verbose, int N)
+void molec_load_parameters(const char* filename, int verbose, int N, float rho)
 {
-    molec_parameter_init(1000);
+    molec_parameter_init(N,rho);
 
     molec_loader = malloc(sizeof(molec_Loader_t));
 
@@ -30,8 +30,7 @@ void molec_load_parameters(const char* filename, int verbose, int N)
     // to the executable
     if(strcmp(filename, "") == 0)
     {
-        if(N != -1)
-            molec_parameter_init(N);
+        molec_parameter_init(N, rho);
         goto exit;
     }
 
@@ -55,21 +54,9 @@ void molec_load_parameters(const char* filename, int verbose, int N)
 
         if(tokens == 2 && tag[0] != '#')
         {
-            // Store value in 'value' char array into molec_parameter
-            if(tag[0] == 'N' && strlen(tag) == 1)
-            {
-                if(N == -1) // if N was not passed as argument, read from config file
-                    molec_parameter->N = atoi(value);
-                else
-                    molec_parameter->N = N;
-            }
-            else if(strcmp(tag, "dt") == 0)
+            if(strcmp(tag, "dt") == 0)
             {
                 molec_parameter->dt = atof(value);
-            }
-            else if(strcmp(tag, "rho") == 0)
-            {
-                molec_parameter->rho = atof(value);
             }
             else if(strcmp(tag, "mass") == 0)
             {

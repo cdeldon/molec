@@ -16,6 +16,7 @@
 #include "Unittest.h"
 
 int molec_NAtoms = 1000;
+float molec_Rho = 1.25;
 
  float* molec_init_vector(const int N)
  {
@@ -48,9 +49,10 @@ void molec_free_vector(float* vec)
 molec_Simulation_SOA_t* molec_setup_simulation_SOA()
 {
     const int N = molec_NAtoms;
+    const float rho = molec_Rho;
 
     // Set parameters
-    molec_parameter_init(N);
+    molec_parameter_init(N, rho);
 
     // Allocate simulation struct and arrays
     molec_Simulation_SOA_t* sim = molec_init_simulation_SOA();

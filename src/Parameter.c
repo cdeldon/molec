@@ -19,7 +19,7 @@
 
 molec_Parameter_t* molec_parameter = NULL;
 
-void molec_parameter_init(int N)
+void molec_parameter_init(int N, float rho)
 {
     if(molec_parameter)
     {
@@ -36,12 +36,12 @@ void molec_parameter_init(int N)
     // Set some default parameters
     molec_parameter->N = N;
     molec_parameter->Nstep = 100;
-    molec_parameter->dt = 0.005;
+    molec_parameter->dt = 1e-8f;
     molec_parameter->mass = 1.0;
     molec_parameter->Rcut = 2.5;
     molec_parameter->Rcut2 = 2.5 * 2.5;
     molec_parameter->scaling = 0.05;
-    molec_parameter->rho = 1.25;
+    molec_parameter->rho = rho;
     molec_parameter->epsLJ = 1.0;
     molec_parameter->sigLJ = 1.0;
 
@@ -131,8 +131,8 @@ void molec_print_parameters()
         printf("\t\tNTotal number of cells:\t%d\n", molec_parameter->cellList.N);
         printf("\t\tCell lenght:\t\t%2.1f x %2.1f x %2.1f\n", molec_parameter->cellList.c_x,
                molec_parameter->cellList.c_y, molec_parameter->cellList.c_z);
-        printf("\t\t<#particles> per cell:\t%d",
-               ((int) molec_parameter->N / molec_parameter->cellList.N));
+        printf("\t\t<#particles> per cell:\t%2.2f",
+               ((float) molec_parameter->N) / molec_parameter->cellList.N);
     }
     printf("\n\n");
 }

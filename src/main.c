@@ -69,6 +69,8 @@ molec_periodic arg_get_periodic_routine(const char* key)
         return &molec_periodic_refrence;
     else if(strcmp(key, "c4") == 0)
         return &molec_periodic_close4;
+    else if (strcmp(key, "c") == 0)
+        return &molec_periodic_close;
     else
         molec_error("invalid parameter '%s' for option \"--periodic\"\n", key);
     return NULL;
@@ -100,6 +102,7 @@ int main(int argc, char** argv)
         = arg_str0("p", "periodic", "<string>",
                    "Specify the periodic subroutine.\n"
                    "                             - ref        Refrence implementation\n"
+                   "                             - c          With assumption\n"
                    "                             - c4         With assumption (unroll x4)");
     // parameter can appear at most once --> arg_file0
     struct arg_file* arg_parameters
@@ -112,6 +115,10 @@ int main(int argc, char** argv)
     // contains the number of desired timesteps
     struct arg_int* arg_desired_steps
         = arg_int0("s", "step", "<int>", "Set the number of timesteps.");
+
+    // contains the number of desired timesteps
+    struct arg_dbl* arg_desired_density
+        = arg_dbl0("r", "rho", "<flaot>", "Set the particle density.");
 
     // help
     struct arg_lit* arg_help = arg_lit0("h", "help", "Print this help statement and exit.");
@@ -132,6 +139,7 @@ int main(int argc, char** argv)
                         arg_parameters,
                         arg_desired_particles,
                         arg_desired_steps,
+                        arg_desired_density,
                         arg_help,
                         arg_verb,
                         end_struct};
@@ -150,8 +158,9 @@ int main(int argc, char** argv)
     arg_integrator_routine->sval[0] = "lf";
     arg_periodic_routine->sval[0] = "ref";
     arg_parameters->filename[0] = "";
-    arg_desired_particles->ival[0] = -1;
+    arg_desired_particles->ival[0] = 1000;
     arg_desired_steps->ival[0] = 100;
+    arg_desired_density->dval[0] = 1.25f;
     arg_verb->ival[0] = 1;
 
     // parse argtable
@@ -179,10 +188,11 @@ int main(int argc, char** argv)
     molec_periodic periodic = arg_get_periodic_routine(arg_periodic_routine->sval[0]);
     const char* config_file_name = arg_parameters->filename[0];
     const int desired_N = arg_desired_particles->ival[0];
+    const float desired_rho = arg_desired_density->dval[0];
     molec_verbose = arg_verb->ival[0];
 
     srand(42);
-    molec_load_parameters(config_file_name, 1, desired_N);
+    molec_load_parameters(config_file_name, 1, desired_N, desired_rho);
 
     // set the number of steps
     molec_parameter->Nstep = arg_desired_steps->ival[0];

@@ -29,8 +29,10 @@
 
 /**
  * Number of atoms used during unittesting (defined in Unittest.c)
+ * and derider particle density
  */
 extern int molec_NAtoms;
+extern float molec_Rho;
 
 /* Macro for generating random numbers */
 #define MOLEC_RANDOM (((float)rand()) / RAND_MAX)
