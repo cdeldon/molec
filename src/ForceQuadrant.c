@@ -16,7 +16,7 @@
 #include <molec/Force.h>
 #include <molec/Quadrant.h>
 #include <molec/Timer.h>
-
+#include <immintrin.h>
 
 /**
  * @brief neighbor_cells[i] constains the 27 indices of its neighbor cells
