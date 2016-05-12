@@ -307,7 +307,7 @@ void molec_force_quadrant(molec_Simulation_SOA_t* sim, float* Epot, const int N)
         molec_Quadrant_t q_idx = quadrants[idx];
         int N_idx = q_idx.N;
 
-        for(int i = 0; i < N_idx; ++i)
+        for(int i = 0; i < N_idx; ++i, ++n_1D)
         {
             x[n_1D] = q_idx.x[i];
             y[n_1D] = q_idx.y[i];
@@ -318,11 +318,8 @@ void molec_force_quadrant(molec_Simulation_SOA_t* sim, float* Epot, const int N)
             f_x[n_1D] = q_idx.f_x[i];
             f_y[n_1D] = q_idx.f_y[i];
             f_z[n_1D] = q_idx.f_z[i];
-
-            ++n_1D;
         }
     }
-
 
 
     // free memory
@@ -342,4 +339,6 @@ void molec_force_quadrant(molec_Simulation_SOA_t* sim, float* Epot, const int N)
     }
 
     free(quadrants);
+
+    *Epot = Epot_;
 }
