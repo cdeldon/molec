@@ -192,7 +192,7 @@ void molec_measurement_finish();
  *   = modify the CMakeLists file according to the other examples
  */
 
-#define MOLEC_MAX_NUM_TIMERS 5
+#define MOLEC_MAX_NUM_TIMERS 10
 
 #ifdef MOLEC_TIME
 #define MOLEC_MEASUREMENT_INIT molec_measurement_init(MOLEC_MAX_NUM_TIMERS)
@@ -252,6 +252,7 @@ MOLEC_INTERNAL_MAKE_TIMER(SIMULATION, 3)
 #endif
 
 MOLEC_INTERNAL_IGNORE_TIMER(CELL_CONSTRUCTION, 4)
+
 
 MOLEC_INLINE char* MOLEC_MEASUREMENT_GET_TIMER(int id)
 {
