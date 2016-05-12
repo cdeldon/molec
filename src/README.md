@@ -8,9 +8,11 @@ Base implementation, computational complexity of ![equation](https://latex.codec
 
 ## CellList reference - *cell_ref*
 Base implementation of celllist algorithm.
+
 ### Memory
 * No aligned allocation
 * No reuse of datastructure
+
 ### Algorithm
 * iterate over each cell, compute cell neighbors
 * for each particle *i* in cell, perform the following
@@ -18,6 +20,7 @@ Base implementation of celllist algorithm.
     * only if *i*<*j* compute the following
         * compute distances and forces
         * update force for particle *i* and *j*
+
 ### Optimizations
 No explicit optimizations
 
@@ -26,6 +29,7 @@ Celllist algorithm with scalar replacement, arrays are memory aligned, discrimin
 ### Memory
 * aligned allocation
 * No reuse of datastructure
+
 ### Algorithm
 * iterate over each cell *idx*, compute cell neighbors
 * iterate over neighbor cell *n_idx* only if *idx* > *n_idx*
@@ -41,6 +45,7 @@ Celllist algorithm with scalar replacement, arrays are memory aligned, discrimin
 ### Memory
 * aligned allocation
 * Some reuse of datastructure
+
 ### Algorithm
 * iterate over each cell *idx*, compute cell neighbors
 * iterate over neighbor cell *n_idx* only if *idx* > *n_idx*
