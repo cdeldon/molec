@@ -19,20 +19,22 @@
 
 int molec_compare(const void* pair1, const void* pair2)
 {
-    float pair1_key = (float) ((molec_Sort_Pair_t*) pair1)->key;
-    float pair2_key = (float) ((molec_Sort_Pair_t*) pair2)->key;
+    float pair1_key1 = (float) ((molec_Sort_Pair_t*) pair1)->key1;
+    float pair2_key1 = (float) ((molec_Sort_Pair_t*) pair2)->key1;
+
+    float pair1_key2 = (float) ((molec_Sort_Pair_t*) pair1)->key2;
+    float pair2_key2 = (float) ((molec_Sort_Pair_t*) pair2)->key2;
 
     int pair1_value = (int)((molec_Sort_Pair_t*) pair1)->value;
     int pair2_value = (int)((molec_Sort_Pair_t*) pair2)->value;
-    
-    // Equalilty will never happen
-    if(pair1_key < pair2_key)
+
+    if(pair1_key1 < pair2_key1)
         return -1;
-    else if(pair1_key > pair2_key)
+    else if(pair1_key1 > pair2_key1)
         return 1;
-    else // pair1_key == pair2_key
+    else // pair1_key1 == pair2_key1
     {
-        if(pair1_value < pair2_value)
+        if(pair1_key2 < pair2_key2)
             return -1;
         else
             return 1;
@@ -58,7 +60,8 @@ void molec_sort_qsort(molec_Simulation_SOA_t* sim)
 
     for(int i = 0; i < N; ++i)
     {
-        key[i].key  = x[i];
+        key[i].key1  = x[i];
+        key[i].key2  = y[i];
         key[i].value = i;
     }
     
@@ -128,7 +131,8 @@ void molec_sort_qsort_forces(molec_Simulation_SOA_t* sim)
 
     for(int i = 0; i < N; ++i)
     {
-        key[i].key  = x[i];
+        key[i].key1  = x[i];
+        key[i].key2  = y[i];
         key[i].value = i;
     }
 
