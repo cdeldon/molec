@@ -13,10 +13,9 @@
  *  See LICENSE.txt for details.
  */
 
-#include "immintrin.h"
-
 #include <molec/Parameter.h>
 #include <molec/Integrator.h>
+#include <immintrin.h>
 
 void molec_integrator_leapfrog_refrence(
     float* x, float* v, const float* f, float* Ekin, const int N)
@@ -378,8 +377,6 @@ void molec_integrator_leapfrog_unroll_8(
         x[i] = x[i] + dt * v[i];
 }
 
-#ifdef __AVX__
-
 void molec_integrator_leapfrog_avx(
     float* x, float* v, const float* f, float* Ekin, const int N)
 {
@@ -461,6 +458,3 @@ void molec_integrator_leapfrog_avx(
     for(i = N8_upper; i < N; ++i)
         x[i] = x[i] + dt * v[i];
 }
-
-#endif
-
