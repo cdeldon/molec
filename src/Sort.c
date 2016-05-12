@@ -25,8 +25,6 @@ int molec_compare(const void* pair1, const void* pair2)
     float pair1_key2 = (float) ((molec_Sort_Pair_t*) pair1)->key2;
     float pair2_key2 = (float) ((molec_Sort_Pair_t*) pair2)->key2;
 
-    int pair1_value = (int)((molec_Sort_Pair_t*) pair1)->value;
-    int pair2_value = (int)((molec_Sort_Pair_t*) pair2)->value;
 
     if(pair1_key1 < pair2_key1)
         return -1;
