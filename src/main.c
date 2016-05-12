@@ -24,7 +24,7 @@
 
 molec_force_calculation arg_get_force_routine(const char* key)
 {
-    if(strcmp(key, "N2") == 0)
+    if (strcmp(key, "N2") == 0)
         return &molec_force_N2_refrence;
     else if(strcmp(key, "cell_ref") == 0)
         return &molec_force_cellList_reference;
@@ -36,7 +36,9 @@ molec_force_calculation arg_get_force_routine(const char* key)
         return &molec_force_cellList_knuth;
     else if(strcmp(key, "q") == 0)
         return &molec_force_quadrant;
-    else
+    else if (strcmp(key, "q_avx") == 0)
+        return &molec_force_quadrant_avx;
+    else        
         molec_error("invalid parameter '%s' for option \"--force\"\n", key);
     return NULL;
 }
@@ -51,12 +53,8 @@ molec_force_integration arg_get_integration_routine(const char* key)
         return &molec_integrator_leapfrog_unroll_4;
     else if(strcmp(key, "lf8") == 0)
         return &molec_integrator_leapfrog_unroll_8;
-
-#ifdef __AVX__
     else if(strcmp(key, "lf_avx") == 0)
         return &molec_integrator_leapfrog_avx;
-#endif
-
     else
         molec_error("invalid parameter '%s' for option \"--integrator\"\n", key);
     return NULL;
@@ -87,7 +85,8 @@ int main(int argc, char** argv)
                    "                             - cell_v1    Cell-list improvement 1\n"
                    "                             - cell_v2    Cell-list improvement 2\n"
                    "                             - knuth      Cell-list (Knuth)\n"
-                   "                             - q          Quadrant");
+                   "                             - q          Quadrant"
+                   "                             - q_avx      Quadrant (avx)");
 
     // integrator routine can appear at most once --> arg_str0
     struct arg_str* arg_integrator_routine
@@ -96,7 +95,8 @@ int main(int argc, char** argv)
                    "                             - lf         Leap-frog (refrence)\n"
                    "                             - lf2        Leap-frog (unroll x2)\n"
                    "                             - lf4        Leap-frog (unroll x4)\n"
-                   "                             - lf8        Leap-frog (unroll x8)");
+                   "                             - lf8        Leap-frog (unroll x8)"
+                   "                             - lf_avx     Leap-frog (avx)");
     // periodic routine
     struct arg_str* arg_periodic_routine
         = arg_str0("p", "periodic", "<string>",

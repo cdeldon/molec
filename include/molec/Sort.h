@@ -22,12 +22,14 @@
 /**
   * @brief Structure that helps in defining a custom sorting algorithm
   *
-  * @param key      contains the value of the particle to be compared with the other particles to 
+  * @param key1     contains the value of the particle to be compared with the other particles to
   *                 be sorted
+  * @param key2     contains the value of the particle to be compared with the other particles to
+  *                 be sorted if the comparison between key1 was an equality
   * @param value    integer index used to sort other arrays accordingly
   */
 typedef struct molec_Sort_Pair {
-    float key;
+    float key1, key2;
     int value;
 } molec_Sort_Pair_t;
 

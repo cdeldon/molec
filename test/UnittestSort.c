@@ -25,16 +25,18 @@ TEST_CASE(molec_UnittestCompare)
     molec_Sort_Pair_t pair1, pair2;
 
     // pair1 goes before pair2
-    pair1.key = 1.8;
+    pair1.key1 = 1.8;
+    pair1.key2 = 0.2;
     pair1.value = 0;
 
-    pair2.key = 1.9;
+    pair2.key1 = 1.9;
+    pair2.key2 = 2.3;
     pair2.value = 1;
 
     CHECK(molec_compare(&pair1, &pair2) == -1);
 
     // pair1 goes after pair2
-    pair1.key = 2.0;
+    pair1.key1 = 2.0;
     CHECK(molec_compare(&pair1, &pair2) == 1);
 }
 
