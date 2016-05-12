@@ -17,6 +17,8 @@
 #include <molec/Quadrant.h>
 #include <molec/Parameter.h>
 
+#include <string.h>
+
 /**
  * Calculate distance between x and y taking periodic boundaries into account
  *
@@ -307,18 +309,19 @@ void molec_force_quadrant(molec_Simulation_SOA_t* sim, float* Epot, const int N)
         molec_Quadrant_t q_idx = quadrants[idx];
         int N_idx = q_idx.N;
 
-        for(int i = 0; i < N_idx; ++i, ++n_1D)
-        {
-            x[n_1D] = q_idx.x[i];
-            y[n_1D] = q_idx.y[i];
-            z[n_1D] = q_idx.z[i];
-            v_x[n_1D] = q_idx.v_x[i];
-            v_y[n_1D] = q_idx.v_y[i];
-            v_z[n_1D] = q_idx.v_z[i];
-            f_x[n_1D] = q_idx.f_x[i];
-            f_y[n_1D] = q_idx.f_y[i];
-            f_z[n_1D] = q_idx.f_z[i];
-        }
+        memcpy(x + n_1D, q_idx.x, N_idx * sizeof(float));
+        memcpy(y + n_1D, q_idx.y, N_idx * sizeof(float));
+        memcpy(z + n_1D, q_idx.z, N_idx * sizeof(float));
+
+        memcpy(v_x + n_1D, q_idx.v_x, N_idx * sizeof(float));
+        memcpy(v_y + n_1D, q_idx.v_y, N_idx * sizeof(float));
+        memcpy(v_z + n_1D, q_idx.v_z, N_idx * sizeof(float));
+
+        memcpy(f_x + n_1D, q_idx.f_x, N_idx * sizeof(float));
+        memcpy(f_y + n_1D, q_idx.f_y, N_idx * sizeof(float));
+        memcpy(f_z + n_1D, q_idx.f_z, N_idx * sizeof(float));
+
+        n_1D += N_idx;
     }
 
 
