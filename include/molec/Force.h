@@ -65,44 +65,5 @@ void molec_force_cellList_v2(molec_Simulation_SOA_t *sim, float *Epot, const int
 void molec_force_quadrant(molec_Simulation_SOA_t *sim, float *Epot, const int N);
 void molec_force_quadrant_avx(molec_Simulation_SOA_t* sim, float* Epot, const int N);
 
-#if 0
-/**
- * @brief Calculation short-range interaction with double index arrays
- *
- * @param sim   Simulation holding the position, velocity and force arrays
- * @param Epot  Real scalar to store the potential energy
- * @param N     Size of arrays
- */
-void molec_force_cellList_double_pointer_v2(molec_Simulation_SOA_t* sim, float* Epot, const int N);
-
-/**
- * @brief Calculate short-range interaction force using cell-list approach [1]
- *
- * the internal while loop is replaced by a for loop
- *
- * @see [1] http://cacs.usc.edu/education/cs596/01-1LinkedListCell.pdf
- *
- * @param sim   Simulation holding the position, velocity and force arrays
- * @param Epot  Real scalar to store the potential energy
- * @param N     Size of arrays
- */
-void molec_force_cellList_for(molec_Simulation_SOA_t* sim, float* Epot, const int N);
-
-/**
- * @brief Calculate short-range interaction force using cell-list approach [1]
- *
- * From the implementation point of view, this function is different from
- * @c molec_force_cellList_for as the position and velocity arrays have a local swapping copy
- * that is used in the sorting of the particles
- *
- * @see [1] http://cacs.usc.edu/education/cs596/01-1LinkedListCell.pdf
- *
- * @param sim   Simulation holding the position, velocity and force arrays
- * @param Epot  Real scalar to store the potential energy
- * @param N     Size of arrays
- */
-void molec_force_cellList_for_swap(molec_Simulation_SOA_t* sim, float* Epot, const int N);
-#endif
-
 #endif
 
