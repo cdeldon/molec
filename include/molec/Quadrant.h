@@ -23,6 +23,10 @@ typedef struct molec_Quadrant
     float* y;
     float* z;
 
+    float* v_x;
+    float* v_y;
+    float* v_z;
+
     float* f_x;
     float* f_y;
     float* f_z;
