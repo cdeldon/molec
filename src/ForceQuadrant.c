@@ -330,10 +330,10 @@ void molec_force_quadrant_avx(molec_Simulation_SOA_t* sim, float* Epot, const in
             int n_idx = neighbor_cells[idx][neighbor_cell];
 
             if(idx > n_idx)
-                molec_quadrant_neighbor_interaction(quadrants[idx], quadrants[n_idx], &Epot_);
+                molec_quadrant_neighbor_interaction_avx(quadrants[idx], quadrants[n_idx], &Epot_);
 
             else if(idx == n_idx)
-                molec_quadrant_self_interaction(quadrants[idx], &Epot_);
+                molec_quadrant_self_interaction_avx(quadrants[idx], &Epot_);
         }
     }
 
