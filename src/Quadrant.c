@@ -62,23 +62,15 @@ molec_Quadrant_t* molec_quadrant_init(const int N,
     const float* v_y = sim->v_y;
     const float* v_z = sim->v_z;
 
-
     molec_Quadrant_t* quadrants = malloc(cellList_parameter.N * sizeof(molec_Quadrant_t));
 
     for(int i = 0; i < cellList_parameter.N; ++i)
         quadrants[i].N = 0;
 
+    // for each particle compute cell index and the size of each quadrant
 
-    // for each particle compute cell index and count number of particles inside each cell
-    int* c_idx = malloc(sizeof(int) * N);
+    int* cell_idx = malloc(sizeof(int) * N);
 
-    /* Note that the cell list will be traversed in the following form:
-     *    for(z=0;z<cellList_parameter.N_z;++z)
-     *      for(y=0;y<cellList_parameter.N_y;++y)
-     *          for(x=0;x<cellList_parameter.N_x;++x)
-     *
-     * the fastest running index is x, while the slowest is z
-     */
     for(int i = 0; i < N; ++i)
     {
         // linear one dimensional index of cell associated to i-th particle
@@ -88,9 +80,12 @@ molec_Quadrant_t* molec_quadrant_init(const int N,
 
         // linear index of cell
         int idx = idx_x + cellList_parameter.N_x * (idx_y + cellList_parameter.N_y * idx_z);
-        c_idx[i] = idx;
+
+        cell_idx[i] = idx;
         quadrants[idx].N += 1;
     }
+
+    // allocate memory knowing the size of each quadrant
 
     for(int i = 0; i < cellList_parameter.N; ++i)
     {
@@ -107,13 +102,14 @@ molec_Quadrant_t* molec_quadrant_init(const int N,
         MOLEC_MALLOC(quadrants[i].f_z, quadrants[i].N * sizeof(float));
     }
 
-    // array that counts in which position store the new particles (initialized to 0)
-    // and copy the particles into the quadrants
+    // for each particle copy position, velocity and force inside their corresponding quadrant
+
+    // array to keep track of the index inside each quadrant where to put particles in
     int* current_particle_number_of_quadrant = calloc(cellList_parameter.N, sizeof(int));
 
     for(int i = 0; i < N; ++i)
     {
-        int idx = c_idx[i];
+        int idx = cell_idx[i];
         int pos = current_particle_number_of_quadrant[idx];
 
         quadrants[idx].x[pos] = x[i];
@@ -131,7 +127,7 @@ molec_Quadrant_t* molec_quadrant_init(const int N,
         current_particle_number_of_quadrant[idx] += 1;
     }
 
-    free(c_idx);
+    free(cell_idx);
     free(current_particle_number_of_quadrant);
 
     return quadrants;
@@ -142,7 +138,7 @@ void molec_quadrants_finalize(molec_Quadrant_t* quadrants,
                          molec_CellList_Parameter_t cellList_parameter,
                          molec_Simulation_SOA_t* sim)
 {
-    // copy back data from quadrants to 1D arrays
+    // copy data from quadrants to 1D arrays
     int n_1D = 0;
     for(int idx = 0; idx < cellList_parameter.N; ++idx)
     {
@@ -166,15 +162,16 @@ void molec_quadrants_finalize(molec_Quadrant_t* quadrants,
 
 
     // free memory
-
     for(int i = 0; i < cellList_parameter.N; ++i)
     {
         MOLEC_FREE(quadrants[i].x);
         MOLEC_FREE(quadrants[i].y);
         MOLEC_FREE(quadrants[i].z);
+
         MOLEC_FREE(quadrants[i].v_x);
         MOLEC_FREE(quadrants[i].v_y);
         MOLEC_FREE(quadrants[i].v_z);
+
         MOLEC_FREE(quadrants[i].f_x);
         MOLEC_FREE(quadrants[i].f_y);
         MOLEC_FREE(quadrants[i].f_z);

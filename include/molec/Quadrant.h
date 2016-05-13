@@ -44,10 +44,10 @@ typedef struct molec_Quadrant
 /**
  * Calculate distance between x and y taking periodic boundaries into account
  *
- * @param      x  coordinate of first particle
- * @param      y  coordinate of second particle
- * @param      L  bounding box size
- * @param      L  bounding box size * 0.5
+ * @param      x   coordinate of first particle
+ * @param      y   coordinate of second particle
+ * @param      L   bounding box size
+ * @param      L2  bounding box size * 0.5
  *
  * @return     distance between two particles taking into
  *             account periodicity of bounding box
@@ -79,7 +79,7 @@ void molec_build_cell_neighbors(int** neighbor_cells,
 
 /**
   * Initializes the quadrant array by allocating memory and copying the data from the simulation
-  * SOA. Always uses in pair with @c molec_quadrants_finalize()
+  * SOA. Always use in pair with @c molec_quadrants_finalize()
   */
 molec_Quadrant_t* molec_quadrant_init(const int N,
                                       molec_CellList_Parameter_t cellList_parameter,
@@ -87,7 +87,7 @@ molec_Quadrant_t* molec_quadrant_init(const int N,
 
 /**
  * Writes back data from the quadrant data structure to the simulation SOA. Memory is freed by this
- * routine. Always to use in pair with @c molec_quadrant_init()
+ * routine. Always use in pair with @c molec_quadrant_init()
  */
 void molec_quadrants_finalize(molec_Quadrant_t* quadrants,
                               molec_CellList_Parameter_t cellList_parameter,
