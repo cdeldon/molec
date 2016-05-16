@@ -76,6 +76,8 @@ MOLEC_INLINE int mod(int b, int m)
  */
 void molec_build_cell_neighbors(int** neighbor_cells,
                                 molec_CellList_Parameter_t cellList_parameter);
+void molec_build_cell_neighbors_ghost(int** neighbor_cells,
+                                      molec_CellList_Parameter_t cellList_parameter);
 
 /**
   * Initializes the quadrant array by allocating memory and copying the data from the simulation
@@ -84,6 +86,10 @@ void molec_build_cell_neighbors(int** neighbor_cells,
 molec_Quadrant_t* molec_quadrant_init(const int N,
                                       molec_CellList_Parameter_t cellList_parameter,
                                       molec_Simulation_SOA_t* sim);
+molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
+                                            molec_CellList_Parameter_t cellList_parameter,
+                                            molec_Simulation_SOA_t* sim);
+
 
 /**
  * Writes back data from the quadrant data structure to the simulation SOA. Memory is freed by this
@@ -92,5 +98,8 @@ molec_Quadrant_t* molec_quadrant_init(const int N,
 void molec_quadrants_finalize(molec_Quadrant_t* quadrants,
                               molec_CellList_Parameter_t cellList_parameter,
                               molec_Simulation_SOA_t* sim);
+void molec_quadrants_finalize_ghost(molec_Quadrant_t* quadrants,
+                                    molec_CellList_Parameter_t cellList_parameter,
+                                    molec_Simulation_SOA_t* sim);
 
 #endif // MOLEC_QUADRANT_H
