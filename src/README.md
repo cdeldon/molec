@@ -56,3 +56,39 @@ Celllist algorithm with scalar replacement, arrays are memory aligned, discrimin
 ### Optimizations
 * Full scalar replacement
 * New *dist* function which does not need to compute *L/2*
+
+
+# Quadrants - *q*
+The datastructure over which the force calculation works is completely redesigned, in order to have contiguous memory access to particle *position*, *velocities* and *forces* inside each cell.
+
+### Memory
+The particles are stored *per-quadrant*, i.e. all particles lying inside the same cell are stored in the same quadrant struct. The computation of forces is performed between entire quadrants.
+
+### Algorithm
+* iterate over each cell *idx*
+* iterate over neighbor cell *n_idx* only if *idx* > *n_idx*
+* for each particle *i* in cell *idx* and particle *j* in cell *n_idx* perform force computation
+
+### Optimizations
+* Full scalar replacement
+* Aligned and contiguous memory access
+* Particles are likely to be in the correct order for next timestep as after force computation, particles are written back to *SOA* datastructure following the cell order
+
+# Quadrants Ghost - *q_g*
+One of the points wich had a big negative performance impact in the previous implementation is the branching inside the *dist* computation which needs to be performed in order to deal correctly with periodic boundary conditions.
+The *Quadrant Ghost* implementation trades memory for efficientcy by copying particle coordinates lying in boundary cells to *ghost* cells with shifted coordinates.
+Using this method allows to compute the distance between particles without branches.
+
+### Memory
+Using *Ghost Quadrants* has an impact in the memory used by the program, as some particle coordinates need to be copied multiple times. Memory aliasing is also introduced to allow superposition of force arrays between different (ghost and mirror) quadrants.
+
+### Algorithm
+* Generate data structure based on ghost quadrants (with internal cross references for coordinates that do not need to be shifted)
+* Loop over all internal cells *idx*
+* For each cell *idx* loop over negihbor cells *n_idx*
+* Compute interaction between two quadrants without needing to check boundary conditions
+
+### Optimizations
+* Full scalar replacement
+* Memory management allows saving branching
+
