@@ -26,24 +26,23 @@ sns.set_style("darkgrid")
 sns.set_palette('deep')
 deep = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD"]
 
-def main():
+def measure_performance():
 
-    
-    
     forces = ['cell_v2'];
     
-    N     = np.array([10000, 20000, 50000, 100000, 200000, 500000, 1000000]).astype(np.int32)
-    steps = np.array([  20,    20,    15,     10,     10,     6,      4])
-    rhos  = np.array([0.5, 1., 1.5, 2., 2.5, 3., 3.5, 4., 4.5, 5., 5.5, 6.])
+    N     = np.array([10000, 20000])#, 50000, 100000, 200000, 500000, 1000000]).astype(np.int32)
+    steps = np.array([  20,    20])#,    15,     10,     10,     6,      4])
+    rhos  = np.array([0.5, 1., 1.5])#, 2., 2.5, 3., 3.5, 4., 4.5, 5., 5.5, 6.])
 
     rc  = 2.5
     
     if os.path.isfile("performances-grid-forces-density.npy"):
+        print("Loading data from <performances-grid-forces-density.npy")
         performances = np.load("performances-grid-forces-density.npy")
+        return performances, N, rhos
     else:
         
         performances = np.zeros((len(rhos), len(N)))
-
 
         for force in forces:
             for rho_idx, rho in enumerate(rhos):
@@ -55,10 +54,12 @@ def main():
                 perf = flops / times[0,:]
                 performances[len(rhos)-1-rho_idx, :] = perf
         
-        
+        print("Saving performance data to <performances-grid-forces-density.npy>")
         np.save("performances-grid-forces-density", performances)
     
+    return performances, N, rhos
     
+def plot_performance(performances, N, rhos):
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1);
     
@@ -85,4 +86,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    perf, N, rhos = measure_performance()
+    plot_performance(perf, N, rhos)
+    
+    

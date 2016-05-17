@@ -18,6 +18,7 @@ from pymolec import *
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os.path
 
 # seaborn formatting
 sns.set_context("notebook", font_scale=1.1)
@@ -25,29 +26,46 @@ sns.set_style("darkgrid")
 sns.set_palette('deep')
 deep = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD"]
 
-def main():
+def measure_performance():
 
-    forces = ['knuth', 'cell_ref', 'q', 'q_g']#, 'cell_v1']
-    N = np.logspace(3, 6, 15, base=10).astype(np.int32)
-    steps = 3;
+    forces = ['cell_ref', 'q', 'q_g']
+    N = np.logspace(3, 7.5, 15, base=10).astype(np.int32)
+    steps = np.array([1000, 800, 800, 600, 600, 600, 600, 400, 400, 400, 300, 200, 100, 50, 30]);
 
     rho = 1.25
     rc  = 2.5
 
     flops =  N * rc**3 * rho * (18 * np.pi + 283.5)
+    
+    if os.path.isfile("performances-forces.npy"):
+        print("Loading data from <performances-forces.npy>")
+        performances = np.load("performances-forces.npy")
+        return performances, N, forces
+    else:
+        performances = np.zeros((len(forces), len(N)))
+        
+        for force_idx,force in enumerate(forces):
+            p = pymolec(N=N, force=force, steps=steps, rho=rho)
+            times = p.run()
+            
+            # store the performance in the array
+            perf = flops / times[0,:]
+            performances[force_idx, :] = perf
+            
+        print("Saving performance data to <performances-forces.npy>")    
+        np.save("performances-forces", performances)
+        
+        return performances, N ,forces
+
+def plot_performance(performances, N, forces):
 
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1);
 
-    for force in forces:
-        p = pymolec(N=N, force=force, steps=steps, rho=rho)
-        times = p.run()
-
-        perf = flops / times[0,:]
+    #iterate over the forces
+    for force_idx, force in enumerate(forces):
+        perf = performances[force_idx, :]
         ax.semilogx(N, perf, 'o-')
-        
-    np.save("performances-forces", perf)
-
 
     ax.set_xlim([np.min(N)-100, np.max(N)+100])
     ax.set_ylim([0, 2.2])
@@ -66,4 +84,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    perf, N, forces = measure_performance()
+    plot_performance(perf, N, forces)
