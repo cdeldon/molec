@@ -535,7 +535,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
         // edges parallel to x direction
         {
             // 1
-            // idx_z = 0 && idy_y = 0
+            // idx_z = 0 && idx_y = 0
             idx_z = 0;
             idx_y = 0;
             idx_z_m = cellList_parameter.N_z;
@@ -570,7 +570,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             }
 
             // 2
-            // idx_z = 0 && idy_y = cellList_parameter.N_y + 1
+            // idx_z = 0 && idx_y = cellList_parameter.N_y + 1
             idx_z = 0;
             idx_y = cellList_parameter.N_y + 1;
             idx_z_m = cellList_parameter.N_z;

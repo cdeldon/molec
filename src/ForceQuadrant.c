@@ -487,8 +487,9 @@ void molec_force_quadrant_ghost(molec_Simulation_SOA_t* sim, float* Epot, const 
         molec_build_cell_neighbors_ghost(neighbor_cells_ghost, cellList_parameter);
     }
 
+    MOLEC_MEASUREMENT_GHOST_CONSTRUCTION_START();
     molec_Quadrant_t* quadrants = molec_quadrant_init_ghost(N, cellList_parameter, sim);
-
+    MOLEC_MEASUREMENT_GHOST_CONSTRUCTION_STOP();
 
     // loop over the internal quadrants
     for(int idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)

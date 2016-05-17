@@ -27,9 +27,9 @@ deep = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD"]
 
 def main():
 
-    forces = ['knuth', 'cell_ref', 'cell_v2', 'q']#, 'cell_v1']
-    N = np.array([1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000])
-    steps = np.array([100])
+    forces = ['knuth', 'cell_ref', 'q', 'q_g']#, 'cell_v1']
+    N = np.logspace(3, 6, 15, base=10).astype(np.int32)
+    steps = 3;
 
     rho = 1.25
     rc  = 2.5
@@ -44,11 +44,13 @@ def main():
         times = p.run()
 
         perf = flops / times[0,:]
-        ax.plot(N, perf, 'o-')
+        ax.semilogx(N, perf, 'o-')
+        
+    np.save("performances-forces", perf)
 
 
     ax.set_xlim([np.min(N)-100, np.max(N)+100])
-    ax.set_ylim([0, 2])
+    ax.set_ylim([0, 2.2])
 
     ax.set_xlabel('Number of particles')
     ax.set_ylabel('Performance [Flops/Cycle]',

@@ -70,7 +70,7 @@ class pymolec:
 
             # Print status
             start = time.time()
-            print(" - N = %6i ..." % self.N[i], end='')
+            print(" - N = %9i ..." % self.N[i], end='')
             sys.stdout.flush()
 
             try:

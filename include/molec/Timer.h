@@ -252,6 +252,7 @@ MOLEC_INTERNAL_MAKE_TIMER(SIMULATION, 3)
 #endif
 
 MOLEC_INTERNAL_IGNORE_TIMER(CELL_CONSTRUCTION, 4)
+MOLEC_INTERNAL_MAKE_TIMER(GHOST_CONSTRUCTION, 5)
 
 
 MOLEC_INLINE char* MOLEC_MEASUREMENT_GET_TIMER(int id)
@@ -262,6 +263,7 @@ MOLEC_INLINE char* MOLEC_MEASUREMENT_GET_TIMER(int id)
         case 2: return MOLEC_MEASUREMENT_GET_TIMER_2_();
         case 3: return MOLEC_MEASUREMENT_GET_TIMER_3_();
         case 4: return MOLEC_MEASUREMENT_GET_TIMER_4_();
+        case 5: return MOLEC_MEASUREMENT_GET_TIMER_5_();
         default: molec_error("Index %d does not correspond to any timer\n", id);
     }
     molec_error("Index %d does not correspond to any timer\n", id);
