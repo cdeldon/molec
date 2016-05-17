@@ -21,6 +21,7 @@ set(UNITTEST_SOURCE
     UnittestForce.c
     UnittestIntegrator.c
     UnittestAlign.c
+    UnittestGhost.c
 )
 
 set(UNITTEST_HEADER

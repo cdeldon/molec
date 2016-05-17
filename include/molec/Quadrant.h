@@ -24,6 +24,7 @@
 
 typedef struct molec_Quadrant
 {
+    // arrays containing particle information
     float* x;
     float* y;
     float* z;
@@ -36,7 +37,10 @@ typedef struct molec_Quadrant
     float* f_y;
     float* f_z;
 
+    // number of particles in this quadrant
     int N;
+    // linear index of quadrant inside celllist
+    int idx;
 
 } molec_Quadrant_t;
 

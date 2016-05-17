@@ -204,7 +204,7 @@ void molec_build_cell_neighbors_ghost(int** neighbor_cells,
                         for(int d_x = -1; d_x <= 1; ++d_x)
                         {
                             // compute cell index (no need to consider BC as we looped over internal
-                            // cells)
+                            // cells only)
                             int n_idx_z = idx_z + d_z;
                             int n_idx_y = idx_y + d_y;
                             int n_idx_x = idx_x + d_x;
@@ -243,13 +243,15 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
     for(int i = 0; i < N_ghost; ++i)
         quadrants[i].N = 0;
 
+
     // for each particle compute cell index and the size of each quadrant considering also ghost
     // cells in the indices
     int* cell_idx = malloc(sizeof(int) * N);
 
     for(int i = 0; i < N; ++i)
     {
-        // linear one dimensional index of cell associated to i-th particle
+        // linear one dimensional index of cell associated to i-th particle considering boundary
+        // ghost quadrants
         int idx_x = 1 + x[i] / cellList_parameter.c_x;
         int idx_y = 1 + y[i] / cellList_parameter.c_y;
         int idx_z = 1 + z[i] / cellList_parameter.c_z;
@@ -268,6 +270,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             {
                 // linear index of cell
                 int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+                quadrants[idx].idx = idx;
 
                 MOLEC_MALLOC(quadrants[idx].x, quadrants[idx].N * sizeof(float));
                 MOLEC_MALLOC(quadrants[idx].y, quadrants[idx].N * sizeof(float));
@@ -312,7 +315,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
     int idx_x_m, idx_y_m, idx_z_m; // indices of mirror cell
 
 
-    // internal 'flat' ghost quadrants
+    // internal 'flat' ghost quadrants shrinked-by-1 faces
     {
         // idx_z = 0 --> mirror original quadrant: idx_z_m = cellList_parameter.N_z
         idx_z = 0;
@@ -326,6 +329,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 idx_x_m = idx_x;
                 idx_y_m = idx_y;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
 
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
@@ -353,6 +361,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 idx_y_m = idx_y;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
+
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
                 quadrants[idx].f_z = quadrants[idx_m].f_z;
@@ -378,6 +391,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 idx_x_m = idx_x;
                 idx_z_m = idx_z;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
 
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
@@ -405,6 +423,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 idx_z_m = idx_z;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
+
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
                 quadrants[idx].f_z = quadrants[idx_m].f_z;
@@ -431,6 +454,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 idx_z_m = idx_z;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
+
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
                 quadrants[idx].f_z = quadrants[idx_m].f_z;
@@ -456,6 +484,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 idx_y_m = idx_y;
                 idx_z_m = idx_z;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
 
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
@@ -515,6 +548,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 idx_x_m = idx_x;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
+
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
                 quadrants[idx].f_z = quadrants[idx_m].f_z;
@@ -544,6 +582,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 // linear index of mirror cell
                 idx_x_m = idx_x;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
 
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
@@ -575,6 +618,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 idx_x_m = idx_x;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
+
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
                 quadrants[idx].f_z = quadrants[idx_m].f_z;
@@ -604,6 +652,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 // linear index of mirror cell
                 idx_x_m = idx_x;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
 
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
@@ -638,6 +691,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 idx_y_m = idx_y;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
+
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
                 quadrants[idx].f_z = quadrants[idx_m].f_z;
@@ -667,6 +725,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 // linear index of mirror cell
                 idx_y_m = idx_y;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
 
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
@@ -698,6 +761,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 idx_y_m = idx_y;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
+
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
                 quadrants[idx].f_z = quadrants[idx_m].f_z;
@@ -727,6 +795,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 // linear index of mirror cell
                 idx_y_m = idx_y;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
 
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
@@ -761,6 +834,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 idx_z_m = idx_z;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
+
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
                 quadrants[idx].f_z = quadrants[idx_m].f_z;
@@ -790,6 +868,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 // linear index of mirror cell
                 idx_z_m = idx_z;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
 
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
@@ -821,6 +904,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 idx_z_m = idx_z;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
+
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
                 quadrants[idx].f_z = quadrants[idx_m].f_z;
@@ -850,6 +938,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 // linear index of mirror cell
                 idx_z_m = idx_z;
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+                quadrants[idx].N = quadrants[idx_m].N;
+
+                // associate the index of the ghost quadrant to the real index of the mirror
+                quadrants[idx].idx = quadrants[idx_m].idx;
 
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
@@ -912,6 +1005,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             // linear index of mirror cell
             const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
+            quadrants[idx].N = quadrants[idx_m].N;
+
+            // associate the index of the ghost quadrant to the real index of the mirror
+            quadrants[idx].idx = quadrants[idx_m].idx;
+
             quadrants[idx].f_x = quadrants[idx_m].f_x;
             quadrants[idx].f_y = quadrants[idx_m].f_y;
             quadrants[idx].f_z = quadrants[idx_m].f_z;
@@ -941,6 +1039,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
             // linear index of mirror cell
             const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+            quadrants[idx].N = quadrants[idx_m].N;
+
+            // associate the index of the ghost quadrant to the real index of the mirror
+            quadrants[idx].idx = quadrants[idx_m].idx;
 
             quadrants[idx].f_x = quadrants[idx_m].f_x;
             quadrants[idx].f_y = quadrants[idx_m].f_y;
@@ -972,6 +1075,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             // linear index of mirror cell
             const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
+            quadrants[idx].N = quadrants[idx_m].N;
+
+            // associate the index of the ghost quadrant to the real index of the mirror
+            quadrants[idx].idx = quadrants[idx_m].idx;
+
             quadrants[idx].f_x = quadrants[idx_m].f_x;
             quadrants[idx].f_y = quadrants[idx_m].f_y;
             quadrants[idx].f_z = quadrants[idx_m].f_z;
@@ -1001,6 +1109,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
             // linear index of mirror cell
             const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+            quadrants[idx].N = quadrants[idx_m].N;
+
+            // associate the index of the ghost quadrant to the real index of the mirror
+            quadrants[idx].idx = quadrants[idx_m].idx;
 
             quadrants[idx].f_x = quadrants[idx_m].f_x;
             quadrants[idx].f_y = quadrants[idx_m].f_y;
@@ -1032,6 +1145,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             // linear index of mirror cell
             const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
+            quadrants[idx].N = quadrants[idx_m].N;
+
+            // associate the index of the ghost quadrant to the real index of the mirror
+            quadrants[idx].idx = quadrants[idx_m].idx;
+
             quadrants[idx].f_x = quadrants[idx_m].f_x;
             quadrants[idx].f_y = quadrants[idx_m].f_y;
             quadrants[idx].f_z = quadrants[idx_m].f_z;
@@ -1061,6 +1179,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
             // linear index of mirror cell
             const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+            quadrants[idx].N = quadrants[idx_m].N;
+
+            // associate the index of the ghost quadrant to the real index of the mirror
+            quadrants[idx].idx = quadrants[idx_m].idx;
 
             quadrants[idx].f_x = quadrants[idx_m].f_x;
             quadrants[idx].f_y = quadrants[idx_m].f_y;
@@ -1092,6 +1215,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             // linear index of mirror cell
             const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
+            quadrants[idx].N = quadrants[idx_m].N;
+
+            // associate the index of the ghost quadrant to the real index of the mirror
+            quadrants[idx].idx = quadrants[idx_m].idx;
+
             quadrants[idx].f_x = quadrants[idx_m].f_x;
             quadrants[idx].f_y = quadrants[idx_m].f_y;
             quadrants[idx].f_z = quadrants[idx_m].f_z;
@@ -1122,6 +1250,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
             // linear index of mirror cell
             const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+            quadrants[idx].N = quadrants[idx_m].N;
+
+            // associate the index of the ghost quadrant to the real index of the mirror
+            quadrants[idx].idx = quadrants[idx_m].idx;
 
             quadrants[idx].f_x = quadrants[idx_m].f_x;
             quadrants[idx].f_y = quadrants[idx_m].f_y;

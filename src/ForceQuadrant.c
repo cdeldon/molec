@@ -501,7 +501,7 @@ void molec_force_quadrant_ghost(molec_Simulation_SOA_t* sim, float* Epot, const 
                 {
                     int n_idx = neighbor_cells_ghost[idx][neighbor_cell];
 
-                    if(idx > n_idx)
+                    if(quadrants[idx].idx < quadrants[n_idx].idx)
                         molec_quadrant_neighbor_interaction_ghost(quadrants[idx], quadrants[n_idx], &Epot_);
 
                     else if(idx == n_idx)

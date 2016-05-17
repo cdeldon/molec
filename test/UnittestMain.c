@@ -37,6 +37,7 @@ int main(int argc, char* argv[])
     REGISTER_TEST_CASE(molec_UnittestCompare);
     REGISTER_TEST_CASE(molec_UnittestForce);
     REGISTER_TEST_CASE(molec_UnittestIntegrator);
+    REGISTER_TEST_CASE(molec_UnittestGhost);
 
     int ret = tinytest_run();
     tinytest_free();

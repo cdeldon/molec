@@ -137,7 +137,7 @@ void molec_check_forces(molec_force_calculation force_routine,
  */
 TEST_CASE(molec_UnittestForce)
 {
-    const int n_atoms_per_dimension = 18;
+    const int n_atoms_per_dimension = 25;
     const int r_seed = 40;
 
     molec_NAtoms = pow(n_atoms_per_dimension, 3);
