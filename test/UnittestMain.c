@@ -16,6 +16,7 @@
 #define TINYTEST_MAIN
 #include "Unittest.h"
 #include <stdlib.h>
+#include <molec/Timer.h>
 
 /**
  * Setup the Unittest environment
@@ -39,8 +40,10 @@ int main(int argc, char* argv[])
     REGISTER_TEST_CASE(molec_UnittestIntegrator);
     REGISTER_TEST_CASE(molec_UnittestGhost);
 
+    MOLEC_MEASUREMENT_INIT;
     int ret = tinytest_run();
     tinytest_free();
+    MOLEC_MEASUREMENT_FINISH;
 
     return ret;
 }

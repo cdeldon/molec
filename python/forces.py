@@ -28,9 +28,14 @@ deep = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD"]
 
 def measure_performance():
 
+#    forces = ['cell_ref', 'q', 'q_g']
+#    N = np.logspace(3, 7.5, 15, base=10).astype(np.int32)
+#    steps = np.array([1000, 800, 800, 600, 600, 600, 600, 400, 400, 400, 300, 200, 100, 50, 30]);
+
     forces = ['cell_ref', 'q', 'q_g']
     N = np.logspace(3, 7.5, 15, base=10).astype(np.int32)
     steps = np.array([1000, 800, 800, 600, 600, 600, 600, 400, 400, 400, 300, 200, 100, 50, 30]);
+
 
     rho = 1.25
     rc  = 2.5
@@ -67,8 +72,8 @@ def plot_performance(performances, N, forces):
         perf = performances[force_idx, :]
         ax.semilogx(N, perf, 'o-')
 
-    ax.set_xlim([np.min(N)-100, np.max(N)+100])
-    ax.set_ylim([0, 2.2])
+    ax.set_xlim([np.min(N)*0.9, np.max(N)*1.1])
+    ax.set_ylim([0, 2.5])
 
     ax.set_xlabel('Number of particles')
     ax.set_ylabel('Performance [Flops/Cycle]',
