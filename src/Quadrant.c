@@ -22,8 +22,8 @@ void molec_build_cell_neighbors(int** neighbor_cells, molec_CellList_Parameter_t
             for(int idx_x = 0; idx_x < cellList_parameter.N_x; ++idx_x)
             {
                 // compute scalar cell index
-                const int idx
-                    = idx_x + cellList_parameter.N_x * (idx_y + cellList_parameter.N_y * idx_z);
+                const int idx = idx_x
+                                + cellList_parameter.N_x * (idx_y + cellList_parameter.N_y * idx_z);
 
                 int neighbor_number = 0;
 
@@ -337,10 +337,13 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
     int idx_x_m, idx_y_m, idx_z_m; // indices of mirror cell
 
 
+    // internal 'flat' ghost quadrants shrinked-by-1 faces
+    {
+
 #define GHOST_FACES(dim1, dim1_value, quad_dim1, quad_m_dim1, dim2, quad_dim2, quad_m_dim2, dim3,  \
                     quad_dim3, quad_m_dim3, sign)                                                  \
     idx_##dim1 = (dim1_value);                                                                     \
-    idx_##dim1##_m = cellList_parameter.N_##dim1;                                                  \
+    idx_##dim1##_m = abs(cellList_parameter.N_##dim1 - (dim1_value));                              \
     for(idx_##dim2 = 1; idx_##dim2 <= cellList_parameter.N_##dim2; ++idx_##dim2)                   \
         for(idx_##dim3 = 1; idx_##dim3 <= cellList_parameter.N_##dim3; ++idx_##dim3)               \
         {                                                                                          \
@@ -361,993 +364,472 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quad_dim1[k] = quad_m_dim1[k] sign molec_parameter->L_##dim1;                      \
         }
 
-    // internal 'flat' ghost quadrants shrinked-by-1 faces
-    {
-        // idx_z = 0 --> mirror original quadrant: idx_z_m = cellList_parameter.N_z
-        //        idx_z = 0;
-        //        idx_z_m = cellList_parameter.N_z;
-        //        for(idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
-        //            for(idx_x = 1; idx_x <= cellList_parameter.N_x; ++idx_x)
-        //            {
-        //                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        //                idx_x_m = idx_x;
-        //                idx_y_m = idx_y;
-        //                const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+        GHOST_FACES(z, 0, quadrants[idx].z, quadrants[idx_m].z, y, quadrants[idx].y,
+                    quadrants[idx_m].y, x, quadrants[idx].x, quadrants[idx_m].x, -)
 
-        //                quadrants[idx].N = quadrants[idx_m].N;
-        //                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
+        GHOST_FACES(z, cellList_parameter.N_z + 1, quadrants[idx].z, quadrants[idx_m].z, y,
+                    quadrants[idx].y, quadrants[idx_m].y, x, quadrants[idx].x, quadrants[idx_m].x,
+                    +)
 
-        //                quadrants[idx].idx = quadrants[idx_m].idx;
+        GHOST_FACES(y, 0, quadrants[idx].y, quadrants[idx_m].y, z, quadrants[idx].z,
+                    quadrants[idx_m].z, x, quadrants[idx].x, quadrants[idx_m].x, -)
 
-        //                quadrants[idx].f_x = quadrants[idx_m].f_x;
-        //                quadrants[idx].f_y = quadrants[idx_m].f_y;
-        //                quadrants[idx].f_z = quadrants[idx_m].f_z;
+        GHOST_FACES(y, cellList_parameter.N_y + 1, quadrants[idx].y, quadrants[idx_m].y, z,
+                    quadrants[idx].z, quadrants[idx_m].z, x, quadrants[idx].x, quadrants[idx_m].x,
+                    +)
 
-        //                quadrants[idx].x = quadrants[idx_m].x;
-        //                quadrants[idx].y = quadrants[idx_m].y;
+        GHOST_FACES(x, 0, quadrants[idx].x, quadrants[idx_m].x, z, quadrants[idx].z,
+                    quadrants[idx_m].z, y, quadrants[idx].y, quadrants[idx_m].y, -)
 
-        //                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-        //                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        //                    quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
-        //            }
-        GHOST_FACES(z, 0, quadrants[idx].z, quadrants[idx_m].z,
-                    y, quadrants[idx].y, quadrants[idx_m].y,
-                    x, quadrants[idx].x, quadrants[idx_m].x, -)
+        GHOST_FACES(x, cellList_parameter.N_x + 1, quadrants[idx].x, quadrants[idx_m].x, z,
+                    quadrants[idx].z, quadrants[idx_m].z, y, quadrants[idx].y, quadrants[idx_m].y,
+                    +)
 
-
-        // idx_z = cellList_parameter.N_z + 1 --> mirror original quadrant: idx_z_m = 1
-        idx_z = cellList_parameter.N_z + 1;
-        idx_z_m = 1;
-        for(idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
-            for(idx_x = 1; idx_x <= cellList_parameter.N_x; ++idx_x)
-            {
-                // linear index of ghost cell
-                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-                // linear index of mirror cell
-                idx_x_m = idx_x;
-                idx_y_m = idx_y;
-                const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-                quadrants[idx].N = quadrants[idx_m].N;
-                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-                // associate the index of the ghost quadrant to the real index of the mirror
-                quadrants[idx].idx = quadrants[idx_m].idx;
-
-                quadrants[idx].f_x = quadrants[idx_m].f_x;
-                quadrants[idx].f_y = quadrants[idx_m].f_y;
-                quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-                quadrants[idx].x = quadrants[idx_m].x;
-                quadrants[idx].y = quadrants[idx_m].y;
-
-                // copy-shift the z coordinats of the mirror cell by +L_z
-                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-                    quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
-            }
-
-        // idx_y = 0 --> mirror original quadrant: idx_y_m = cellList_parameter.N_y
-        idx_y = 0;
-        idx_y_m = cellList_parameter.N_y;
-        for(idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
-            for(idx_x = 1; idx_x <= cellList_parameter.N_x; ++idx_x)
-            {
-                // linear index of ghost cell
-                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-                // linear index of mirror cell
-                idx_x_m = idx_x;
-                idx_z_m = idx_z;
-                const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-                quadrants[idx].N = quadrants[idx_m].N;
-                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-                // associate the index of the ghost quadrant to the real index of the mirror
-                quadrants[idx].idx = quadrants[idx_m].idx;
-
-
-                quadrants[idx].f_x = quadrants[idx_m].f_x;
-                quadrants[idx].f_y = quadrants[idx_m].f_y;
-                quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-                quadrants[idx].x = quadrants[idx_m].x;
-                quadrants[idx].z = quadrants[idx_m].z;
-
-                // copy-shift the y coordinats of the mirror cell by -L_y
-                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-                    quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
-            }
-
-        // idx_y = cellList_parameter.N_y + 1 --> mirror original quadrant: idx_y_m = 1
-        idx_y = cellList_parameter.N_y + 1;
-        idx_y_m = 1;
-        for(idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
-            for(idx_x = 1; idx_x <= cellList_parameter.N_x; ++idx_x)
-            {
-                // linear index of ghost cell
-                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-                // linear index of mirror cell
-                idx_x_m = idx_x;
-                idx_z_m = idx_z;
-                const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-                quadrants[idx].N = quadrants[idx_m].N;
-                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-                // associate the index of the ghost quadrant to the real index of the mirror
-                quadrants[idx].idx = quadrants[idx_m].idx;
-
-                quadrants[idx].f_x = quadrants[idx_m].f_x;
-                quadrants[idx].f_y = quadrants[idx_m].f_y;
-                quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-                quadrants[idx].x = quadrants[idx_m].x;
-                quadrants[idx].z = quadrants[idx_m].z;
-
-                // copy-shift the y coordinats of the mirror cell by +L_y
-                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-                    quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
-            }
-
-        // idx_x = 0 --> mirror original quadrant: idx_x_m = cellList_parameter.N_x
-        idx_x = 0;
-        idx_x_m = cellList_parameter.N_x;
-        for(idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
-            for(idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
-            {
-                // linear index of ghost cell
-                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-                // linear index of mirror cell
-                idx_y_m = idx_y;
-                idx_z_m = idx_z;
-                const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-                quadrants[idx].N = quadrants[idx_m].N;
-                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-                // associate the index of the ghost quadrant to the real index of the mirror
-                quadrants[idx].idx = quadrants[idx_m].idx;
-
-                quadrants[idx].f_x = quadrants[idx_m].f_x;
-                quadrants[idx].f_y = quadrants[idx_m].f_y;
-                quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-                quadrants[idx].y = quadrants[idx_m].y;
-                quadrants[idx].z = quadrants[idx_m].z;
-
-                // copy-shift the y coordinats of the mirror cell by -L_x
-                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-                    quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
-            }
-
-        // idx_x = cellList_parameter.N_x + 1 --> mirror original quadrant: idx_x_m = 1
-        idx_x = cellList_parameter.N_x + 1;
-        idx_x_m = 1;
-        for(idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
-            for(idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
-            {
-                // linear index of ghost cell
-                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-                // linear index of mirror cell
-                idx_y_m = idx_y;
-                idx_z_m = idx_z;
-                const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-                quadrants[idx].N = quadrants[idx_m].N;
-                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-                // associate the index of the ghost quadrant to the real index of the mirror
-                quadrants[idx].idx = quadrants[idx_m].idx;
-
-                quadrants[idx].f_x = quadrants[idx_m].f_x;
-                quadrants[idx].f_y = quadrants[idx_m].f_y;
-                quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-                quadrants[idx].y = quadrants[idx_m].y;
-                quadrants[idx].z = quadrants[idx_m].z;
-
-                // copy-shift the y coordinats of the mirror cell by +L_x
-                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-                    quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
-            }
+#undef GHOST_FACES
     }
 
     // edge ghost quadrants
-    {/*             _________________________
-                   / _____________________  /|
-                  / / ________4__________/ / |
-                 / / /| |               / /  |
-                / / / | |              / / . |
-               /7/ /| | |             /8/ /| |
-              / / / | | |            / / / | |      ^
-             / / /  |11 |           / / /|12 |      | Z direction
-            / /_/___|_|_|__________/ / / | | |      |
-           /_______  _______________/ /  | | |
-           | __________3___________ | |  | | |
-           | | |    | | |_________| | |__| | |
-           | | |    | |___________| | |____| |
-           | | |   / / _______2___| | |_  / /
-           | | |  / / /           | | |/ / /
-           |9| | /5/ /            |10 | /6/
-           | | |/ / /             | | |/ /
-           | | | / /              | | ' /       ^
-           | | |/_/_______________| |  /       / Y dirrection
-           | |____________________| | /       /
-           |__________1_____________|/
+    { /*             _________________________
+                    / _____________________  /|
+                   / / ________4__________/ / |
+                  / / /| |               / /  |
+                 / / / | |              / / . |
+                /7/ /| | |             /8/ /| |
+               / / / | | |            / / / | |      ^
+              / / /  |11 |           / / /|12 |      | Z direction
+             / /_/___|_|_|__________/ / / | | |      |
+            /_______  _______________/ /  | | |
+            | __________3___________ | |  | | |
+            | | |    | | |_________| | |__| | |
+            | | |    | |___________| | |____| |
+            | | |   / / _______2___| | |_  / /
+            | | |  / / /           | | |/ / /
+            |9| | /5/ /            |10 | /6/
+            | | |/ / /             | | |/ /
+            | | | / /              | | ' /       ^
+            | | |/_/_______________| |  /       / Y dirrection
+            | |____________________| | /       /
+            |__________1_____________|/
 
 
-               --> X direction
+                --> X direction
+      */
 
-     */
-     // edges parallel to x direction
-     {// 1
-      // idx_z = 0 && idx_y = 0
-      idx_z = 0;
-    idx_y = 0;
-    idx_z_m = cellList_parameter.N_z;
-    idx_y_m = cellList_parameter.N_y;
-    for(idx_x = 1; idx_x <= cellList_parameter.N_x; ++idx_x)
+#define GHOST_EDGES(dim1, dim1_value, quad_dim1, quad_m_dim1, dim1_sign, dim2, dim2_value,         \
+                    quad_dim2, quad_m_dim2, dim2_sign, dim3, quad_dim3, quad_m_dim3)               \
+    idx_##dim1 = (dim1_value);                                                                     \
+    idx_##dim2 = (dim2_value);                                                                     \
+    idx_##dim1##_m = abs(cellList_parameter.N_##dim1 - (dim1_value));                              \
+    idx_##dim2##_m = abs(cellList_parameter.N_##dim2 - (dim2_value));                              \
+    for(idx_##dim3 = 1; idx_##dim3 <= cellList_parameter.N_##dim3; ++idx_##dim3)                   \
+    {                                                                                              \
+        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);                           \
+        idx_##dim3##_m = idx_##dim3;                                                               \
+        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);                   \
+        quadrants[idx].N = quadrants[idx_m].N;                                                     \
+        quadrants[idx].N_pad = quadrants[idx_m].N_pad;                                             \
+        quadrants[idx].idx = quadrants[idx_m].idx;                                                 \
+        quadrants[idx].f_x = quadrants[idx_m].f_x;                                                 \
+        quadrants[idx].f_y = quadrants[idx_m].f_y;                                                 \
+        quadrants[idx].f_z = quadrants[idx_m].f_z;                                                 \
+        quad_dim3 = quad_m_dim3;                                                                   \
+        MOLEC_MALLOC(quad_dim1, quadrants[idx_m].N_pad * sizeof(float));                           \
+        MOLEC_MALLOC(quad_dim2, quadrants[idx_m].N_pad * sizeof(float));                           \
+        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)                                            \
+        {                                                                                          \
+            quad_dim1[k] = quad_m_dim1[k] dim1_sign molec_parameter->L_##dim1;                     \
+            quad_dim2[k] = quad_m_dim2[k] dim2_sign molec_parameter->L_##dim2;                     \
+        }                                                                                          \
+    }
+
+        // clang-format off
+        // 1
+        GHOST_EDGES(z, 0, quadrants[idx].z, quadrants[idx_m].z, -,
+                    y, 0, quadrants[idx].y, quadrants[idx_m].y, -,
+                    x, quadrants[idx].x, quadrants[idx_m].x);
+
+        // 2
+        GHOST_EDGES(z, 0, quadrants[idx].z, quadrants[idx_m].z, -,
+                    y, cellList_parameter.N_y + 1, quadrants[idx].y, quadrants[idx_m].y, +,
+                    x, quadrants[idx].x, quadrants[idx_m].x);
+
+        // 3
+        GHOST_EDGES(z, cellList_parameter.N_z + 1, quadrants[idx].z, quadrants[idx_m].z, +,
+                    y, 0, quadrants[idx].y, quadrants[idx_m].y, -,
+                    x, quadrants[idx].x, quadrants[idx_m].x);
+
+        // 4
+        GHOST_EDGES(z, cellList_parameter.N_z + 1, quadrants[idx].z, quadrants[idx_m].z, +,
+                    y, cellList_parameter.N_y + 1, quadrants[idx].y, quadrants[idx_m].y, +,
+                    x, quadrants[idx].x, quadrants[idx_m].x);
+
+        // 5
+        GHOST_EDGES(z, 0, quadrants[idx].z, quadrants[idx_m].z, -,
+                    x, 0, quadrants[idx].x, quadrants[idx_m].x, -,
+                    y, quadrants[idx].y, quadrants[idx_m].y);
+
+        // 6
+        GHOST_EDGES(z, 0, quadrants[idx].z, quadrants[idx_m].z, -,
+                    x, cellList_parameter.N_x + 1, quadrants[idx].x, quadrants[idx_m].x, +,
+                    y, quadrants[idx].y, quadrants[idx_m].y);
+
+        // 7
+        GHOST_EDGES(z, cellList_parameter.N_z + 1, quadrants[idx].z, quadrants[idx_m].z, +,
+                    x, 0, quadrants[idx].x, quadrants[idx_m].x, -,
+                    y, quadrants[idx].y, quadrants[idx_m].y);
+
+        // 8
+        GHOST_EDGES(z, cellList_parameter.N_z + 1, quadrants[idx].z, quadrants[idx_m].z, +,
+                    x, cellList_parameter.N_x + 1, quadrants[idx].x, quadrants[idx_m].x, +,
+                    y, quadrants[idx].y, quadrants[idx_m].y);
+
+        // 9
+        GHOST_EDGES(x, 0, quadrants[idx].x, quadrants[idx_m].x, -,
+                    y, 0, quadrants[idx].y, quadrants[idx_m].y, -,
+                    z, quadrants[idx].z, quadrants[idx_m].z);
+
+        // 10
+        GHOST_EDGES(x, 0, quadrants[idx].x, quadrants[idx_m].x, -,
+                    y, cellList_parameter.N_y + 1, quadrants[idx].y, quadrants[idx_m].y, +,
+                    z, quadrants[idx].z, quadrants[idx_m].z);
+
+        // 11
+        GHOST_EDGES(x, cellList_parameter.N_x + 1, quadrants[idx].x, quadrants[idx_m].x, +,
+                    y, 0, quadrants[idx].y, quadrants[idx_m].y, -,
+                    z, quadrants[idx].z, quadrants[idx_m].z);
+
+        // 12
+        GHOST_EDGES(x, cellList_parameter.N_x + 1, quadrants[idx].x, quadrants[idx_m].x, +,
+                    y, cellList_parameter.N_y + 1, quadrants[idx].y, quadrants[idx_m].y, +,
+                    z, quadrants[idx].z, quadrants[idx_m].z);
+
+        // clang-format on
+#undef GHOST_EDGES
+    }
+
+    // corners ghost quadrants
     {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        idx_x_m = idx_x;
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+        /*             _________________________
+                      /7_____________________ 8/|
+                     / / ___________________/ / |
+                    / / /| |               / /  |
+                   / / / | |              / / . |
+                  / / /| | |             / / /| |
+                 / / / | | |            / / / | |      ^
+                / / /  | | |           / / /| | |      | Z direction
+               / /_/___|_|_|__________/ / / | | |      |
+              /5______________________6/ /  | | |
+              | ______________________ | |  | | |
+              | | |    | | |_________| | |__| | |
+              | | |    |3|___________| | |___4| |
+              | | |   / / ___________| | |_  / /
+              | | |  / / /           | | |/ / /
+              | | | / / /            | | | / /
+              | | |/ / /             | | |/ /
+              | | | / /              | | ' /       ^
+              | | |/_/_______________| |  /       / Y dirrection
+              | |____________________| | /       /
+              |1______________________2|/
 
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
+                  --> X direction
 
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
+        */
 
-        quadrants[idx].x = quadrants[idx_m].x;
-
-        // copy-shift the y and z coordinats of the mirror cell by -L_y and -L_z
-        MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
+        // 1
+        // idx_x = 0 && idx_y = 0 && idx_z = 0
+        idx_x = 0;
+        idx_y = 0;
+        idx_z = 0;
+        idx_x_m = cellList_parameter.N_x;
+        idx_y_m = cellList_parameter.N_y;
+        idx_z_m = cellList_parameter.N_z;
         {
-            quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
-            quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
+            // linear index of ghost cell
+            const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+            // linear index of mirror cell
+            const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+            quadrants[idx].N = quadrants[idx_m].N;
+            quadrants[idx].N_pad = quadrants[idx_m].N_pad;
+
+            // associate the index of the ghost quadrant to the real index of the mirror
+            quadrants[idx].idx = quadrants[idx_m].idx;
+
+            quadrants[idx].f_x = quadrants[idx_m].f_x;
+            quadrants[idx].f_y = quadrants[idx_m].f_y;
+            quadrants[idx].f_z = quadrants[idx_m].f_z;
+
+            // copy-shift the x, y and z coordinats of the mirror cell by -L_x, -L_y and -L_z
+            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+            for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
+            {
+                quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
+                quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
+                quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
+            }
+        }
+
+        // 2
+        // idx_x = cellList_parameter.N_x + 1 && idx_y = 0 && idx_z = 0
+        idx_x = cellList_parameter.N_x + 1;
+        idx_y = 0;
+        idx_z = 0;
+        idx_x_m = 1;
+        idx_y_m = cellList_parameter.N_y;
+        idx_z_m = cellList_parameter.N_z;
+        {
+            // linear index of ghost cell
+            const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+            // linear index of mirror cell
+            const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+            quadrants[idx].N = quadrants[idx_m].N;
+            quadrants[idx].N_pad = quadrants[idx_m].N_pad;
+
+            // associate the index of the ghost quadrant to the real index of the mirror
+            quadrants[idx].idx = quadrants[idx_m].idx;
+
+            quadrants[idx].f_x = quadrants[idx_m].f_x;
+            quadrants[idx].f_y = quadrants[idx_m].f_y;
+            quadrants[idx].f_z = quadrants[idx_m].f_z;
+
+            // copy-shift the x, y and z coordinats of the mirror cell by +L_x, -L_y and -L_z
+            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+            for(int k = 0; k < quadrants[idx_m].N; ++k)
+            {
+                quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
+                quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
+                quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
+            }
+        }
+
+        // 3
+        // idx_x = 0 && idx_y = cellList_parameter.N_y + 1 && idx_z = 0
+        idx_x = 0;
+        idx_y = cellList_parameter.N_y + 1;
+        idx_z = 0;
+        idx_x_m = cellList_parameter.N_x;
+        idx_y_m = 1;
+        idx_z_m = cellList_parameter.N_z;
+        {
+            // linear index of ghost cell
+            const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+            // linear index of mirror cell
+            const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+            quadrants[idx].N = quadrants[idx_m].N;
+            quadrants[idx].N_pad = quadrants[idx_m].N_pad;
+
+            // associate the index of the ghost quadrant to the real index of the mirror
+            quadrants[idx].idx = quadrants[idx_m].idx;
+
+            quadrants[idx].f_x = quadrants[idx_m].f_x;
+            quadrants[idx].f_y = quadrants[idx_m].f_y;
+            quadrants[idx].f_z = quadrants[idx_m].f_z;
+
+            // copy-shift the x, y and z coordinats of the mirror cell by -L_x, +L_y and -L_z
+            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+            for(int k = 0; k < quadrants[idx_m].N; ++k)
+            {
+                quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
+                quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
+                quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
+            }
+        }
+
+        // 4
+        // idx_x = cellList_parameter.N_x + 1 && idx_y = cellList_parameter.N_y + 1 && idx_z = 0
+        idx_x = cellList_parameter.N_x + 1;
+        idx_y = cellList_parameter.N_y + 1;
+        idx_z = 0;
+        idx_x_m = 1;
+        idx_y_m = 1;
+        idx_z_m = cellList_parameter.N_z;
+        {
+            // linear index of ghost cell
+            const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+            // linear index of mirror cell
+            const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+            quadrants[idx].N = quadrants[idx_m].N;
+            quadrants[idx].N_pad = quadrants[idx_m].N_pad;
+
+            // associate the index of the ghost quadrant to the real index of the mirror
+            quadrants[idx].idx = quadrants[idx_m].idx;
+
+            quadrants[idx].f_x = quadrants[idx_m].f_x;
+            quadrants[idx].f_y = quadrants[idx_m].f_y;
+            quadrants[idx].f_z = quadrants[idx_m].f_z;
+
+            // copy-shift the x, y and z coordinats of the mirror cell by +L_x, +L_y and -L_z
+            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+            for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
+            {
+                quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
+                quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
+                quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
+            }
+        }
+
+        // 5
+        // idx_x = 0 && idx_y = 0 && idx_z = cellList_parameter.N_z + 1
+        idx_x = 0;
+        idx_y = 0;
+        idx_z = cellList_parameter.N_z + 1;
+        idx_x_m = cellList_parameter.N_x;
+        idx_y_m = cellList_parameter.N_y;
+        idx_z_m = 1;
+        {
+            // linear index of ghost cell
+            const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+            // linear index of mirror cell
+            const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+            quadrants[idx].N = quadrants[idx_m].N;
+            quadrants[idx].N_pad = quadrants[idx_m].N_pad;
+
+            // associate the index of the ghost quadrant to the real index of the mirror
+            quadrants[idx].idx = quadrants[idx_m].idx;
+
+            quadrants[idx].f_x = quadrants[idx_m].f_x;
+            quadrants[idx].f_y = quadrants[idx_m].f_y;
+            quadrants[idx].f_z = quadrants[idx_m].f_z;
+
+            // copy-shift the x, y and z coordinats of the mirror cell by -L_x, -L_y and +L_z
+            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+            for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
+            {
+                quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
+                quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
+                quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
+            }
+        }
+
+        // 6
+        // idx_x = cellList_parameter.N_x + 1 && idx_y = 0 && idx_z = cellList_parameter.N_z + 1
+        idx_x = cellList_parameter.N_x + 1;
+        idx_y = 0;
+        idx_z = cellList_parameter.N_z + 1;
+        idx_x_m = 1;
+        idx_y_m = cellList_parameter.N_y;
+        idx_z_m = 1;
+        {
+            // linear index of ghost cell
+            const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+            // linear index of mirror cell
+            const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+            quadrants[idx].N = quadrants[idx_m].N;
+            quadrants[idx].N_pad = quadrants[idx_m].N_pad;
+
+            // associate the index of the ghost quadrant to the real index of the mirror
+            quadrants[idx].idx = quadrants[idx_m].idx;
+
+            quadrants[idx].f_x = quadrants[idx_m].f_x;
+            quadrants[idx].f_y = quadrants[idx_m].f_y;
+            quadrants[idx].f_z = quadrants[idx_m].f_z;
+
+            // copy-shift the x, y and z coordinats of the mirror cell by +L_x, -L_y and +L_z
+            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+            for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
+            {
+                quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
+                quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
+                quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
+            }
+        }
+
+        // 7
+        // idx_x = 0 && idx_y = cellList_parameter.N_y + 1 && idx_z = cellList_parameter.N_z + 1
+        idx_x = 0;
+        idx_y = cellList_parameter.N_y + 1;
+        idx_z = cellList_parameter.N_z + 1;
+        idx_x_m = cellList_parameter.N_x;
+        idx_y_m = 1;
+        idx_z_m = 1;
+        {
+            // linear index of ghost cell
+            const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+            // linear index of mirror cell
+            const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+            quadrants[idx].N = quadrants[idx_m].N;
+            quadrants[idx].N_pad = quadrants[idx_m].N_pad;
+
+            // associate the index of the ghost quadrant to the real index of the mirror
+            quadrants[idx].idx = quadrants[idx_m].idx;
+
+            quadrants[idx].f_x = quadrants[idx_m].f_x;
+            quadrants[idx].f_y = quadrants[idx_m].f_y;
+            quadrants[idx].f_z = quadrants[idx_m].f_z;
+
+            // copy-shift the x, y and z coordinats of the mirror cell by -L_x, +L_y and +L_z
+            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+            for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
+            {
+                quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
+                quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
+                quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
+            }
+        }
+
+        // 8
+        // idx_x = cellList_parameter.N_x + 1 && idx_y = cellList_parameter.N_y + 1 && idx_z =
+        // cellList_parameter.N_z + 1
+        idx_x = cellList_parameter.N_x + 1;
+        idx_y = cellList_parameter.N_y + 1;
+        idx_z = cellList_parameter.N_z + 1;
+        idx_x_m = 1;
+        idx_y_m = 1;
+        idx_z_m = 1;
+        {
+            // linear index of ghost cell
+            const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+            // linear index of mirror cell
+            const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+
+            quadrants[idx].N = quadrants[idx_m].N;
+            quadrants[idx].N_pad = quadrants[idx_m].N_pad;
+
+            // associate the index of the ghost quadrant to the real index of the mirror
+            quadrants[idx].idx = quadrants[idx_m].idx;
+
+            quadrants[idx].f_x = quadrants[idx_m].f_x;
+            quadrants[idx].f_y = quadrants[idx_m].f_y;
+            quadrants[idx].f_z = quadrants[idx_m].f_z;
+
+            // copy-shift the x, y and z coordinats of the mirror cell by +L_x, +L_y and +L_z
+            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+            for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
+            {
+                quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
+                quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
+                quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
+            }
         }
     }
 
-    // 2
-    // idx_z = 0 && idx_y = cellList_parameter.N_y + 1
-    idx_z = 0;
-    idx_y = cellList_parameter.N_y + 1;
-    idx_z_m = cellList_parameter.N_z;
-    idx_y_m = 1;
-    for(idx_x = 1; idx_x <= cellList_parameter.N_x; ++idx_x)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        idx_x_m = idx_x;
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
+    free(cell_idx);
+    free(current_particle_number_of_quadrant);
 
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        quadrants[idx].x = quadrants[idx_m].x;
-
-        // copy-shift the y and z coordinats of the mirror cell by L_y and -L_z
-        MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        {
-            quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
-            quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
-        }
-    }
-
-    // 3
-    // idx_z = cellList_parameter.N_z + 1 && idy_y = 0
-    idx_z = cellList_parameter.N_z + 1;
-    idx_y = 0;
-    idx_z_m = 1;
-    idx_y_m = cellList_parameter.N_y;
-    for(idx_x = 1; idx_x <= cellList_parameter.N_x; ++idx_x)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        idx_x_m = idx_x;
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        quadrants[idx].x = quadrants[idx_m].x;
-
-        // copy-shift the y and z coordinats of the mirror cell by -L_y and +L_z
-        MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        {
-            quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
-            quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
-        }
-    }
-
-    // 4
-    // idx_z = cellList_parameter.N_z + 1 && idy_y = cellList_parameter.N_y  + 1
-    idx_z = cellList_parameter.N_z + 1;
-    idx_y = cellList_parameter.N_y + 1;
-    idx_z_m = 1;
-    idx_y_m = 1;
-    for(idx_x = 1; idx_x <= cellList_parameter.N_x; ++idx_x)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        idx_x_m = idx_x;
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        quadrants[idx].x = quadrants[idx_m].x;
-
-        // copy-shift the y and z coordinats of the mirror cell by +L_y and +L_z
-        MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        {
-            quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
-            quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
-        }
-    }
-}
-
-// edges parallel to y direction
-{
-    // 5
-    // idx_z = 0 && idy_x = 0
-    idx_z = 0;
-    idx_x = 0;
-    idx_z_m = cellList_parameter.N_z;
-    idx_x_m = cellList_parameter.N_x;
-    for(idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        idx_y_m = idx_y;
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        quadrants[idx].y = quadrants[idx_m].y;
-
-        // copy-shift the y and z coordinats of the mirror cell by -L_x and -L_z
-        MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        {
-            quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
-            quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
-        }
-    }
-
-    // 6
-    // idx_z = 0 && idy_x = cellList_parameter.N_x + 1
-    idx_z = 0;
-    idx_x = cellList_parameter.N_x + 1;
-    idx_z_m = cellList_parameter.N_z;
-    idx_x_m = 1;
-    for(idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        idx_y_m = idx_y;
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        quadrants[idx].y = quadrants[idx_m].y;
-
-        // copy-shift the y and z coordinats of the mirror cell by +L_x and -L_z
-        MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        {
-            quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
-            quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
-        }
-    }
-
-    // 7
-    // idx_z = cellList_parameter.N_z + 1 && idy_x = 0
-    idx_z = cellList_parameter.N_z + 1;
-    idx_x = 0;
-    idx_z_m = 1;
-    idx_x_m = cellList_parameter.N_x;
-    for(idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        idx_y_m = idx_y;
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        quadrants[idx].y = quadrants[idx_m].y;
-
-        // copy-shift the y and z coordinats of the mirror cell by -L_x and +L_z
-        MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        {
-            quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
-            quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
-        }
-    }
-
-    // 8
-    // idx_z = cellList_parameter.N_z + 1 && idy_x = cellList_parameter.N_x + 1
-    idx_z = cellList_parameter.N_z + 1;
-    idx_x = cellList_parameter.N_x + 1;
-    idx_z_m = 1;
-    idx_x_m = 1;
-    for(idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        idx_y_m = idx_y;
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        quadrants[idx].y = quadrants[idx_m].y;
-
-        // copy-shift the y and z coordinats of the mirror cell by +L_x and +L_z
-        MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        {
-            quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
-            quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
-        }
-    }
-}
-
-// edges parallel to z direction
-{
-    // 9
-    // idx_y = 0 && idy_x = 0
-    idx_y = 0;
-    idx_x = 0;
-    idx_y_m = cellList_parameter.N_y;
-    idx_x_m = cellList_parameter.N_x;
-    for(idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        idx_z_m = idx_z;
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        quadrants[idx].z = quadrants[idx_m].z;
-
-        // copy-shift the x and y coordinats of the mirror cell by -L_x and -L_y
-        MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        {
-            quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
-            quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
-        }
-    }
-
-    // 10
-    // idx_y = 0 && idy_x = cellList_parameter.N_x + 1
-    idx_y = 0;
-    idx_x = cellList_parameter.N_x + 1;
-    idx_y_m = cellList_parameter.N_y;
-    idx_x_m = 1;
-    for(idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        idx_z_m = idx_z;
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        quadrants[idx].z = quadrants[idx_m].z;
-
-        // copy-shift the x and y coordinats of the mirror cell by +L_x and -L_y
-        MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        {
-            quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
-            quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
-        }
-    }
-
-    // 11
-    // idx_y = cellList_parameter.N_y + 1 && idy_x = 0
-    idx_y = cellList_parameter.N_y + 1;
-    idx_x = 0;
-    idx_y_m = 1;
-    idx_x_m = cellList_parameter.N_x;
-    for(idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        idx_z_m = idx_z;
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        quadrants[idx].z = quadrants[idx_m].z;
-
-        // copy-shift the x and y coordinats of the mirror cell by -L_x and +L_y
-        MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        {
-            quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
-            quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
-        }
-    }
-
-    // 12
-    // idx_y = cellList_parameter.N_y + 1 && idy_x = cellList_parameter.N_x + 1
-    idx_y = cellList_parameter.N_y + 1;
-    idx_x = cellList_parameter.N_x + 1;
-    idx_y_m = 1;
-    idx_x_m = 1;
-    for(idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        idx_z_m = idx_z;
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        quadrants[idx].z = quadrants[idx_m].z;
-
-        // copy-shift the x and y coordinats of the mirror cell by +L_x and +L_y
-        MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        {
-            quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
-            quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
-        }
-    }
-}
-}
-
-// corners ghost quadrants
-{
-    /*             _________________________
-                  /7_____________________ 8/|
-                 / / ___________________/ / |
-                / / /| |               / /  |
-               / / / | |              / / . |
-              / / /| | |             / / /| |
-             / / / | | |            / / / | |      ^
-            / / /  | | |           / / /| | |      | Z direction
-           / /_/___|_|_|__________/ / / | | |      |
-          /5______________________6/ /  | | |
-          | ______________________ | |  | | |
-          | | |    | | |_________| | |__| | |
-          | | |    |3|___________| | |___4| |
-          | | |   / / ___________| | |_  / /
-          | | |  / / /           | | |/ / /
-          | | | / / /            | | | / /
-          | | |/ / /             | | |/ /
-          | | | / /              | | ' /       ^
-          | | |/_/_______________| |  /       / Y dirrection
-          | |____________________| | /       /
-          |1______________________2|/
-
-
-              --> X direction
-
-    */
-
-    // 1
-    // idx_x = 0 && idx_y = 0 && idx_z = 0
-    idx_x = 0;
-    idx_y = 0;
-    idx_z = 0;
-    idx_x_m = cellList_parameter.N_x;
-    idx_y_m = cellList_parameter.N_y;
-    idx_z_m = cellList_parameter.N_z;
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        // copy-shift the x, y and z coordinats of the mirror cell by -L_x, -L_y and -L_z
-        MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        {
-            quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
-            quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
-            quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
-        }
-    }
-
-    // 2
-    // idx_x = cellList_parameter.N_x + 1 && idx_y = 0 && idx_z = 0
-    idx_x = cellList_parameter.N_x + 1;
-    idx_y = 0;
-    idx_z = 0;
-    idx_x_m = 1;
-    idx_y_m = cellList_parameter.N_y;
-    idx_z_m = cellList_parameter.N_z;
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        // copy-shift the x, y and z coordinats of the mirror cell by +L_x, -L_y and -L_z
-        MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N; ++k)
-        {
-            quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
-            quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
-            quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
-        }
-    }
-
-    // 3
-    // idx_x = 0 && idx_y = cellList_parameter.N_y + 1 && idx_z = 0
-    idx_x = 0;
-    idx_y = cellList_parameter.N_y + 1;
-    idx_z = 0;
-    idx_x_m = cellList_parameter.N_x;
-    idx_y_m = 1;
-    idx_z_m = cellList_parameter.N_z;
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        // copy-shift the x, y and z coordinats of the mirror cell by -L_x, +L_y and -L_z
-        MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N; ++k)
-        {
-            quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
-            quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
-            quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
-        }
-    }
-
-    // 4
-    // idx_x = cellList_parameter.N_x + 1 && idx_y = cellList_parameter.N_y + 1 && idx_z = 0
-    idx_x = cellList_parameter.N_x + 1;
-    idx_y = cellList_parameter.N_y + 1;
-    idx_z = 0;
-    idx_x_m = 1;
-    idx_y_m = 1;
-    idx_z_m = cellList_parameter.N_z;
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        // copy-shift the x, y and z coordinats of the mirror cell by +L_x, +L_y and -L_z
-        MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        {
-            quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
-            quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
-            quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
-        }
-    }
-
-    // 5
-    // idx_x = 0 && idx_y = 0 && idx_z = cellList_parameter.N_z + 1
-    idx_x = 0;
-    idx_y = 0;
-    idx_z = cellList_parameter.N_z + 1;
-    idx_x_m = cellList_parameter.N_x;
-    idx_y_m = cellList_parameter.N_y;
-    idx_z_m = 1;
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        // copy-shift the x, y and z coordinats of the mirror cell by -L_x, -L_y and +L_z
-        MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        {
-            quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
-            quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
-            quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
-        }
-    }
-
-    // 6
-    // idx_x = cellList_parameter.N_x + 1 && idx_y = 0 && idx_z = cellList_parameter.N_z + 1
-    idx_x = cellList_parameter.N_x + 1;
-    idx_y = 0;
-    idx_z = cellList_parameter.N_z + 1;
-    idx_x_m = 1;
-    idx_y_m = cellList_parameter.N_y;
-    idx_z_m = 1;
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        // copy-shift the x, y and z coordinats of the mirror cell by +L_x, -L_y and +L_z
-        MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        {
-            quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
-            quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
-            quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
-        }
-    }
-
-    // 7
-    // idx_x = 0 && idx_y = cellList_parameter.N_y + 1 && idx_z = cellList_parameter.N_z + 1
-    idx_x = 0;
-    idx_y = cellList_parameter.N_y + 1;
-    idx_z = cellList_parameter.N_z + 1;
-    idx_x_m = cellList_parameter.N_x;
-    idx_y_m = 1;
-    idx_z_m = 1;
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        // copy-shift the x, y and z coordinats of the mirror cell by -L_x, +L_y and +L_z
-        MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        {
-            quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
-            quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
-            quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
-        }
-    }
-
-    // 8
-    // idx_x = cellList_parameter.N_x + 1 && idx_y = cellList_parameter.N_y + 1 && idx_z =
-    // cellList_parameter.N_z + 1
-    idx_x = cellList_parameter.N_x + 1;
-    idx_y = cellList_parameter.N_y + 1;
-    idx_z = cellList_parameter.N_z + 1;
-    idx_x_m = 1;
-    idx_y_m = 1;
-    idx_z_m = 1;
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-        // linear index of mirror cell
-        const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
-
-        quadrants[idx].N = quadrants[idx_m].N;
-        quadrants[idx].N_pad = quadrants[idx_m].N_pad;
-
-        // associate the index of the ghost quadrant to the real index of the mirror
-        quadrants[idx].idx = quadrants[idx_m].idx;
-
-        quadrants[idx].f_x = quadrants[idx_m].f_x;
-        quadrants[idx].f_y = quadrants[idx_m].f_y;
-        quadrants[idx].f_z = quadrants[idx_m].f_z;
-
-        // copy-shift the x, y and z coordinats of the mirror cell by +L_x, +L_y and +L_z
-        MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
-        MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
-        for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
-        {
-            quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
-            quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
-            quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
-        }
-    }
-}
-
-free(cell_idx);
-free(current_particle_number_of_quadrant);
-
-return quadrants;
+    return quadrants;
 }
 
 
@@ -1478,267 +960,267 @@ void molec_quadrants_finalize_ghost(molec_Quadrant_t* quadrants,
     }
 
     // edge ghost quadrants
-    { // edges parallel to x direction
-     {// idx_z = 0 && idy_y = 0
-      idx_z = 0;
-    idx_y = 0;
-    for(idx_x = 1; idx_x <= cellList_parameter.N_x; ++idx_x)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+    {     // edges parallel to x direction
+        { // idx_z = 0 && idy_y = 0
+            idx_z = 0;
+            idx_y = 0;
+            for(idx_x = 1; idx_x <= cellList_parameter.N_x; ++idx_x)
+            {
+                // linear index of ghost cell
+                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
 
-        MOLEC_FREE(quadrants[idx].y);
-        MOLEC_FREE(quadrants[idx].z);
+                MOLEC_FREE(quadrants[idx].y);
+                MOLEC_FREE(quadrants[idx].z);
+            }
+
+            // idx_z = 0 && idy_y = cellList_parameter.N_y + 1
+            idx_z = 0;
+            idx_y = cellList_parameter.N_y + 1;
+            for(idx_x = 1; idx_x <= cellList_parameter.N_x; ++idx_x)
+            {
+                // linear index of ghost cell
+                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+                MOLEC_FREE(quadrants[idx].y);
+                MOLEC_FREE(quadrants[idx].z);
+            }
+
+            // idx_z = cellList_parameter.N_z + 1 && idy_y = 0
+            idx_z = cellList_parameter.N_z + 1;
+            idx_y = 0;
+            for(idx_x = 1; idx_x <= cellList_parameter.N_x; ++idx_x)
+            {
+                // linear index of ghost cell
+                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+                MOLEC_FREE(quadrants[idx].y);
+                MOLEC_FREE(quadrants[idx].z);
+            }
+
+            // idx_z = cellList_parameter.N_z + 1 && idy_y = cellList_parameter.N_y  + 1
+            idx_z = cellList_parameter.N_z + 1;
+            idx_y = cellList_parameter.N_y + 1;
+            for(idx_x = 1; idx_x <= cellList_parameter.N_x; ++idx_x)
+            {
+                // linear index of ghost cell
+                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+                MOLEC_FREE(quadrants[idx].y);
+                MOLEC_FREE(quadrants[idx].z);
+            }
+        }
+
+        // edges parallel to y direction
+        {
+            // idx_z = 0 && idy_x = 0
+            idx_z = 0;
+            idx_x = 0;
+            for(idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
+            {
+                // linear index of ghost cell
+                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+                MOLEC_FREE(quadrants[idx].x);
+                MOLEC_FREE(quadrants[idx].z);
+            }
+
+            // idx_z = 0 && idy_x = cellList_parameter.N_x + 1
+            idx_z = 0;
+            idx_x = cellList_parameter.N_x + 1;
+            for(idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
+            {
+                // linear index of ghost cell
+                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+                MOLEC_FREE(quadrants[idx].x);
+                MOLEC_FREE(quadrants[idx].z);
+            }
+
+            // idx_z = cellList_parameter.N_z + 1 && idy_x = 0
+            idx_z = cellList_parameter.N_z + 1;
+            idx_x = 0;
+            for(idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
+            {
+                // linear index of ghost cell
+                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+                MOLEC_FREE(quadrants[idx].x);
+                MOLEC_FREE(quadrants[idx].z);
+            }
+
+            // idx_z = cellList_parameter.N_z + 1 && idy_x = cellList_parameter.N_x + 1
+            idx_z = cellList_parameter.N_z + 1;
+            idx_x = cellList_parameter.N_x + 1;
+            for(idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
+            {
+                // linear index of ghost cell
+                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+                MOLEC_FREE(quadrants[idx].x);
+                MOLEC_FREE(quadrants[idx].z);
+            }
+        }
+
+        // edges parallel to z direction
+        {
+            // idx_y = 0 && idy_x = 0
+            idx_y = 0;
+            idx_x = 0;
+            for(idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
+            {
+                // linear index of ghost cell
+                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+                MOLEC_FREE(quadrants[idx].x);
+                MOLEC_FREE(quadrants[idx].y);
+            }
+
+            // idx_y = 0 && idy_x = cellList_parameter.N_x + 1
+            idx_y = 0;
+            idx_x = cellList_parameter.N_x + 1;
+            for(idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
+            {
+                // linear index of ghost cell
+                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+                MOLEC_FREE(quadrants[idx].x);
+                MOLEC_FREE(quadrants[idx].y);
+            }
+
+            // idx_y = cellList_parameter.N_y + 1 && idy_x = 0
+            idx_y = cellList_parameter.N_y + 1;
+            idx_x = 0;
+            for(idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
+            {
+                // linear index of ghost cell
+                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+                MOLEC_FREE(quadrants[idx].x);
+                MOLEC_FREE(quadrants[idx].y);
+            }
+
+            // idx_y = cellList_parameter.N_y + 1 && idy_x = cellList_parameter.N_x + 1
+            idx_y = cellList_parameter.N_y + 1;
+            idx_x = cellList_parameter.N_x + 1;
+            for(idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
+            {
+                // linear index of ghost cell
+                const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+                MOLEC_FREE(quadrants[idx].x);
+                MOLEC_FREE(quadrants[idx].y);
+            }
+        }
     }
 
-    // idx_z = 0 && idy_y = cellList_parameter.N_y + 1
-    idx_z = 0;
-    idx_y = cellList_parameter.N_y + 1;
-    for(idx_x = 1; idx_x <= cellList_parameter.N_x; ++idx_x)
+    // corners ghost quadrants
     {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
 
-        MOLEC_FREE(quadrants[idx].y);
-        MOLEC_FREE(quadrants[idx].z);
+        // idx_x = 0 && idx_y = 0 && idx_z = 0
+        idx_x = 0;
+        idx_y = 0;
+        idx_z = 0;
+        {
+            // linear index of ghost cell
+            const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+            MOLEC_FREE(quadrants[idx].x);
+            MOLEC_FREE(quadrants[idx].y);
+            MOLEC_FREE(quadrants[idx].z);
+        }
+
+        // idx_x = cellList_parameter.N_x + 1 && idx_y = 0 && idx_z = 0
+        idx_x = cellList_parameter.N_x + 1;
+        idx_y = 0;
+        idx_z = 0;
+        {
+            // linear index of ghost cell
+            const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+            MOLEC_FREE(quadrants[idx].x);
+            MOLEC_FREE(quadrants[idx].y);
+            MOLEC_FREE(quadrants[idx].z);
+        }
+
+        // idx_x = 0 && idx_y = cellList_parameter.N_y + 1 && idx_z = 0
+        idx_x = 0;
+        idx_y = cellList_parameter.N_y + 1;
+        idx_z = 0;
+        {
+            // linear index of ghost cell
+            const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+            MOLEC_FREE(quadrants[idx].x);
+            MOLEC_FREE(quadrants[idx].y);
+            MOLEC_FREE(quadrants[idx].z);
+        }
+
+        // idx_x = cellList_parameter.N_x + 1 && idx_y = cellList_parameter.N_y + 1 && idx_z = 0
+        idx_x = cellList_parameter.N_x + 1;
+        idx_y = cellList_parameter.N_y + 1;
+        idx_z = 0;
+        {
+            // linear index of ghost cell
+            const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+            MOLEC_FREE(quadrants[idx].x);
+            MOLEC_FREE(quadrants[idx].y);
+            MOLEC_FREE(quadrants[idx].z);
+        }
+
+        // idx_x = 0 && idx_y = 0 && idx_z = cellList_parameter.N_z + 1
+        idx_x = 0;
+        idx_y = 0;
+        idx_z = cellList_parameter.N_z + 1;
+        {
+            // linear index of ghost cell
+            const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+            MOLEC_FREE(quadrants[idx].x);
+            MOLEC_FREE(quadrants[idx].y);
+            MOLEC_FREE(quadrants[idx].z);
+        }
+
+        // idx_x = cellList_parameter.N_x + 1 && idx_y = 0 && idx_z = cellList_parameter.N_z + 1
+        idx_x = cellList_parameter.N_x + 1;
+        idx_y = 0;
+        idx_z = cellList_parameter.N_z + 1;
+        {
+            // linear index of ghost cell
+            const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+            MOLEC_FREE(quadrants[idx].x);
+            MOLEC_FREE(quadrants[idx].y);
+            MOLEC_FREE(quadrants[idx].z);
+        }
+
+        // idx_x = 0 && idx_y = cellList_parameter.N_y + 1 && idx_z = cellList_parameter.N_z + 1
+        idx_x = 0;
+        idx_y = cellList_parameter.N_y + 1;
+        idx_z = cellList_parameter.N_z + 1;
+        {
+            // linear index of ghost cell
+            const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+            MOLEC_FREE(quadrants[idx].x);
+            MOLEC_FREE(quadrants[idx].y);
+            MOLEC_FREE(quadrants[idx].z);
+        }
+
+        // idx_x = cellList_parameter.N_x + 1 && idx_y = cellList_parameter.N_y + 1 && idx_z =
+        // cellList_parameter.N_z + 1
+        idx_x = cellList_parameter.N_x + 1;
+        idx_y = cellList_parameter.N_y + 1;
+        idx_z = cellList_parameter.N_z + 1;
+        {
+            // linear index of ghost cell
+            const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
+
+            MOLEC_FREE(quadrants[idx].x);
+            MOLEC_FREE(quadrants[idx].y);
+            MOLEC_FREE(quadrants[idx].z);
+        }
     }
 
-    // idx_z = cellList_parameter.N_z + 1 && idy_y = 0
-    idx_z = cellList_parameter.N_z + 1;
-    idx_y = 0;
-    for(idx_x = 1; idx_x <= cellList_parameter.N_x; ++idx_x)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].y);
-        MOLEC_FREE(quadrants[idx].z);
-    }
-
-    // idx_z = cellList_parameter.N_z + 1 && idy_y = cellList_parameter.N_y  + 1
-    idx_z = cellList_parameter.N_z + 1;
-    idx_y = cellList_parameter.N_y + 1;
-    for(idx_x = 1; idx_x <= cellList_parameter.N_x; ++idx_x)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].y);
-        MOLEC_FREE(quadrants[idx].z);
-    }
-}
-
-// edges parallel to y direction
-{
-    // idx_z = 0 && idy_x = 0
-    idx_z = 0;
-    idx_x = 0;
-    for(idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].x);
-        MOLEC_FREE(quadrants[idx].z);
-    }
-
-    // idx_z = 0 && idy_x = cellList_parameter.N_x + 1
-    idx_z = 0;
-    idx_x = cellList_parameter.N_x + 1;
-    for(idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].x);
-        MOLEC_FREE(quadrants[idx].z);
-    }
-
-    // idx_z = cellList_parameter.N_z + 1 && idy_x = 0
-    idx_z = cellList_parameter.N_z + 1;
-    idx_x = 0;
-    for(idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].x);
-        MOLEC_FREE(quadrants[idx].z);
-    }
-
-    // idx_z = cellList_parameter.N_z + 1 && idy_x = cellList_parameter.N_x + 1
-    idx_z = cellList_parameter.N_z + 1;
-    idx_x = cellList_parameter.N_x + 1;
-    for(idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].x);
-        MOLEC_FREE(quadrants[idx].z);
-    }
-}
-
-// edges parallel to z direction
-{
-    // idx_y = 0 && idy_x = 0
-    idx_y = 0;
-    idx_x = 0;
-    for(idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].x);
-        MOLEC_FREE(quadrants[idx].y);
-    }
-
-    // idx_y = 0 && idy_x = cellList_parameter.N_x + 1
-    idx_y = 0;
-    idx_x = cellList_parameter.N_x + 1;
-    for(idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].x);
-        MOLEC_FREE(quadrants[idx].y);
-    }
-
-    // idx_y = cellList_parameter.N_y + 1 && idy_x = 0
-    idx_y = cellList_parameter.N_y + 1;
-    idx_x = 0;
-    for(idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].x);
-        MOLEC_FREE(quadrants[idx].y);
-    }
-
-    // idx_y = cellList_parameter.N_y + 1 && idy_x = cellList_parameter.N_x + 1
-    idx_y = cellList_parameter.N_y + 1;
-    idx_x = cellList_parameter.N_x + 1;
-    for(idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].x);
-        MOLEC_FREE(quadrants[idx].y);
-    }
-}
-}
-
-// corners ghost quadrants
-{
-
-    // idx_x = 0 && idx_y = 0 && idx_z = 0
-    idx_x = 0;
-    idx_y = 0;
-    idx_z = 0;
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].x);
-        MOLEC_FREE(quadrants[idx].y);
-        MOLEC_FREE(quadrants[idx].z);
-    }
-
-    // idx_x = cellList_parameter.N_x + 1 && idx_y = 0 && idx_z = 0
-    idx_x = cellList_parameter.N_x + 1;
-    idx_y = 0;
-    idx_z = 0;
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].x);
-        MOLEC_FREE(quadrants[idx].y);
-        MOLEC_FREE(quadrants[idx].z);
-    }
-
-    // idx_x = 0 && idx_y = cellList_parameter.N_y + 1 && idx_z = 0
-    idx_x = 0;
-    idx_y = cellList_parameter.N_y + 1;
-    idx_z = 0;
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].x);
-        MOLEC_FREE(quadrants[idx].y);
-        MOLEC_FREE(quadrants[idx].z);
-    }
-
-    // idx_x = cellList_parameter.N_x + 1 && idx_y = cellList_parameter.N_y + 1 && idx_z = 0
-    idx_x = cellList_parameter.N_x + 1;
-    idx_y = cellList_parameter.N_y + 1;
-    idx_z = 0;
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].x);
-        MOLEC_FREE(quadrants[idx].y);
-        MOLEC_FREE(quadrants[idx].z);
-    }
-
-    // idx_x = 0 && idx_y = 0 && idx_z = cellList_parameter.N_z + 1
-    idx_x = 0;
-    idx_y = 0;
-    idx_z = cellList_parameter.N_z + 1;
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].x);
-        MOLEC_FREE(quadrants[idx].y);
-        MOLEC_FREE(quadrants[idx].z);
-    }
-
-    // idx_x = cellList_parameter.N_x + 1 && idx_y = 0 && idx_z = cellList_parameter.N_z + 1
-    idx_x = cellList_parameter.N_x + 1;
-    idx_y = 0;
-    idx_z = cellList_parameter.N_z + 1;
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].x);
-        MOLEC_FREE(quadrants[idx].y);
-        MOLEC_FREE(quadrants[idx].z);
-    }
-
-    // idx_x = 0 && idx_y = cellList_parameter.N_y + 1 && idx_z = cellList_parameter.N_z + 1
-    idx_x = 0;
-    idx_y = cellList_parameter.N_y + 1;
-    idx_z = cellList_parameter.N_z + 1;
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].x);
-        MOLEC_FREE(quadrants[idx].y);
-        MOLEC_FREE(quadrants[idx].z);
-    }
-
-    // idx_x = cellList_parameter.N_x + 1 && idx_y = cellList_parameter.N_y + 1 && idx_z =
-    // cellList_parameter.N_z + 1
-    idx_x = cellList_parameter.N_x + 1;
-    idx_y = cellList_parameter.N_y + 1;
-    idx_z = cellList_parameter.N_z + 1;
-    {
-        // linear index of ghost cell
-        const int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
-
-        MOLEC_FREE(quadrants[idx].x);
-        MOLEC_FREE(quadrants[idx].y);
-        MOLEC_FREE(quadrants[idx].z);
-    }
-}
-
-free(quadrants);
+    free(quadrants);
 }
