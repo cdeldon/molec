@@ -84,21 +84,26 @@ molec_Quadrant_t* molec_quadrant_init(const int N,
         quadrants[idx].N += 1;
     }
 
-    // allocate memory knowing the size of each quadrant
-
     for(int i = 0; i < cellList_parameter.N; ++i)
     {
-        MOLEC_MALLOC(quadrants[i].x, quadrants[i].N * sizeof(float));
-        MOLEC_MALLOC(quadrants[i].y, quadrants[i].N * sizeof(float));
-        MOLEC_MALLOC(quadrants[i].z, quadrants[i].N * sizeof(float));
+        int pad = quadrants[i].N % 8;
+        quadrants[i].N_pad = quadrants[i].N + pad;
+    }
 
-        MOLEC_MALLOC(quadrants[i].v_x, quadrants[i].N * sizeof(float));
-        MOLEC_MALLOC(quadrants[i].v_y, quadrants[i].N * sizeof(float));
-        MOLEC_MALLOC(quadrants[i].v_z, quadrants[i].N * sizeof(float));
+    // allocate memory knowing the size of each quadrant
+    for(int i = 0; i < cellList_parameter.N; ++i)
+    {
+        MOLEC_MALLOC(quadrants[i].x, quadrants[i].N_pad * sizeof(float));
+        MOLEC_MALLOC(quadrants[i].y, quadrants[i].N_pad * sizeof(float));
+        MOLEC_MALLOC(quadrants[i].z, quadrants[i].N_pad * sizeof(float));
 
-        MOLEC_MALLOC(quadrants[i].f_x, quadrants[i].N * sizeof(float));
-        MOLEC_MALLOC(quadrants[i].f_y, quadrants[i].N * sizeof(float));
-        MOLEC_MALLOC(quadrants[i].f_z, quadrants[i].N * sizeof(float));
+        MOLEC_MALLOC(quadrants[i].v_x, quadrants[i].N_pad * sizeof(float));
+        MOLEC_MALLOC(quadrants[i].v_y, quadrants[i].N_pad * sizeof(float));
+        MOLEC_MALLOC(quadrants[i].v_z, quadrants[i].N_pad * sizeof(float));
+
+        MOLEC_MALLOC(quadrants[i].f_x, quadrants[i].N_pad * sizeof(float));
+        MOLEC_MALLOC(quadrants[i].f_y, quadrants[i].N_pad * sizeof(float));
+        MOLEC_MALLOC(quadrants[i].f_z, quadrants[i].N_pad * sizeof(float));
     }
 
     // for each particle copy position, velocity and force inside their corresponding quadrant
@@ -124,6 +129,17 @@ molec_Quadrant_t* molec_quadrant_init(const int N,
         quadrants[idx].f_z[pos] = 0.f;
 
         current_particle_number_of_quadrant[idx] += 1;
+    }
+
+    float pad_value = -10 * molec_parameter->Rcut;
+    for(int i = 0; i < cellList_parameter.N; ++i)
+    {
+        for(int j = quadrants[i].N; j < quadrants[i].N_pad; ++j)
+        {
+            quadrants[i].x[j] = pad_value;
+            quadrants[i].y[j] = pad_value;
+            quadrants[i].z[j] = pad_value;
+        }
     }
 
     free(cell_idx);
@@ -263,6 +279,12 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
         quadrants[idx].N += 1;
     }
 
+    for(int i = 0; i < N_ghost; ++i)
+    {
+        int pad = quadrants[i].N % 8;
+        quadrants[i].N_pad = quadrants[i].N + pad;
+    }
+
     // allocate memory knowing the size of each internal quadrant
     for(int idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
         for(int idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
@@ -272,17 +294,17 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 int idx = idx_x + N_x_ghost * (idx_y + N_y_ghost * idx_z);
                 quadrants[idx].idx = idx;
 
-                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx].N * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx].N_pad * sizeof(float));
 
-                MOLEC_MALLOC(quadrants[idx].v_x, quadrants[idx].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].v_y, quadrants[idx].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].v_z, quadrants[idx].N * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].v_x, quadrants[idx].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].v_y, quadrants[idx].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].v_z, quadrants[idx].N_pad * sizeof(float));
 
-                MOLEC_MALLOC(quadrants[idx].f_x, quadrants[idx].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].f_y, quadrants[idx].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].f_z, quadrants[idx].N * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].f_x, quadrants[idx].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].f_y, quadrants[idx].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].f_z, quadrants[idx].N_pad * sizeof(float));
             }
 
     // for each particle copy position, velocity and force inside their corresponding quadrant
@@ -331,6 +353,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
                 // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
@@ -343,8 +366,8 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].y = quadrants[idx_m].y;
 
                 // copy-shift the z coordinats of the mirror cell by -L_z
-                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                     quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
             }
 
@@ -362,6 +385,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
                 // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
@@ -374,8 +398,8 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].y = quadrants[idx_m].y;
 
                 // copy-shift the z coordinats of the mirror cell by +L_z
-                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                     quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
             }
 
@@ -393,9 +417,11 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
-                // associate the index of the ghost quadrant to the real index of the mirror
+                                // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
+
 
                 quadrants[idx].f_x = quadrants[idx_m].f_x;
                 quadrants[idx].f_y = quadrants[idx_m].f_y;
@@ -405,8 +431,8 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].z = quadrants[idx_m].z;
 
                 // copy-shift the y coordinats of the mirror cell by -L_y
-                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                     quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
             }
 
@@ -424,6 +450,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
                 // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
@@ -436,8 +463,8 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].z = quadrants[idx_m].z;
 
                 // copy-shift the y coordinats of the mirror cell by +L_y
-                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                     quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
             }
 
@@ -455,6 +482,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
                 // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
@@ -467,8 +495,8 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].z = quadrants[idx_m].z;
 
                 // copy-shift the y coordinats of the mirror cell by -L_x
-                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                     quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
             }
 
@@ -486,6 +514,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
                 // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
@@ -498,8 +527,8 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].z = quadrants[idx_m].z;
 
                 // copy-shift the y coordinats of the mirror cell by +L_x
-                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                     quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
             }
     }
@@ -549,6 +578,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
                 // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
@@ -560,9 +590,9 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].x = quadrants[idx_m].x;
 
                 // copy-shift the y and z coordinats of the mirror cell by -L_y and -L_z
-                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                 {
                     quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
                     quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
@@ -584,6 +614,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
                 // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
@@ -595,9 +626,9 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].x = quadrants[idx_m].x;
 
                 // copy-shift the y and z coordinats of the mirror cell by L_y and -L_z
-                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                 {
                     quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
                     quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
@@ -619,6 +650,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
                 // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
@@ -630,9 +662,9 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].x = quadrants[idx_m].x;
 
                 // copy-shift the y and z coordinats of the mirror cell by -L_y and +L_z
-                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                 {
                     quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
                     quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
@@ -654,6 +686,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
                 // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
@@ -665,9 +698,9 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].x = quadrants[idx_m].x;
 
                 // copy-shift the y and z coordinats of the mirror cell by +L_y and +L_z
-                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                 {
                     quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
                     quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
@@ -692,6 +725,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
                 // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
@@ -703,9 +737,9 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].y = quadrants[idx_m].y;
 
                 // copy-shift the y and z coordinats of the mirror cell by -L_x and -L_z
-                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                 {
                     quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
                     quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
@@ -727,6 +761,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
                 // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
@@ -738,9 +773,9 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].y = quadrants[idx_m].y;
 
                 // copy-shift the y and z coordinats of the mirror cell by +L_x and -L_z
-                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                 {
                     quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
                     quadrants[idx].z[k] = quadrants[idx_m].z[k] - molec_parameter->L_z;
@@ -762,6 +797,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
                 // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
@@ -773,9 +809,9 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].y = quadrants[idx_m].y;
 
                 // copy-shift the y and z coordinats of the mirror cell by -L_x and +L_z
-                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                 {
                     quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
                     quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
@@ -797,6 +833,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
                 // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
@@ -808,9 +845,9 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].y = quadrants[idx_m].y;
 
                 // copy-shift the y and z coordinats of the mirror cell by +L_x and +L_z
-                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                 {
                     quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
                     quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
@@ -835,6 +872,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
                 // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
@@ -846,9 +884,9 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].z = quadrants[idx_m].z;
 
                 // copy-shift the x and y coordinats of the mirror cell by -L_x and -L_y
-                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                 {
                     quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
                     quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
@@ -870,6 +908,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
                 // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
@@ -881,9 +920,9 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].z = quadrants[idx_m].z;
 
                 // copy-shift the x and y coordinats of the mirror cell by +L_x and -L_y
-                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                 {
                     quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
                     quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
@@ -905,6 +944,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
                 // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
@@ -916,9 +956,9 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].z = quadrants[idx_m].z;
 
                 // copy-shift the x and y coordinats of the mirror cell by -L_x and +L_y
-                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                 {
                     quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
                     quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
@@ -940,6 +980,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
                 quadrants[idx].N = quadrants[idx_m].N;
+                                quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
                 // associate the index of the ghost quadrant to the real index of the mirror
                 quadrants[idx].idx = quadrants[idx_m].idx;
@@ -951,9 +992,9 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].z = quadrants[idx_m].z;
 
                 // copy-shift the x and y coordinats of the mirror cell by +L_x and +L_y
-                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-                for(int k = 0; k < quadrants[idx_m].N; ++k)
+                MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+                MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+                for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
                 {
                     quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
                     quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
@@ -1006,6 +1047,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
             quadrants[idx].N = quadrants[idx_m].N;
+                            quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
             // associate the index of the ghost quadrant to the real index of the mirror
             quadrants[idx].idx = quadrants[idx_m].idx;
@@ -1015,10 +1057,10 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             quadrants[idx].f_z = quadrants[idx_m].f_z;
 
             // copy-shift the x, y and z coordinats of the mirror cell by -L_x, -L_y and -L_z
-            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
-            for(int k = 0; k < quadrants[idx_m].N; ++k)
+            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+            for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
             {
                 quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
                 quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
@@ -1041,6 +1083,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
             quadrants[idx].N = quadrants[idx_m].N;
+                            quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
             // associate the index of the ghost quadrant to the real index of the mirror
             quadrants[idx].idx = quadrants[idx_m].idx;
@@ -1050,9 +1093,9 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             quadrants[idx].f_z = quadrants[idx_m].f_z;
 
             // copy-shift the x, y and z coordinats of the mirror cell by +L_x, -L_y and -L_z
-            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
             for(int k = 0; k < quadrants[idx_m].N; ++k)
             {
                 quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
@@ -1076,6 +1119,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
             quadrants[idx].N = quadrants[idx_m].N;
+                            quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
             // associate the index of the ghost quadrant to the real index of the mirror
             quadrants[idx].idx = quadrants[idx_m].idx;
@@ -1085,9 +1129,9 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             quadrants[idx].f_z = quadrants[idx_m].f_z;
 
             // copy-shift the x, y and z coordinats of the mirror cell by -L_x, +L_y and -L_z
-            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
             for(int k = 0; k < quadrants[idx_m].N; ++k)
             {
                 quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
@@ -1111,6 +1155,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
             quadrants[idx].N = quadrants[idx_m].N;
+                            quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
             // associate the index of the ghost quadrant to the real index of the mirror
             quadrants[idx].idx = quadrants[idx_m].idx;
@@ -1120,10 +1165,10 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             quadrants[idx].f_z = quadrants[idx_m].f_z;
 
             // copy-shift the x, y and z coordinats of the mirror cell by +L_x, +L_y and -L_z
-            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
-            for(int k = 0; k < quadrants[idx_m].N; ++k)
+            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+            for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
             {
                 quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
                 quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
@@ -1146,6 +1191,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
             quadrants[idx].N = quadrants[idx_m].N;
+                            quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
             // associate the index of the ghost quadrant to the real index of the mirror
             quadrants[idx].idx = quadrants[idx_m].idx;
@@ -1155,10 +1201,10 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             quadrants[idx].f_z = quadrants[idx_m].f_z;
 
             // copy-shift the x, y and z coordinats of the mirror cell by -L_x, -L_y and +L_z
-            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
-            for(int k = 0; k < quadrants[idx_m].N; ++k)
+            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+            for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
             {
                 quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
                 quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
@@ -1181,6 +1227,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
             quadrants[idx].N = quadrants[idx_m].N;
+                            quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
             // associate the index of the ghost quadrant to the real index of the mirror
             quadrants[idx].idx = quadrants[idx_m].idx;
@@ -1190,10 +1237,10 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             quadrants[idx].f_z = quadrants[idx_m].f_z;
 
             // copy-shift the x, y and z coordinats of the mirror cell by +L_x, -L_y and +L_z
-            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
-            for(int k = 0; k < quadrants[idx_m].N; ++k)
+            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+            for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
             {
                 quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
                 quadrants[idx].y[k] = quadrants[idx_m].y[k] - molec_parameter->L_y;
@@ -1216,6 +1263,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
             quadrants[idx].N = quadrants[idx_m].N;
+                            quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
             // associate the index of the ghost quadrant to the real index of the mirror
             quadrants[idx].idx = quadrants[idx_m].idx;
@@ -1225,10 +1273,10 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             quadrants[idx].f_z = quadrants[idx_m].f_z;
 
             // copy-shift the x, y and z coordinats of the mirror cell by -L_x, +L_y and +L_z
-            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
-            for(int k = 0; k < quadrants[idx_m].N; ++k)
+            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+            for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
             {
                 quadrants[idx].x[k] = quadrants[idx_m].x[k] - molec_parameter->L_x;
                 quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
@@ -1252,6 +1300,7 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             const int idx_m = idx_x_m + N_x_ghost * (idx_y_m + N_y_ghost * idx_z_m);
 
             quadrants[idx].N = quadrants[idx_m].N;
+                            quadrants[idx].N_pad = quadrants[idx_m].N_pad;
 
             // associate the index of the ghost quadrant to the real index of the mirror
             quadrants[idx].idx = quadrants[idx_m].idx;
@@ -1261,10 +1310,10 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
             quadrants[idx].f_z = quadrants[idx_m].f_z;
 
             // copy-shift the x, y and z coordinats of the mirror cell by +L_x, +L_y and +L_z
-            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N * sizeof(float));
-            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N * sizeof(float));
-            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N * sizeof(float));
-            for(int k = 0; k < quadrants[idx_m].N; ++k)
+            MOLEC_MALLOC(quadrants[idx].x, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].y, quadrants[idx_m].N_pad * sizeof(float));
+            MOLEC_MALLOC(quadrants[idx].z, quadrants[idx_m].N_pad * sizeof(float));
+            for(int k = 0; k < quadrants[idx_m].N_pad; ++k)
             {
                 quadrants[idx].x[k] = quadrants[idx_m].x[k] + molec_parameter->L_x;
                 quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;

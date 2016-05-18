@@ -39,6 +39,10 @@ typedef struct molec_Quadrant
 
     // number of particles in this quadrant
     int N;
+
+    // number of particles (with padding)
+    int N_pad;
+
     // linear index of quadrant inside celllist
     int idx;
 
