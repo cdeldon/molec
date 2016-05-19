@@ -282,7 +282,9 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
     for(int i = 0; i < N_ghost; ++i)
     {
         int pad = quadrants[i].N % 8;
-        quadrants[i].N_pad = quadrants[i].N + pad;
+        if(pad == 0)
+            pad = 8;
+        quadrants[i].N_pad = quadrants[i].N + (8-pad);
     }
 
     // allocate memory knowing the size of each internal quadrant
