@@ -24,8 +24,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define MOLEC_ATOL 1e-04f
-#define MOLEC_RTOL 1e-02f
+#define MOLEC_ATOL 1e-02f
+#define MOLEC_RTOL 1e-01f
 
 /**
  * Number of atoms used during unittesting (defined in Unittest.c)
