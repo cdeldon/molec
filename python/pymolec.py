@@ -23,15 +23,13 @@ class pymolec:
 
         self.N = N
         self.rho = rho
-        self.steps = steps
 
         
-        if isinstance(steps, list):
+        if hasattr(steps, "__len__"):
             if len(N) != len(steps):
                 self.steps = np.full(len(N), steps[0], dtype=np.int)
         else:
             self.steps = np.full(len(N), steps, dtype=np.int)
-            
         
 
         self.force = force
