@@ -195,7 +195,9 @@ MOLEC_INLINE float dist_ghost(float x, float y)
     return r;
 }
 
-void molec_quadrant_neighbor_interaction_ghost(molec_Quadrant_t q, molec_Quadrant_t q_n, float* Epot_)
+void molec_quadrant_neighbor_interaction_ghost(molec_Quadrant_t q,
+                                               molec_Quadrant_t q_n,
+                                               float* Epot_)
 {
     const float sigLJ = molec_parameter->sigLJ;
     const float epsLJ = molec_parameter->epsLJ;
@@ -315,7 +317,7 @@ void molec_force_quadrant_ghost(molec_Simulation_SOA_t* sim, float* Epot, const 
     if(neighbor_cells_ghost == NULL)
     {
         const int N_ghost = N_x_ghost * N_y_ghost * N_z_ghost;
-        MOLEC_MALLOC(neighbor_cells_ghost, N_ghost* sizeof(int*));
+        MOLEC_MALLOC(neighbor_cells_ghost, N_ghost * sizeof(int*));
         // allocate the neighors for the inner quadrants
         for(int idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
             for(int idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
@@ -345,7 +347,8 @@ void molec_force_quadrant_ghost(molec_Simulation_SOA_t* sim, float* Epot, const 
                     int n_idx = neighbor_cells_ghost[idx][neighbor_cell];
 
                     if(quadrants[idx].idx < quadrants[n_idx].idx)
-                        molec_quadrant_neighbor_interaction_ghost(quadrants[idx], quadrants[n_idx], &Epot_);
+                        molec_quadrant_neighbor_interaction_ghost(quadrants[idx], quadrants[n_idx],
+                                                                  &Epot_);
 
                     else if(idx == n_idx)
                         molec_quadrant_self_interaction_ghost(quadrants[idx], &Epot_);
@@ -361,16 +364,17 @@ void molec_force_quadrant_ghost(molec_Simulation_SOA_t* sim, float* Epot, const 
 /**************************************************************************************************/
 
 void molec_quadrant_neighbor_interaction_avx(molec_Quadrant_t q, molec_Quadrant_t q_n, float* Epot_)
-{  
+{
     const __m256 sigLJ = _mm256_set1_ps(molec_parameter->sigLJ);
     const __m256 epsLJ = _mm256_set1_ps(molec_parameter->epsLJ);
 
     const __m256 Rcut2 = _mm256_set1_ps(molec_parameter->Rcut2);
 
     const int N = q.N;
-    const int N_n = q_n.N -8;
+    const int N_n = q_n.N_pad;
 
     __m256 Epot8 = _mm256_setzero_ps();
+    __m256 _1 = _mm256_set1_ps(1.f);
     __m256 _2 = _mm256_set1_ps(2.f);
     __m256 _24epsLJ = _mm256_mul_ps(_mm256_set1_ps(24.f), epsLJ);
 
@@ -384,8 +388,9 @@ void molec_quadrant_neighbor_interaction_avx(molec_Quadrant_t q, molec_Quadrant_
         __m256 f_yi = _mm256_setzero_ps();
         __m256 f_zi = _mm256_setzero_ps();
 
-        for(int j = 0; j < N_n; j+=8)
+        for(int j = 0; j < N_n; j += 8)
         {
+            // load coordinates and fores into AVX vectors
             const __m256 xj = _mm256_load_ps(&q_n.x[j]);
             const __m256 yj = _mm256_load_ps(&q_n.y[j]);
             const __m256 zj = _mm256_load_ps(&q_n.z[j]);
@@ -394,71 +399,138 @@ void molec_quadrant_neighbor_interaction_avx(molec_Quadrant_t q, molec_Quadrant_
             __m256 f_yj = _mm256_load_ps(&q_n.f_y[j]);
             __m256 f_zj = _mm256_load_ps(&q_n.f_z[j]);
 
-            const __m256 xij = _mm256_sub_ps(xi, xj);
-            const __m256 yij = _mm256_sub_ps(yi, yj);
-            const __m256 zij = _mm256_sub_ps(zi, zj);
 
+            // distance computation
+            const __m256 xij = _mm256_sub_ps(xi, xj);
             const __m256 xij2 = _mm256_mul_ps(xij, xij);
+
+            const __m256 yij = _mm256_sub_ps(yi, yj);
             const __m256 yij2 = _mm256_mul_ps(yij, yij);
+
+            const __m256 zij = _mm256_sub_ps(zi, zj);
             const __m256 zij2 = _mm256_mul_ps(zij, zij);
 
             const __m256 r2 = _mm256_add_ps(_mm256_add_ps(xij2, yij2), zij2);
 
-            __m256 mask = _mm256_cmp_ps(r2, Rcut2, _CMP_LT_OQ);
 
+            // r2 < Rcut2
+            const __m256 mask = _mm256_cmp_ps(r2, Rcut2, _CMP_LT_OQ);
 
-            // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
-            const __m256 s2 = _mm256_div_ps(_mm256_mul_ps(sigLJ, sigLJ), r2);
-            const __m256 s6 = _mm256_mul_ps(_mm256_mul_ps(s2, s2), s2);
-            const __m256 s12 = _mm256_mul_ps(s6,s6);
+            // if( any(r2 < R2) )
+            if(_mm256_movemask_ps(mask))
+            {
+                const __m256 r2inv = _mm256_div_ps(_1, r2);
 
-            __m256 s12_minus_s6 = _mm256_sub_ps(s12, s6);
+                const __m256 s2 = _mm256_mul_ps(_mm256_mul_ps(sigLJ, sigLJ), r2inv);
+                const __m256 s6 = _mm256_mul_ps(_mm256_mul_ps(s2, s2), s2);
+                const __m256 s12 = _mm256_mul_ps(s6, s6);
 
-            Epot8 = _mm256_add_ps(Epot8, _mm256_and_ps(s12_minus_s6, mask));
+                const __m256 s12_minus_s6 = _mm256_sub_ps(s12, s6);
+                const __m256 two_s12_minus_s6 = _mm256_sub_ps(_mm256_mul_ps(_2, s12), s6);
 
-            const __m256 two_s12_minus_s6 = _mm256_sub_ps(_mm256_mul_ps(_2, s12), s6);
-            const __m256 fr = _mm256_mul_ps(_mm256_div_ps(_24epsLJ, r2), two_s12_minus_s6);
-            const __m256 fr_mask = _mm256_and_ps(fr, mask);
+                Epot8 = _mm256_add_ps(Epot8, _mm256_and_ps(s12_minus_s6, mask));
 
-            f_xi = _mm256_add_ps(f_xi, _mm256_mul_ps(fr_mask, xij));
-            f_yi = _mm256_add_ps(f_yi, _mm256_mul_ps(fr_mask, yij));
-            f_zi = _mm256_add_ps(f_zi, _mm256_mul_ps(fr_mask, zij));
+                const __m256 fr = _mm256_mul_ps(_mm256_mul_ps(_24epsLJ, r2inv), two_s12_minus_s6);
+                const __m256 fr_mask = _mm256_and_ps(fr, mask);
 
-            f_xj = _mm256_sub_ps(f_xj, _mm256_mul_ps(fr_mask, xij));
-            f_yj = _mm256_sub_ps(f_yj, _mm256_mul_ps(fr_mask, yij));
-            f_zj = _mm256_sub_ps(f_zj, _mm256_mul_ps(fr_mask, zij));
+                const __m256 fr_x = _mm256_mul_ps(fr_mask, xij);
+                const __m256 fr_y = _mm256_mul_ps(fr_mask, yij);
+                const __m256 fr_z = _mm256_mul_ps(fr_mask, zij);
 
-            _mm256_store_ps(&q_n.f_x[j], f_xj);
-            _mm256_store_ps(&q_n.f_y[j], f_yj);
-            _mm256_store_ps(&q_n.f_z[j], f_zj);
+                // update forces
+                f_xi = _mm256_add_ps(f_xi, fr_x);
+                f_yi = _mm256_add_ps(f_yi, fr_y);
+                f_zi = _mm256_add_ps(f_zi, fr_z);
+
+                f_xj = _mm256_sub_ps(f_xj, fr_x);
+                f_yj = _mm256_sub_ps(f_yj, fr_y);
+                f_zj = _mm256_sub_ps(f_zj, fr_z);
+
+                // store back j-forces
+                _mm256_store_ps(&q_n.f_x[j], f_xj);
+                _mm256_store_ps(&q_n.f_y[j], f_yj);
+                _mm256_store_ps(&q_n.f_z[j], f_zj);
+            }
         }
 
+        // update i-forces
         float MOLEC_ALIGNAS(32) f_array[8];
         _mm256_store_ps(f_array, f_xi);
-        q.f_x[i] += f_array[0] + f_array[1] + f_array[2] + f_array[3] +
-                    f_array[4] + f_array[5] + f_array[6] + f_array[7];
+        q.f_x[i] += f_array[0] + f_array[1] + f_array[2] + f_array[3] + f_array[4] + f_array[5]
+                    + f_array[6] + f_array[7];
         _mm256_store_ps(f_array, f_yi);
-        q.f_y[i] += f_array[0] + f_array[1] + f_array[2] + f_array[3] +
-                    f_array[4] + f_array[5] + f_array[6] + f_array[7];
+        q.f_y[i] += f_array[0] + f_array[1] + f_array[2] + f_array[3] + f_array[4] + f_array[5]
+                    + f_array[6] + f_array[7];
         _mm256_store_ps(f_array, f_zi);
-        q.f_z[i] += f_array[0] + f_array[1] + f_array[2] + f_array[3] +
-                    f_array[4] + f_array[5] + f_array[6] + f_array[7];
+        q.f_z[i] += f_array[0] + f_array[1] + f_array[2] + f_array[3] + f_array[4] + f_array[5]
+                    + f_array[6] + f_array[7];
     }
 
     float MOLEC_ALIGNAS(32) E_pot_array[8];
     _mm256_store_ps(E_pot_array, Epot8);
 
     // perform reduction of potential energy
-    *Epot_ += 4 * molec_parameter->epsLJ * (E_pot_array[0] + E_pot_array[1] +E_pot_array[2] +E_pot_array[3] +
-            E_pot_array[4] +E_pot_array[5] +E_pot_array[6] +E_pot_array[7]);
+    *Epot_ += 4
+              * molec_parameter->epsLJ*(E_pot_array[0] + E_pot_array[1] + E_pot_array[2]
+                                        + E_pot_array[3] + E_pot_array[4] + E_pot_array[5]
+                                        + E_pot_array[6] + E_pot_array[7]);
 }
 
 void molec_quadrant_self_interaction_avx(molec_Quadrant_t q, float* Epot_)
 {
     const float sigLJ = molec_parameter->sigLJ;
+        const float epsLJ = molec_parameter->epsLJ;
+
+        const float Rcut2 = molec_parameter->Rcut2;
+
+        for(int i = 0; i < q.N; ++i)
+        {
+            float xi = q.x[i];
+            float yi = q.y[i];
+            float zi = q.z[i];
+
+            float f_xi = q.f_x[i];
+            float f_yi = q.f_y[i];
+            float f_zi = q.f_z[i];
+
+            for(int j = i + 1; j < q.N; ++j)
+            {
+                const float xij = xi - q.x[j];
+                const float yij = yi - q.y[j];
+                const float zij = zi - q.z[j];
+
+                const float r2 = xij * xij + yij * yij + zij * zij;
+
+                if(r2 < Rcut2)
+                {
+                    // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
+                    const float s2 = (sigLJ * sigLJ) / r2;
+                    const float s6 = s2 * s2 * s2;
+
+                    *Epot_ += 4 * epsLJ*(s6 * s6 - s6);
+
+                    const float fr = 24 * epsLJ / r2 * (2 * s6 * s6 - s6);
+
+                    f_xi += fr * xij;
+                    f_yi += fr * yij;
+                    f_zi += fr * zij;
+
+                    q.f_x[j] -= fr * xij;
+                    q.f_y[j] -= fr * yij;
+                    q.f_z[j] -= fr * zij;
+                }
+            }
+            q.f_x[i] = f_xi;
+            q.f_y[i] = f_yi;
+            q.f_z[i] = f_zi;
+        }
+    /*
+    const float sigLJ = molec_parameter->sigLJ;
     const float epsLJ = molec_parameter->epsLJ;
 
     const float Rcut2 = molec_parameter->Rcut2;
+
+    float Epot = 0.f;
 
     for(int i = 0; i < q.N; ++i)
     {
@@ -470,37 +542,97 @@ void molec_quadrant_self_interaction_avx(molec_Quadrant_t q, float* Epot_)
         float f_yi = q.f_y[i];
         float f_zi = q.f_z[i];
 
-        for(int j = i + 1; j < q.N; ++j)
+        for(int j = i + 1; j < q.N; j+=2)
         {
-            const float xij = xi - q.x[j];
-            const float yij = yi - q.y[j];
-            const float zij = zi - q.z[j];
+            const float xij_1 = xi - q.x[j+0];
+            const float yij_1 = yi - q.y[j+0];
+            const float zij_1 = zi - q.z[j+0];
 
-            const float r2 = xij * xij + yij * yij + zij * zij;
+            const float xij_2 = xi - q.x[j+1];
+            const float yij_2 = yi - q.y[j+1];
+            const float zij_2 = zi - q.z[j+1];
 
-            if(r2 < Rcut2)
+            const float r2_1 = xij_1 * xij_1 + yij_1 * yij_1 + zij_1 * zij_1;
+            const float r2_2 = xij_2 * xij_2 + yij_2 * yij_2 + zij_2 * zij_2;
+
+            int r2_1_smaller_Rcut2 = r2_1 < Rcut2;
+            int r2_2_smaller_Rcut2 = r2_2 < Rcut2;
+
+            if(r2_1_smaller_Rcut2 && r2_2_smaller_Rcut2 )
+            {
+                const float r2_1_inv = 1.f/r2_1;
+                const float r2_2_inv = 1.f/r2_2;
+
+                const float s2_1 = (sigLJ * sigLJ) * r2_1_inv;
+                const float s2_2 = (sigLJ * sigLJ) * r2_2_inv;
+                const float s6_1 = s2_1 * s2_1 * s2_1;
+                const float s6_2 = s2_2 * s2_2 * s2_2;
+                const float s12_1 = s6_1 * s6_1;
+                const float s12_2 = s6_2 * s6_2;
+
+                Epot += (s12_1 - s6_1) + (s12_2 - s6_2);
+
+                const float fr_1 = 24 * epsLJ * r2_1_inv * (2 * s12_1 - s6_1);
+                const float fr_2 = 24 * epsLJ * r2_2_inv * (2 * s12_2 - s6_2);
+
+                f_xi += fr_1 * xij_1 + fr_2 * xij_2;
+                f_yi += fr_1 * yij_1 + fr_2 * yij_2;
+                f_zi += fr_1 * zij_1 + fr_2 * zij_2;
+
+                q.f_x[j + 0] -= fr_1 * xij_1;
+                q.f_y[j + 0] -= fr_1 * yij_1;
+                q.f_z[j + 0] -= fr_1 * zij_1;
+
+                q.f_x[j + 1] -= fr_2 * xij_2;
+                q.f_y[j + 1] -= fr_2 * yij_2;
+                q.f_z[j + 1] -= fr_2 * zij_2;
+            }
+            else if(r2_1_smaller_Rcut2)
             {
                 // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
-                const float s2 = (sigLJ * sigLJ) / r2;
+                const float s2 = (sigLJ * sigLJ) / r2_1;
                 const float s6 = s2 * s2 * s2;
 
                 *Epot_ += 4 * epsLJ*(s6 * s6 - s6);
 
-                const float fr = 24 * epsLJ / r2 * (2 * s6 * s6 - s6);
+                const float fr = 24 * epsLJ / r2_1 * (2 * s6 * s6 - s6);
 
-                f_xi += fr * xij;
-                f_yi += fr * yij;
-                f_zi += fr * zij;
+                f_xi += fr * xij_1;
+                f_yi += fr * yij_1;
+                f_zi += fr * zij_1;
 
-                q.f_x[j] -= fr * xij;
-                q.f_y[j] -= fr * yij;
-                q.f_z[j] -= fr * zij;
+                q.f_x[j] -= fr * xij_1;
+                q.f_y[j] -= fr * yij_1;
+                q.f_z[j] -= fr * zij_1;
+            }
+            else if(r2_2_smaller_Rcut2)
+            {
+                // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
+                const float s2 = (sigLJ * sigLJ) / r2_2;
+                const float s6 = s2 * s2 * s2;
+
+                *Epot_ += 4 * epsLJ*(s6 * s6 - s6);
+
+                const float fr = 24 * epsLJ / r2_2 * (2 * s6 * s6 - s6);
+
+                f_xi += fr * xij_2;
+                f_yi += fr * yij_2;
+                f_zi += fr * zij_2;
+
+                q.f_x[j+1] -= fr * xij_2;
+                q.f_y[j+1] -= fr * yij_2;
+                q.f_z[j+1] -= fr * zij_2;
             }
         }
         q.f_x[i] = f_xi;
         q.f_y[i] = f_yi;
         q.f_z[i] = f_zi;
     }
+
+    Epot *= 4 * epsLJ;
+
+    *Epot_ += Epot;
+    */
 }
 
 void molec_force_quadrant_avx(molec_Simulation_SOA_t* sim, float* Epot, const int N)
@@ -520,7 +652,7 @@ void molec_force_quadrant_avx(molec_Simulation_SOA_t* sim, float* Epot, const in
     if(neighbor_cells_ghost == NULL)
     {
         const int N_ghost = N_x_ghost * N_y_ghost * N_z_ghost;
-        MOLEC_MALLOC(neighbor_cells_ghost, N_ghost* sizeof(int*));
+        MOLEC_MALLOC(neighbor_cells_ghost, N_ghost * sizeof(int*));
         // allocate the neighors for the inner quadrants
         for(int idx_z = 1; idx_z <= cellList_parameter.N_z; ++idx_z)
             for(int idx_y = 1; idx_y <= cellList_parameter.N_y; ++idx_y)
@@ -550,7 +682,8 @@ void molec_force_quadrant_avx(molec_Simulation_SOA_t* sim, float* Epot, const in
                     int n_idx = neighbor_cells_ghost[idx][neighbor_cell];
 
                     if(quadrants[idx].idx < quadrants[n_idx].idx)
-                        molec_quadrant_neighbor_interaction_avx(quadrants[idx], quadrants[n_idx], &Epot_);
+                        molec_quadrant_neighbor_interaction_avx(quadrants[idx], quadrants[n_idx],
+                                                                &Epot_);
 
                     else if(idx == n_idx)
                         molec_quadrant_self_interaction_avx(quadrants[idx], &Epot_);

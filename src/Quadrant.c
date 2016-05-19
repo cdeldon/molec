@@ -87,7 +87,9 @@ molec_Quadrant_t* molec_quadrant_init(const int N,
     for(int i = 0; i < cellList_parameter.N; ++i)
     {
         int pad = quadrants[i].N % 8;
-        quadrants[i].N_pad = quadrants[i].N + pad;
+        if(pad == 0)
+            pad = 8;
+        quadrants[i].N_pad = quadrants[i].N + (8-pad);
     }
 
     // allocate memory knowing the size of each quadrant
@@ -391,7 +393,8 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
     }
 
     // edge ghost quadrants
-    { /*             _________________________
+    {
+        /*             _________________________
                     / _____________________  /|
                    / / ________4__________/ / |
                   / / /| |               / /  |
@@ -825,6 +828,18 @@ molec_Quadrant_t* molec_quadrant_init_ghost(const int N,
                 quadrants[idx].y[k] = quadrants[idx_m].y[k] + molec_parameter->L_y;
                 quadrants[idx].z[k] = quadrants[idx_m].z[k] + molec_parameter->L_z;
             }
+        }
+    }
+
+
+    float pad_value = -10 * molec_parameter->Rcut;
+    for(int i = 0; i < N_ghost; ++i)
+    {
+        for(int j = quadrants[i].N; j < quadrants[i].N_pad; ++j)
+        {
+            quadrants[i].x[j] = pad_value;
+            quadrants[i].y[j] = pad_value;
+            quadrants[i].z[j] = pad_value;
         }
     }
 
