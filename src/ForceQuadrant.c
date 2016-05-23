@@ -491,58 +491,51 @@ void molec_quadrant_neighbor_interaction_avx(molec_Quadrant_t q, molec_Quadrant_
 void molec_quadrant_self_interaction_avx(molec_Quadrant_t q, float* Epot_)
 {
     const float sigLJ = molec_parameter->sigLJ;
-        const float epsLJ = molec_parameter->epsLJ;
+    const float epsLJ = molec_parameter->epsLJ;
 
-        const float Rcut2 = molec_parameter->Rcut2;
+    const float Rcut2 = molec_parameter->Rcut2;
 
-        for(int i = 0; i < q.N; ++i)
+    for(int i = 0; i < q.N; ++i)
+    {
+        float xi = q.x[i];
+        float yi = q.y[i];
+        float zi = q.z[i];
+
+        float f_xi = q.f_x[i];
+        float f_yi = q.f_y[i];
+        float f_zi = q.f_z[i];
+
+        for(int j = i + 1; j < q.N; ++j)
         {
-            float xi = q.x[i];
-            float yi = q.y[i];
-            float zi = q.z[i];
+            const float xij = xi - q.x[j];
+            const float yij = yi - q.y[j];
+            const float zij = zi - q.z[j];
 
-            float f_xi = q.f_x[i];
-            float f_yi = q.f_y[i];
-            float f_zi = q.f_z[i];
+            const float r2 = xij * xij + yij * yij + zij * zij;
 
-            for(int j = i + 1; j < q.N; ++j)
+            if(r2 < Rcut2)
             {
-                // count number of interactions
-                if(MOLEC_CELLLIST_COUNT_INTERACTION)
-                    ++num_potential_interactions;
+                // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
+                const float s2 = (sigLJ * sigLJ) / r2;
+                const float s6 = s2 * s2 * s2;
 
-                const float xij = xi - q.x[j];
-                const float yij = yi - q.y[j];
-                const float zij = zi - q.z[j];
+                *Epot_ += 4 * epsLJ*(s6 * s6 - s6);
 
-                const float r2 = xij * xij + yij * yij + zij * zij;
+                const float fr = 24 * epsLJ / r2 * (2 * s6 * s6 - s6);
 
-                if(r2 < Rcut2)
-                {
-                    if(MOLEC_CELLLIST_COUNT_INTERACTION)
-                        ++num_effective_interactions;
+                f_xi += fr * xij;
+                f_yi += fr * yij;
+                f_zi += fr * zij;
 
-                    // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
-                    const float s2 = (sigLJ * sigLJ) / r2;
-                    const float s6 = s2 * s2 * s2;
-
-                    *Epot_ += 4 * epsLJ*(s6 * s6 - s6);
-
-                    const float fr = 24 * epsLJ / r2 * (2 * s6 * s6 - s6);
-
-                    f_xi += fr * xij;
-                    f_yi += fr * yij;
-                    f_zi += fr * zij;
-
-                    q.f_x[j] -= fr * xij;
-                    q.f_y[j] -= fr * yij;
-                    q.f_z[j] -= fr * zij;
-                }
+                q.f_x[j] -= fr * xij;
+                q.f_y[j] -= fr * yij;
+                q.f_z[j] -= fr * zij;
             }
-            q.f_x[i] = f_xi;
-            q.f_y[i] = f_yi;
-            q.f_z[i] = f_zi;
         }
+        q.f_x[i] = f_xi;
+        q.f_y[i] = f_yi;
+        q.f_z[i] = f_zi;
+    }
     /*
     const float sigLJ = molec_parameter->sigLJ;
     const float epsLJ = molec_parameter->epsLJ;
