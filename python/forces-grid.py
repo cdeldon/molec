@@ -20,6 +20,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os.path
 
+
+
 # seaborn formatting
 sns.set_context("notebook", font_scale=1.1)
 sns.set_style("darkgrid")
@@ -28,9 +30,12 @@ deep = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD"]
 
 def measure_performance():
 
-    N     = np.logspace(4,7,4).astype(np.int32)
-    steps = np.array([10, 10, 90, 80, 65, 50, 35, 20])
-    rhos  = np.array([0.5, 1.])
+    forces = ['q'];
+    
+    N     = np.logspace(4,7,8).astype(np.int32)
+    steps = np.array([100, 100, 90, 80, 65, 50, 35, 20])
+    rhos  = np.array([0.5, 1., 2., 4., 6.,8.,10.])
+
 
     rc  = 2.5
 
@@ -45,7 +50,7 @@ def measure_performance():
         for rho_idx, rho in enumerate(rhos):
             flops =  N * rc**3 * rho * (18 * np.pi + 283.5)
 
-            p = pymolec(N=N, rho=rho, force='cell_v2', steps=steps, integrator='lf8', periodic='c4')
+            p = pymolec(N=N, rho=rho, force=forces, steps=steps, integrator='lf8', periodic='c4')
             output = p.run()
 
             perf = flops / output['force']
@@ -80,11 +85,13 @@ def plot_performance(performances, N, rhos):
     ax.text(len(N)+0.35, len(rhos), 'Performance\n[flops/cycle]', ha='left', va='top')
 
 
-
     rho_labels_short = ['%.2f' % a for a in rhos]
     ax.set_yticklabels(rho_labels_short)
+    
+    N_labels_short = ['10$^{%1.2f}$' % a for a in np.array(np.log10(N))]
+    ax.set_xticklabels(N_labels_short)
 
-    ax.set_xlabel('Number of particles')
+    ax.set_xlabel('Number of particles $N$')
     ax.set_ylabel('Particle density',
                     rotation=0, horizontalalignment = 'left')
     ax.yaxis.set_label_coords(0., 1.01)
