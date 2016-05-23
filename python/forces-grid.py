@@ -81,6 +81,7 @@ def plot_performance(performances, N, rhos):
     pos_new = [pos_old.x0 - 0.01, pos_old.y0 + 0,  pos_old.width, pos_old.height*((len(rhos)-1)*1./len(rhos))]
     cax.set_position(pos_new)
     cax.tick_params(labelleft=False, labelright=True)
+    cax.set_yticklabels(['Low', '', '', '', 'High'])
 
     ax.text(len(N)+0.35, len(rhos), 'Performance\n[flops/cycle]', ha='left', va='top')
 
