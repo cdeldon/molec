@@ -24,7 +24,7 @@ class pymolec:
         self.N = N
         self.rho = rho
 
-        
+
         if hasattr(steps, "__len__"):
             if len(N) != len(steps):
                 self.steps = np.full(len(N), steps[0], dtype=np.int)
@@ -32,13 +32,17 @@ class pymolec:
                 self.steps = steps
         else:
             self.steps = np.full(len(N), steps, dtype=np.int)
-        
+
 
         self.force = force
         self.integrator = integrator
         self.periodic = periodic
 
     def run(self, path = None):
+        """
+        runs a molec simulation for the given configurations and outputs a
+        dictionnary containing N, rho, force, integrator, periodic, simulation
+        """
 
         # Use default path
         if not path:
@@ -57,6 +61,16 @@ class pymolec:
         print ("Running molec: %s" % path)
         print ("rho = {0}, force = {1}, integrator = {2}, periodic = {3}".format(
             self.rho, self.force, self.integrator, self.periodic))
+
+
+        output = {}
+
+        output['N'] = np.zeros(len(self.N))
+        output['rho'] = np.zeros(len(self.N))
+        output['force'] = np.zeros(len(self.N))
+        output['integrator'] = np.zeros(len(self.N))
+        output['periodic'] = np.zeros(len(self.N))
+        output['simulation'] = np.zeros(len(self.N))
 
         for i in range(len(self.N)):
             cmd = [path]
@@ -78,15 +92,17 @@ class pymolec:
 
                 print(" %20f s" % (time.time() - start))
 
-                times[0,i] = int(out[2]) # force
-                times[1,i] = int(out[4]) # integrator
-                times[2,i] = int(out[6]) # periodic
-                times[3,i] = int(out[8]) # simulation
+                output['N'][i] = int(out[0])
+                output['rho'][i] = float(out[1])
+                output['force'][i] = int(out[3])
+                output['integrator'][i] = int(out[5])
+                output['periodic'][i] = int(out[7])
+                output['simulation'][i] = int(out[9])
 
             except subprocess.CalledProcessError as e:
                 print(e.output)
 
-        return times
+        return output
 
 def main():
     p = pymolec()

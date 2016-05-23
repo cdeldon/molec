@@ -135,7 +135,12 @@ molec_uint64_t molec_measurement_get_median(int timer_index)
 void molec_measurement_print()
 {
     if(molec_verbose == 0)
+    {
         printf("%i\t", molec_parameter->N);
+
+        float rho = molec_parameter->N / (molec_parameter->L_x * molec_parameter->L_y * molec_parameter->L_z);
+        printf("%f\t", rho);
+    }
     else
         printf("\n      ================== MOLEC - Timers ================\n\n");
 

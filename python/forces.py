@@ -42,25 +42,25 @@ def measure_performance():
     rc  = 2.5
 
     flops =  np.outer(N * rc**3 * rho, np.array([301, 301, 205, 180]))
-    
+
     if os.path.isfile("performances-forces.npy"):
         print("Loading data from <performances-forces.npy>")
         performances = np.load("performances-forces.npy")
         return performances, N, forces
     else:
         performances = np.zeros((len(forces), len(N)))
-        
+
         for force_idx,force in enumerate(forces):
             p = pymolec(N=N, force=force, steps=steps, rho=rho)
-            times = p.run()
-            
+            output = p.run()
+
             # store the performance in the array
-            perf = flops[:,force_idx] / times[0,:]
+            perf = flops[:,force_idx] / output['force']
             performances[force_idx, :] = perf
-            
-        print("Saving performance data to <performances-forces.npy>")    
+
+        print("Saving performance data to <performances-forces.npy>")
         np.save("performances-forces", performances)
-        
+
         return performances, N ,forces
 
 def plot_performance(performances, N, forces):
