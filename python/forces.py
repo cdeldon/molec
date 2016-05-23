@@ -32,15 +32,16 @@ def measure_performance():
 #    N = np.logspace(3, 7.5, 15, base=10).astype(np.int32)
 #    steps = np.array([1000, 800, 800, 600, 600, 600, 600, 400, 400, 400, 300, 200, 100, 50, 30]);
 
-    forces = ['cell_ref', 'q', 'q_g']
-    N = np.logspace(3, 7.5, 15, base=10).astype(np.int32)
-    steps = np.array([1000, 800, 800, 600, 600, 600, 600, 400, 400, 400, 300, 200, 100, 50, 30]);
+    forces = ['cell_ref','q', 'q_g', 'q_g_avx']
+    N = np.logspace(4, 6, 10, base=10).astype(np.int32)
+    steps = np.array([40, 800, 800, 600, 600, 600, 600, 400, 400, 400, 300, 200])#, 100, 50, 30]);
+    steps = np.array([40, 35, 30, 28, 25, 22, 20, 15, 12, 10])#, 400, 400, 300, 200])#, 100, 50, 30]);
 
 
-    rho = 1.25
+    rho = 3.25
     rc  = 2.5
 
-    flops =  N * rc**3 * rho * (18 * np.pi + 283.5)
+    flops =  np.outer(N * rc**3 * rho, np.array([301, 301, 205, 180]))
     
     if os.path.isfile("performances-forces.npy"):
         print("Loading data from <performances-forces.npy>")
@@ -54,7 +55,7 @@ def measure_performance():
             times = p.run()
             
             # store the performance in the array
-            perf = flops / times[0,:]
+            perf = flops[:,force_idx] / times[0,:]
             performances[force_idx, :] = perf
             
         print("Saving performance data to <performances-forces.npy>")    
@@ -73,7 +74,7 @@ def plot_performance(performances, N, forces):
         ax.semilogx(N, perf, 'o-')
 
     ax.set_xlim([np.min(N)*0.9, np.max(N)*1.1])
-    ax.set_ylim([0, 2.5])
+    ax.set_ylim([0, 4.5])
 
     ax.set_xlabel('Number of particles')
     ax.set_ylabel('Performance [Flops/Cycle]',
