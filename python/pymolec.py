@@ -28,6 +28,8 @@ class pymolec:
         if hasattr(steps, "__len__"):
             if len(N) != len(steps):
                 self.steps = np.full(len(N), steps[0], dtype=np.int)
+            else:
+                self.steps = steps
         else:
             self.steps = np.full(len(N), steps, dtype=np.int)
         
