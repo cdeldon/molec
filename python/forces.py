@@ -23,8 +23,8 @@ import os.path
 
 forces = ['cell_ref','q', 'q_g', 'q_g_avx']
 
-N = np.logspace(4, 6, 10, base=10).astype(np.int32)
-steps = np.array([20])
+N = np.logspace(3, 5, 12, base=10).astype(np.int32)
+steps = np.array([25])
 
 rho = 10.0
 rc  = 2.5

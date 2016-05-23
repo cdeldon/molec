@@ -46,16 +46,20 @@ del results['rho']
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1);
 
-for force in results:
-    ax.semilogx(N, results[force], label=force)
+for f in sorted(results):
+    ax.semilogx(N, np.array(results['cell_ref']) / np.array(results[f]), 'o-', label=f)
 
-ax.set_xlim([np.min(N)*0.9, np.max(N)*1.1])
 ax.set_xlabel('Number of particles $N$')
-ax.set_ylabel('Runtime [Cycles]',
+ax.set_ylabel('Speedup',
               rotation=0,
               horizontalalignment = 'left')
 ax.yaxis.set_label_coords(-0.055, 1.05)
-ax.legend()
+
+ax.set_xlim([np.min(N)*0.9, np.max(N)*1.1])
+ax.set_ylim([0.0, 1.2 * ax.get_ylim()[1]])
+
+ax.legend(loc='upper right')
+
 plt.savefig(filename[:filename.rfind('.')]+'-runtime.pdf')
 
 #----- plot performance -----
@@ -69,14 +73,18 @@ flops['q_g_avx'] = lambda n, r :  n * (205 * r * 2.5**3 + 24)
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1);
 
-for force in results:
-    ax.semilogx(N, flops[force](N,rho) / np.array(results[force]), label=force)
+for f in sorted(results):
+    ax.semilogx(N, flops[f](N,rho) / np.array(results[f]), 'o-', label=f)
 
-ax.set_xlim([np.min(N)*0.9, np.max(N)*1.1])
 ax.set_xlabel('Number of particles $N$')
 ax.set_ylabel('Performance [Flops/Cycles]',
               rotation=0,
               horizontalalignment = 'left')
 ax.yaxis.set_label_coords(-0.055, 1.05)
-ax.legend()
+
+ax.set_xlim([np.min(N)*0.9, np.max(N)*1.1])
+ax.set_ylim([-0.1, 1.4 * ax.get_ylim()[1]])
+
+ax.legend(loc='upper right')
+
 plt.savefig(filename[:filename.rfind('.')]+'-performance.pdf')
