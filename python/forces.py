@@ -17,13 +17,13 @@ from pymolec import *
 
 import numpy as np
 import json
-import os.path
+import sys
 
 #------------------------------------------------------------------------------
 
 forces = ['cell_ref','q', 'q_g', 'q_g_avx']
 
-N = np.logspace(3, 5, 12, base=10).astype(np.int32)
+N = np.logspace(2, 5, 12, base=10).astype(np.int32)
 steps = np.array([25])
 
 rho = 10.0
@@ -35,8 +35,8 @@ filename = sys.argv[1]
 
 results = {}
 
-for force_idx,force in enumerate(forces):
-    p = pymolec(N=N, force=force, steps=steps, rho=rho)
+for force in forces:
+    p = pymolec(N=N, rho=rho, steps=steps, force=force)
     output = p.run()
 
     results['N'] = output['N'].tolist()

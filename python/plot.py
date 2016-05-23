@@ -46,11 +46,15 @@ del results['rho']
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1);
 
-for f in sorted(results):
-    ax.semilogx(N, np.array(results['cell_ref']) / np.array(results[f]), 'o-', label=f)
+for k in sorted(results):
+    if 'cell_ref' in results:
+        ax.semilogx(N, np.array(results['cell_ref']) / np.array(results[k]), 'o-', label=k)
+    elif 'lf' in results:
+        ax.semilogx(N, np.array(results['lf']) / np.array(results[k]), 'o-', label=k)
+
 
 ax.set_xlabel('Number of particles $N$')
-ax.set_ylabel('Speedup',
+ax.set_ylabel('Runtime Speedup',
               rotation=0,
               horizontalalignment = 'left')
 ax.yaxis.set_label_coords(-0.055, 1.05)
@@ -65,16 +69,21 @@ plt.savefig(filename[:filename.rfind('.')]+'-runtime.pdf')
 #----- plot performance -----
 
 flops = dict()
-flops['cell_ref'] = (lambda n, r : 301 * n * r * 2.5**3)
-flops['q'] = lambda n, r : 301 * n * r * 2.5**3
-flops['q_g'] = lambda n, r : 180 * n * r * 2.5**3
-flops['q_g_avx'] = lambda n, r :  n * (205 * r * 2.5**3 + 24)
+flops['cell_ref'] = lambda N, rho : 301 * N * rho * 2.5**3
+flops['q']        = lambda N, rho : 301 * N * rho * 2.5**3
+flops['q_g']      = lambda N, rho : 180 * N * rho * 2.5**3
+flops['q_g_avx']  = lambda N, rho : N * (205 * rho * 2.5**3 + 24)
+flops['lf']     = lambda N, rho : 9 * N
+flops['lf2']    = lambda N, rho : 9 * N
+flops['lf4']    = lambda N, rho : 9 * N
+flops['lf8']    = lambda N, rho : 9 * N
+flops['lf_avx'] = lambda N, rho : 9 * N
 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1);
 
-for f in sorted(results):
-    ax.semilogx(N, flops[f](N,rho) / np.array(results[f]), 'o-', label=f)
+for k in sorted(results):
+    ax.semilogx(N, flops[k](N,rho) / np.array(results[k]), 'o-', label=k)
 
 ax.set_xlabel('Number of particles $N$')
 ax.set_ylabel('Performance [Flops/Cycles]',

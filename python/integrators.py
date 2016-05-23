@@ -16,48 +16,34 @@
 from pymolec import *
 
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+import json
+import sys
 
-# seaborn formatting
-sns.set_context("notebook", font_scale=1.1)
-sns.set_style("darkgrid")
-sns.set_palette('deep')
-deep = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD"]
+#------------------------------------------------------------------------------
 
-def main():
+integrators = ['lf', 'lf2', 'lf4', 'lf8', 'lf_avx']
 
-    integrators = ['lf', 'lf2', 'lf4', 'lf8', 'lf_avx']
-    N = np.array([1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000])
+N = np.logspace(2, 5, 12, base=10).astype(np.int32)
+steps = np.array([25])
 
-    flops = 9 * N
+rho = 1.0
+rc  = 2.5
 
-    fig = plt.figure()
-    ax = fig.add_subplot(1,1,1);
+#------------------------------------------------------------------------------
 
-    for integrator in integrators:
-        p = pymolec(N=N, integrator=integrator)
-        output = p.run()
+filename = sys.argv[1]
 
-        perf = flops / output['integrator']
-        ax.plot(N, perf, 'o-')
+results = {}
 
+for integrator in integrators:
+    p = pymolec(N=N, rho=rho, steps=steps, force='q_g_avx', integrator=integrator)
+    output = p.run()
 
-    ax.set_xlim([np.min(N)-100, np.max(N)+100])
-    ax.set_ylim([0, 2])
+    results['N'] = output['N'].tolist()
+    results['rho'] = output['rho'].tolist()
+    results[integrator] = output['integrator'].tolist()
 
-    ax.set_xlabel('Number of particles')
-    ax.set_ylabel('Performance [Flops/Cycle]',
-                  rotation=0,
-                  horizontalalignment = 'left')
-    ax.yaxis.set_label_coords(-0.055, 1.05)
+print('Saving performance data to ' + filename)
 
-    plt.legend(integrators)
-
-    filename = 'integrators.pdf'
-    print("saving '%s'" % filename )
-    plt.savefig(filename)
-
-
-if __name__ == '__main__':
-    main()
+with open(filename, 'w') as outfile:
+    json.dump(results, outfile, indent=4)
