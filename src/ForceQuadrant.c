@@ -654,7 +654,7 @@ void molec_quadrant_self_interaction_avx(molec_Quadrant_t q, float* Epot_)
     */
 }
 
-void molec_force_quadrant_avx(molec_Simulation_SOA_t* sim, float* Epot, const int N)
+void molec_force_quadrant_ghost_avx(molec_Simulation_SOA_t* sim, float* Epot, const int N)
 {
     assert(molec_parameter);
     num_potential_interactions = 0;

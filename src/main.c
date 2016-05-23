@@ -36,10 +36,10 @@ molec_force_calculation arg_get_force_routine(const char* key)
         return &molec_force_cellList_knuth;
     else if(strcmp(key, "q") == 0)
         return &molec_force_quadrant;
-    else if (strcmp(key, "q_avx") == 0)
-        return &molec_force_quadrant_avx;
     else if (strcmp(key, "q_g") == 0)
         return &molec_force_quadrant_ghost;
+    else if (strcmp(key, "q_g_avx") == 0)
+        return &molec_force_quadrant_ghost_avx;
     else        
         molec_error("invalid parameter '%s' for option \"--force\"\n", key);
     return NULL;
@@ -88,8 +88,8 @@ int main(int argc, char** argv)
                    "                             - cell_v2    Cell-list improvement 2\n"
                    "                             - knuth      Cell-list (Knuth)\n"
                    "                             - q          Quadrant\n"
-                   "                             - q_avx      Quadrant (avx)\n"
-                   "                             - q_g        Quadtanz (ghost)");
+                   "                             - q_g        Quadrant (ghost)\n"
+                   "                             - q_g_avx    Quadrant (ghost-avx)");
 
     // integrator routine can appear at most once --> arg_str0
     struct arg_str* arg_integrator_routine
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
                    "                             - lf         Leap-frog (refrence)\n"
                    "                             - lf2        Leap-frog (unroll x2)\n"
                    "                             - lf4        Leap-frog (unroll x4)\n"
-                   "                             - lf8        Leap-frog (unroll x8)"
+                   "                             - lf8        Leap-frog (unroll x8\n)"
                    "                             - lf_avx     Leap-frog (avx)");
     // periodic routine
     struct arg_str* arg_periodic_routine
