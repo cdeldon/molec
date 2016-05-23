@@ -17,6 +17,7 @@
 #include <molec/Quadrant.h>
 #include <molec/Timer.h>
 #include <immintrin.h>
+#include <math.h>
 
 /**
  * @brief neighbor_cells[i] constains the 27 indices of its neighbor cells
@@ -363,6 +364,9 @@ void molec_force_quadrant_ghost(molec_Simulation_SOA_t* sim, float* Epot, const 
 
 /**************************************************************************************************/
 
+molec_uint64_t num_potential_interactions = 0;
+molec_uint64_t num_effective_interactions = 0;
+
 void molec_quadrant_neighbor_interaction_avx(molec_Quadrant_t q, molec_Quadrant_t q_n, float* Epot_)
 {
     const __m256 sigLJ = _mm256_set1_ps(molec_parameter->sigLJ);
@@ -390,6 +394,10 @@ void molec_quadrant_neighbor_interaction_avx(molec_Quadrant_t q, molec_Quadrant_
 
         for(int j = 0; j < N_n; j += 8)
         {
+            // count number of interactions
+            if(MOLEC_CELLLIST_COUNT_INTERACTION)
+                ++num_potential_interactions;
+
             // load coordinates and fores into AVX vectors
             const __m256 xj = _mm256_load_ps(&q_n.x[j]);
             const __m256 yj = _mm256_load_ps(&q_n.y[j]);
@@ -419,6 +427,10 @@ void molec_quadrant_neighbor_interaction_avx(molec_Quadrant_t q, molec_Quadrant_
             // if( any(r2 < R2) )
             if(_mm256_movemask_ps(mask))
             {
+                // count effective number of interactions
+                if(MOLEC_CELLLIST_COUNT_INTERACTION)
+                    ++num_effective_interactions;
+
                 const __m256 r2inv = _mm256_div_ps(_1, r2);
 
                 const __m256 s2 = _mm256_mul_ps(_mm256_mul_ps(sigLJ, sigLJ), r2inv);
@@ -495,6 +507,10 @@ void molec_quadrant_self_interaction_avx(molec_Quadrant_t q, float* Epot_)
 
             for(int j = i + 1; j < q.N; ++j)
             {
+                // count number of interactions
+                if(MOLEC_CELLLIST_COUNT_INTERACTION)
+                    ++num_potential_interactions;
+
                 const float xij = xi - q.x[j];
                 const float yij = yi - q.y[j];
                 const float zij = zi - q.z[j];
@@ -503,6 +519,9 @@ void molec_quadrant_self_interaction_avx(molec_Quadrant_t q, float* Epot_)
 
                 if(r2 < Rcut2)
                 {
+                    if(MOLEC_CELLLIST_COUNT_INTERACTION)
+                        ++num_effective_interactions;
+
                     // V(s) = 4 * eps * (s^12 - s^6) with  s = sig/r
                     const float s2 = (sigLJ * sigLJ) / r2;
                     const float s6 = s2 * s2 * s2;
@@ -638,6 +657,8 @@ void molec_quadrant_self_interaction_avx(molec_Quadrant_t q, float* Epot_)
 void molec_force_quadrant_avx(molec_Simulation_SOA_t* sim, float* Epot, const int N)
 {
     assert(molec_parameter);
+    num_potential_interactions = 0;
+    num_effective_interactions = 0;
 
     molec_CellList_Parameter_t cellList_parameter = molec_parameter->cellList;
 
@@ -693,4 +714,12 @@ void molec_force_quadrant_avx(molec_Simulation_SOA_t* sim, float* Epot, const in
     molec_quadrants_finalize_ghost(quadrants, cellList_parameter, sim);
 
     *Epot = Epot_;
+
+    // print out percentage of effective interactions
+    if(MOLEC_CELLLIST_COUNT_INTERACTION)
+    {
+        printf("\tNumber of potential executions:  %llu\n", num_potential_interactions);
+        printf("\tNumber of effective executions:  %llu\n", num_effective_interactions);
+
+    }
 }
