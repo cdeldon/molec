@@ -98,7 +98,7 @@ int main(int argc, char** argv)
                    "                             - lf         Leap-frog (refrence)\n"
                    "                             - lf2        Leap-frog (unroll x2)\n"
                    "                             - lf4        Leap-frog (unroll x4)\n"
-                   "                             - lf8        Leap-frog (unroll x8\n)"
+                   "                             - lf8        Leap-frog (unroll x8)\n"
                    "                             - lf_avx     Leap-frog (avx)");
     // periodic routine
     struct arg_str* arg_periodic_routine
