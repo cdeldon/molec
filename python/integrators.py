@@ -37,9 +37,9 @@ def main():
 
     for integrator in integrators:
         p = pymolec(N=N, integrator=integrator)
-        times = p.run()
+        output = p.run()
 
-        perf = flops / times[1,:]
+        perf = flops / output['integrator']
         ax.plot(N, perf, 'o-')
 
 

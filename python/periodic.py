@@ -37,9 +37,9 @@ def main():
 
     for periodic in periodics:
         p = pymolec(N=N, periodic=periodic )
-        times = p.run()
+        output = p.run()
 
-        perf = flops / times[2,:]
+        perf = flops / output['periodic']
         ax.plot(N, perf, 'o-')
 
 
