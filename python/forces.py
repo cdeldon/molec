@@ -16,79 +16,34 @@
 from pymolec import *
 
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+import json
 import os.path
 
-# seaborn formatting
-sns.set_context("notebook", font_scale=1.1)
-sns.set_style("darkgrid")
-sns.set_palette('deep')
-deep = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974", "#64B5CD"]
+#------------------------------------------------------------------------------
 
-def measure_performance():
+forces = ['cell_ref','q', 'q_g', 'q_g_avx']
 
-#    forces = ['cell_ref', 'q', 'q_g']
-#    N = np.logspace(3, 7.5, 15, base=10).astype(np.int32)
-#    steps = np.array([1000, 800, 800, 600, 600, 600, 600, 400, 400, 400, 300, 200, 100, 50, 30]);
+N = np.logspace(4, 6, 10, base=10).astype(np.int32)
+steps = np.array([20])
 
-    forces = ['cell_ref','q', 'q_g', 'q_g_avx']
-    N = np.logspace(4, 6, 10, base=10).astype(np.int32)
-    steps = np.array([40, 800, 800, 600, 600, 600, 600, 400, 400, 400, 300, 200])#, 100, 50, 30]);
-    steps = np.array([40, 35, 30, 28, 25, 22, 20, 15, 12, 10])#, 400, 400, 300, 200])#, 100, 50, 30]);
+rho = 10.0
+rc  = 2.5
 
+#------------------------------------------------------------------------------
 
-    rho = 3.25
-    rc  = 2.5
+filename = sys.argv[1]
 
-    flops =  np.outer(N * rc**3 * rho, np.array([301, 301, 205, 180]))
+results = {}
 
-    if os.path.isfile("performances-forces.npy"):
-        print("Loading data from <performances-forces.npy>")
-        performances = np.load("performances-forces.npy")
-        return performances, N, forces
-    else:
-        performances = np.zeros((len(forces), len(N)))
+for force_idx,force in enumerate(forces):
+    p = pymolec(N=N, force=force, steps=steps, rho=rho)
+    output = p.run()
 
-        for force_idx,force in enumerate(forces):
-            p = pymolec(N=N, force=force, steps=steps, rho=rho)
-            output = p.run()
+    results['N'] = output['N'].tolist()
+    results['rho'] = output['rho'].tolist()
+    results[force] = output['force'].tolist()
 
-            # store the performance in the array
-            perf = flops[:,force_idx] / output['force']
-            performances[force_idx, :] = perf
+print('Saving performance data to ' + filename)
 
-        print("Saving performance data to <performances-forces.npy>")
-        np.save("performances-forces", performances)
-
-        return performances, N ,forces
-
-def plot_performance(performances, N, forces):
-
-    fig = plt.figure()
-    ax = fig.add_subplot(1,1,1);
-
-    #iterate over the forces
-    for force_idx, force in enumerate(forces):
-        perf = performances[force_idx, :]
-        ax.semilogx(N, perf, 'o-')
-
-    ax.set_xlim([np.min(N)*0.9, np.max(N)*1.1])
-    ax.set_ylim([0, 4.5])
-
-    ax.set_xlabel('Number of particles')
-    ax.set_ylabel('Performance [Flops/Cycle]',
-                  rotation=0,
-                  horizontalalignment = 'left')
-    ax.yaxis.set_label_coords(-0.055, 1.05)
-
-    plt.legend(forces)
-
-    filename = 'forces.pdf'
-    print("saving '%s'" % filename )
-    plt.savefig(filename)
-
-
-if __name__ == '__main__':
-    perf, N, forces = measure_performance()
-    plot_performance(perf, N, forces)
+with open(filename, 'w') as outfile:
+    json.dump(results, outfile, indent=4)
