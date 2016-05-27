@@ -36,10 +36,12 @@ molec_force_calculation arg_get_force_routine(const char* key)
         return &molec_force_cellList_knuth;
     else if(strcmp(key, "q") == 0)
         return &molec_force_quadrant;
-    else if (strcmp(key, "q_g") == 0)
+    else if(strcmp(key, "q_g") == 0)
         return &molec_force_quadrant_ghost;
-    else if (strcmp(key, "q_g_avx") == 0)
+    else if(strcmp(key, "q_g_avx") == 0)
         return &molec_force_quadrant_ghost_avx;
+    else if(strcmp(key, "q_g_fma") == 0)
+        return &molec_force_quadrant_ghost_fma;
     else        
         molec_error("invalid parameter '%s' for option \"--force\"\n", key);
     return NULL;
@@ -89,7 +91,8 @@ int main(int argc, char** argv)
                    "                             - knuth      Cell-list (Knuth)\n"
                    "                             - q          Quadrant\n"
                    "                             - q_g        Quadrant (ghost)\n"
-                   "                             - q_g_avx    Quadrant (ghost-avx)");
+                   "                             - q_g_avx    Quadrant (ghost-avx)\n"
+                   "                             - q_g_fma    Quadrant (ghost-fma)");
 
     // integrator routine can appear at most once --> arg_str0
     struct arg_str* arg_integrator_routine

@@ -66,8 +66,9 @@ void molec_force_test_register_functions()
     add_function(&molec_force_cellList_v1, "Cell list (v1)");
     add_function(&molec_force_cellList_v2, "Cell list (v2)");
     add_function(&molec_force_quadrant, "Quadrant");
-    add_function(&molec_force_quadrant_ghost_avx, "Quadrant AVX");
     add_function(&molec_force_quadrant_ghost, "Quadrant (ghost)");
+    add_function(&molec_force_quadrant_ghost_avx, "Quadrant AVX");
+    add_function(&molec_force_quadrant_ghost_fma, "Quadrant FMA");
 }
 
 /**
