@@ -723,6 +723,7 @@ void molec_force_quadrant_ghost_avx(molec_Simulation_SOA_t* sim, float* Epot, co
 
 void molec_quadrant_neighbor_interaction_fma(molec_Quadrant_t q, molec_Quadrant_t q_n, float* Epot_)
 {
+#ifdef __AVX2__
     const __m256 sigLJ = _mm256_set1_ps(molec_parameter->sigLJ);
     const __m256 epsLJ = _mm256_set1_ps(molec_parameter->epsLJ);
 
@@ -847,6 +848,7 @@ void molec_quadrant_neighbor_interaction_fma(molec_Quadrant_t q, molec_Quadrant_
               * molec_parameter->epsLJ*(E_pot_array[0] + E_pot_array[1] + E_pot_array[2]
                                         + E_pot_array[3] + E_pot_array[4] + E_pot_array[5]
                                         + E_pot_array[6] + E_pot_array[7]);
+#endif
 }
 
 void molec_force_quadrant_ghost_fma(molec_Simulation_SOA_t* sim, float* Epot, const int N)
