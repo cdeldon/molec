@@ -765,15 +765,12 @@ void molec_quadrant_neighbor_interaction_fma(molec_Quadrant_t q, molec_Quadrant_
 
             // distance computation
             const __m256 xij = _mm256_sub_ps(xi, xj);
-            const __m256 xij2 = _mm256_mul_ps(xij, xij);
-
             const __m256 yij = _mm256_sub_ps(yi, yj);
-            const __m256 yij2 = _mm256_mul_ps(yij, yij);
-
             const __m256 zij = _mm256_sub_ps(zi, zj);
-            const __m256 zij2 = _mm256_mul_ps(zij, zij);
 
-            const __m256 r2 = _mm256_add_ps(_mm256_add_ps(xij2, yij2), zij2);
+
+            const __m256 zij2 = _mm256_mul_ps(zij, zij);
+            const __m256 r2 = _mm256_fmadd_ps(xij, xij, _mm256_fmadd_ps(yij, yij, zij2));
 
 
             // r2 < Rcut2
@@ -782,10 +779,6 @@ void molec_quadrant_neighbor_interaction_fma(molec_Quadrant_t q, molec_Quadrant_
             // if( any(r2 < R2) )
             if(_mm256_movemask_ps(mask))
             {
-                // count effective number of interactions
-                if(MOLEC_CELLLIST_COUNT_INTERACTION)
-                    ++num_effective_interactions;
-
                 const __m256 r2inv = _mm256_div_ps(_1, r2);
 
                 const __m256 s2 = _mm256_mul_ps(_mm256_mul_ps(sigLJ, sigLJ), r2inv);
@@ -800,24 +793,14 @@ void molec_quadrant_neighbor_interaction_fma(molec_Quadrant_t q, molec_Quadrant_
                 const __m256 fr = _mm256_mul_ps(_mm256_mul_ps(_24epsLJ, r2inv), two_s12_minus_s6);
                 const __m256 fr_mask = _mm256_and_ps(fr, mask);
 
-                //const __m256 fr_x = _mm256_mul_ps(fr_mask, xij);
-                //const __m256 fr_y = _mm256_mul_ps(fr_mask, yij);
-                //const __m256 fr_z = _mm256_mul_ps(fr_mask, zij);
 
                 // update forces
-                //f_xi = _mm256_add_ps(f_xi, fr_x);
                 f_xi = _mm256_fmadd_ps(fr_mask, xij,f_xi);
-                //f_yi = _mm256_add_ps(f_yi, fr_y);
                 f_yi = _mm256_fmadd_ps(fr_mask, yij,f_yi);
-                //f_zi = _mm256_add_ps(f_zi, fr_z);
                 f_zi = _mm256_fmadd_ps(fr_mask, zij,f_zi);
 
-
-                //f_xj = _mm256_sub_ps(f_xj, fr_x);
                 f_xj = _mm256_fnmadd_ps(fr_mask,xij,f_xj);
-                //f_yj = _mm256_sub_ps(f_yj, fr_y);
                 f_yj = _mm256_fnmadd_ps(fr_mask,yij,f_yj);
-                //f_zj = _mm256_sub_ps(f_zj, fr_z);
                 f_zj = _mm256_fnmadd_ps(fr_mask,zij,f_zj);
 
                 // store back j-forces
@@ -911,12 +894,4 @@ void molec_force_quadrant_ghost_fma(molec_Simulation_SOA_t* sim, float* Epot, co
     molec_quadrants_finalize_ghost(quadrants, cellList_parameter, sim);
 
     *Epot = Epot_;
-
-    // print out percentage of effective interactions
-    if(MOLEC_CELLLIST_COUNT_INTERACTION)
-    {
-        printf("\tNumber of potential executions:  %llu\n", num_potential_interactions);
-        printf("\tNumber of effective executions:  %llu\n", num_effective_interactions);
-
-    }
 }
