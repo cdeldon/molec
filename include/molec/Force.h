@@ -64,6 +64,7 @@ void molec_force_cellList_v1(molec_Simulation_SOA_t *sim, float *Epot, const int
 void molec_force_cellList_v2(molec_Simulation_SOA_t *sim, float *Epot, const int N);
 void molec_force_quadrant(molec_Simulation_SOA_t *sim, float *Epot, const int N);
 void molec_force_quadrant_ghost(molec_Simulation_SOA_t *sim, float *Epot, const int N);
+void molec_force_quadrant_ghost_unroll(molec_Simulation_SOA_t *sim, float *Epot, const int N);
 void molec_force_quadrant_ghost_avx(molec_Simulation_SOA_t* sim, float* Epot, const int N);
 void molec_force_quadrant_ghost_fma(molec_Simulation_SOA_t* sim, float* Epot, const int N);
 

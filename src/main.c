@@ -38,6 +38,8 @@ molec_force_calculation arg_get_force_routine(const char* key)
         return &molec_force_quadrant;
     else if(strcmp(key, "q_g") == 0)
         return &molec_force_quadrant_ghost;
+    else if(strcmp(key, "q_g_u") == 0)
+        return &molec_force_quadrant_ghost_unroll;
     else if(strcmp(key, "q_g_avx") == 0)
         return &molec_force_quadrant_ghost_avx;
     else if(strcmp(key, "q_g_fma") == 0)
@@ -91,6 +93,7 @@ int main(int argc, char** argv)
                    "                             - knuth      Cell-list (Knuth)\n"
                    "                             - q          Quadrant\n"
                    "                             - q_g        Quadrant (ghost)\n"
+                   "                             - q_g_u      Quadrant (ghost unrolled)\n"
                    "                             - q_g_avx    Quadrant (ghost-avx)\n"
                    "                             - q_g_fma    Quadrant (ghost-fma)");
 
