@@ -10,9 +10,6 @@
 # Group Project
 Molecular Dynamics project for the course *How to Write Fast Numerical Code* (263-2300).
 
-## TODO list
-- [ ] ...
-
 ## Molecular Dynamics (MD)
 The molecular dynamics simulation consists of the numerical, step-by-step, solution of the
 classical equations of motion, which for a simple atomic system may be written as:
