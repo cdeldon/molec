@@ -10,6 +10,7 @@
 # folders
 build*
 doc/html/
+.vscode
 
 # specific files
 CMakeLists.txt.user
