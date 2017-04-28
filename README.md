@@ -1,7 +1,7 @@
 <p align="center">
     <img src="/doc/logo/logo.png" alt="Molec logo"\>
 </p>
-## Molecular Dynamics Framework [![Build Status](https://travis-ci.org/thfabian/molec.svg?branch=master)](https://travis-ci.org/thfabian/molec) [![Build Status](https://ci.appveyor.com/api/projects/status/qw7cek485ppr003w?svg=true)](https://ci.appveyor.com/project/thfabian/molec/branch/master)
+## Molecular Dynamics Framework
 
 > * Group Name: **Yellow Lobster**
 > * Group participants names: Michel Breyer, Carlo Del Don, Florian Frei, Fabian Thüring
@@ -44,7 +44,7 @@ alt="Molec in action" width="400" height="320" border="10" /></a>
 
 ## Running the code
 A configuration file can be passed to the executable in order to set some default simulation parameters. The configuration file has to have the following structure:
-```{sh}
+```sh
 # time step
 dt = 0.005
 # mass of each particle
